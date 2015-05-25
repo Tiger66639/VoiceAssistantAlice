@@ -26,15 +26,9 @@
         android:id="@+id/nuanceButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/pocketsphinxButton"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
         android:text="Nuance" />
 
-    <Button
-        android:id="@+id/pocketsphinxButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="Pocketsphinx" />
 
 </RelativeLayout>

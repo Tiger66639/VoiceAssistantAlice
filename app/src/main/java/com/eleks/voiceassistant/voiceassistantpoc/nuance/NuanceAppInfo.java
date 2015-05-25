@@ -1,4 +1,4 @@
-package com.eleks.voiceassistant.voiceassistantpoc.utils;
+package com.eleks.voiceassistant.voiceassistantpoc.nuance;
 
 /**
  * Created by Serhiy.Krasovskyy on 25.05.2015.
