@@ -8,9 +8,33 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/speechResult"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:editable="false" />
+
+    <Button
+        android:id="@+id/googleButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/nuanceButton"
+        android:layout_marginBottom="10dp"
+        android:text="Google" />
+
+    <Button
+        android:id="@+id/nuanceButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/pocketsphinxButton"
+        android:layout_marginBottom="10dp"
+        android:text="Nuance" />
+
+    <Button
+        android:id="@+id/pocketsphinxButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Pocketsphinx" />
 
 </RelativeLayout>
