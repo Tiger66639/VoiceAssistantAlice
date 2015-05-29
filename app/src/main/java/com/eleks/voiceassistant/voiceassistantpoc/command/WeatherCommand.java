@@ -9,7 +9,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.text.DateFormatSymbols;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -19,10 +18,12 @@ import java.util.Locale;
 public class WeatherCommand extends BaseCommand implements CommandInterface {
 
     private static final String[] DATE_WORDS = {"today", "tomorrow", "yesterday", "weekend",
-            "week", "month", "next month", "next week"};
+            "week", "month"};
     private static final String[] COMMAND_WORDS = {"weather", "temperature", "how hot", "how cold"};
     private static final double JAKKARD_MIN_COEFFICIENT = 0.055;
     private static final int LEVEINSTEIN_MAX_DISTANCE = 2;
+    private static final String MONTH = "month";
+    private static final String WEEK = "week";
     private final String mText;
     private final Context mContext;
     private String[] mWords;
@@ -60,6 +61,22 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     }
 
     private void prepareCommandDate() {
+        String dateString = getDateString();
+    }
+
+    private String getDateString() {
+        String result = null;
+        for (String word : mWords) {
+            if (isWordExistsInArray(word, DATE_WORDS)) {
+                if (word.equals(MONTH) || word.equals(WEEK)) {
+
+                } else {
+                    result = word;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     private void prepareWhereData() {
