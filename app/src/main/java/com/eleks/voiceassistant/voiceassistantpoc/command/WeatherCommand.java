@@ -18,15 +18,17 @@ import java.util.Locale;
  */
 public class WeatherCommand extends BaseCommand implements CommandInterface {
 
-    private static final String[] NOISE_WORDS = {"in", "of", "from", "the", "a"};
     private static final String[] DATE_WORDS = {"today", "tomorrow", "yesterday", "weekend",
-            "week", "month"};
+            "week", "month", "next month", "next week"};
+    private static final String[] COMMAND_WORDS = {"weather", "temperature", "how hot", "how cold"};
     private final String mText;
     private final Context mContext;
     private String[] mWords;
-    private String mWhere;
     private String mWhereName;
     private LatLng mWhereLatLng;
+    private CommandPeriod mCommandDate;
+    private boolean mIsCommand;
+    private ArrayList<WordMeaning> mTextMeanings;
 
     public WeatherCommand(Context context, String text) {
         this.mContext = context;
@@ -34,22 +36,42 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
         processText();
     }
 
+    public CommandPeriod getCommandDate() {
+        return mCommandDate;
+    }
+
     private void processText() {
         mWords = mText.split(" ");
-        ArrayList<WordMeaning> firstTextMeanings = getFirstTextMeanings();
-        mWhere = findWhere(firstTextMeanings);
-        prepareWhereData();
+        verifyIsItCommand();
+        mTextMeanings = getFirstTextMeanings();
+        if (mIsCommand) {
+            prepareWhereData();
+            prepareCommandDate();
+        }
+    }
+
+    private void verifyIsItCommand() {
+        for (String word : mWords) {
+            if (isCommandWord(word)) {
+                mIsCommand = true;
+                break;
+            }
+        }
+    }
+
+    private void prepareCommandDate() {
+        if (mTextMeanings.contains(WordMeaning.DATE)) {
+
+        } else {
+            mCommandDate = new CommandPeriod();
+        }
     }
 
     private void prepareWhereData() {
         LatLng result = null;
-        if (!TextUtils.isEmpty(mWhere)) {
-            String[] words = mWhere.split(" ");
-            if (words.length > 1) {
-                result = getLatLngByName(mWhere, words.length);
-            } else {
-                result = getLatLngByName(mWhere);
-            }
+        if (!TextUtils.isEmpty(mText)) {
+            String[] words = mText.split(" ");
+            result = getLatLngByName(mText, words.length);
             if (result == null) {
                 result = new LatLng(0, 0);
             }
@@ -73,7 +95,7 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
             }
             if (result == null) {
                 windowSize--;
-                getLatLngByName(name, windowSize);
+                result = getLatLngByName(name, windowSize);
             }
         }
         return result;
@@ -114,60 +136,6 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
             result += ", " + address.getCountryName();
         }
         return result;
-    }
-
-    private String findWhere(ArrayList<WordMeaning> textMeanings) {
-        boolean commandFlag = false;
-        boolean dateFlag = false;
-        String betweenCommandAndDate = "";
-        String afterDate = "";
-        for (int i = 0; i < mWords.length; i++) {
-            if (textMeanings.get(i).equals(WordMeaning.COMMAND)) {
-                commandFlag = true;
-                continue;
-            }
-            if (commandFlag) {
-                if (textMeanings.get(i).equals(WordMeaning.DATE)) {
-                    dateFlag = true;
-                    continue;
-                }
-                if (!dateFlag) {
-                    betweenCommandAndDate += mWords[i] + " ";
-                    continue;
-                } else {
-                    afterDate += mWords[i] + " ";
-                    continue;
-                }
-            }
-        }
-        betweenCommandAndDate = clearNoiseWordFromText(betweenCommandAndDate);
-        afterDate = clearNoiseWordFromText(afterDate);
-        if (betweenCommandAndDate.length() > afterDate.length()) {
-            return betweenCommandAndDate;
-        } else {
-            return afterDate;
-        }
-    }
-
-    private String clearNoiseWordFromText(String text) {
-        text = text.trim();
-        if (!TextUtils.isEmpty(text)) {
-            String[] words = text.split(" ");
-            for (int i = 0; i < words.length; i++) {
-                for (String noiseWord : NOISE_WORDS) {
-                    if (words[i].equals(noiseWord)) {
-                        words[i] = "";
-                    }
-                }
-            }
-            text = "";
-            for (String word : words) {
-                if (!TextUtils.isEmpty(word)) {
-                    text += word + " ";
-                }
-            }
-        }
-        return text.trim();
     }
 
     private ArrayList<WordMeaning> getFirstTextMeanings() {
@@ -217,16 +185,13 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     }
 
     private boolean isCommandWord(String word) {
-        if (getLeveinsteinDistance("weather", word) <= 2) {
-            return true;
-        }
-        return false;
+        return isWordExistsInArray(word, COMMAND_WORDS);
     }
 
 
     @Override
     public boolean getIsCommand() {
-        return false;
+        return mIsCommand;
     }
 
     public String getWhereName() {

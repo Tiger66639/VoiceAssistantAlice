@@ -19,7 +19,9 @@ public class WeatherCommand_Test extends InstrumentationTestCase {
                     new WeatherCommand(getInstrumentation().getTargetContext(), phrase);
             LatLng cityCoord = weatherCommand.getWhere();
             assertNotNull(cityCoord);
-            assertNotNull(weatherCommand.getWhere());
+            assertNotNull(weatherCommand.getWhereName());
+            CommandPeriod commandDate=weatherCommand.getCommandDate();
+            assertNotNull(commandDate);
         }
     }
 
