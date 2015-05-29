@@ -21,6 +21,8 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     private static final String[] DATE_WORDS = {"today", "tomorrow", "yesterday", "weekend",
             "week", "month", "next month", "next week"};
     private static final String[] COMMAND_WORDS = {"weather", "temperature", "how hot", "how cold"};
+    private static final double JAKKARD_MIN_COEFFICIENT = 0.055;
+    private static final int LEVEINSTEIN_MAX_DISTANCE = 2;
     private final String mText;
     private final Context mContext;
     private String[] mWords;
@@ -28,7 +30,6 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     private LatLng mWhereLatLng;
     private CommandPeriod mCommandDate;
     private boolean mIsCommand;
-    private ArrayList<WordMeaning> mTextMeanings;
 
     public WeatherCommand(Context context, String text) {
         this.mContext = context;
@@ -43,7 +44,6 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     private void processText() {
         mWords = mText.split(" ");
         verifyIsItCommand();
-        mTextMeanings = getFirstTextMeanings();
         if (mIsCommand) {
             prepareWhereData();
             prepareCommandDate();
@@ -60,11 +60,6 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     }
 
     private void prepareCommandDate() {
-        if (mTextMeanings.contains(WordMeaning.DATE)) {
-
-        } else {
-            mCommandDate = new CommandPeriod();
-        }
     }
 
     private void prepareWhereData() {
@@ -138,24 +133,6 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
         return result;
     }
 
-    private ArrayList<WordMeaning> getFirstTextMeanings() {
-        ArrayList<WordMeaning> result = new ArrayList<>();
-        for (String word : mWords) {
-            if (isCommandWord(word)) {
-                result.add(WordMeaning.COMMAND);
-            } else if (isMonthWord(word)) {
-                result.add(WordMeaning.MONTH);
-            } else if (isDayWord(word)) {
-                result.add(WordMeaning.DATE);
-            } else if (isNumberWord(word)) {
-                result.add(WordMeaning.NUMBER);
-            } else {
-                result.add(WordMeaning.UNKNOWN);
-            }
-        }
-        return result;
-    }
-
     private boolean isNumberWord(String word) {
         return TextUtils.isDigitsOnly(word);
     }
@@ -174,8 +151,8 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
         if (!TextUtils.isEmpty(word)) {
             for (String arrayWord : array) {
                 if (!TextUtils.isEmpty(arrayWord)) {
-                    if (getLeveinsteinDistance(arrayWord.toLowerCase(), word) <= 2 &&
-                            getJakkardCoefficient(arrayWord.toLowerCase(), word) > 0.055) {
+                    if (getLeveinsteinDistance(arrayWord.toLowerCase(), word) <= LEVEINSTEIN_MAX_DISTANCE &&
+                            getJakkardCoefficient(arrayWord.toLowerCase(), word) > JAKKARD_MIN_COEFFICIENT) {
                         return true;
                     }
                 }
