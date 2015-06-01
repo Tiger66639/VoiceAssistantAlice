@@ -18,7 +18,7 @@ import java.util.Locale;
 public class WeatherCommand extends BaseCommand implements CommandInterface {
 
     private static final String[] COMMAND_WORDS = {"weather", "temperature", "how hot", "how cold"};
-    private static final String[] NOISE_WORDS = {"in", "of", "the", "a", "please"};
+    private static final String[] NOISE_WORDS = {"in", "of", "the", "a", "please", "for"};
     private final String mText;
     private final Context mContext;
     private String[] mWords;
