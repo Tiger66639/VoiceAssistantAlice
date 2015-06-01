@@ -5,6 +5,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.text.TextUtils;
 
+import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
                     }
                 }
             }
-            if(mIsCommand){
+            if (mIsCommand) {
                 break;
             }
         }
@@ -83,6 +84,19 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
             }
         } else {
             mWhereName = "Current position";
+            result = LocationController.getInstance(mContext).getCurrentLocation();
+            if (result != null) {
+                Geocoder geocoder = new Geocoder(mContext, Locale.ENGLISH);
+                try {
+                    List<Address> addresses =
+                            geocoder.getFromLocation(result.latitude, result.longitude, 1);
+                    if (addresses != null && addresses.size() > 0) {
+                        mWhereName = getWhereNameFromAddress(addresses.get(0));
+                    }
+                } catch (IOException e) {
+                    //do nothing
+                }
+            }
             //TODO need to return current position
         }
         mWhereLatLng = result;
@@ -134,7 +148,7 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     }
 
     private String getWhereNameFromAddress(Address address) {
-        String result = address.getFeatureName();
+        String result = address.getAddressLine(1);
         if (!TextUtils.isEmpty(address.getAdminArea())) {
             result += ", " + address.getAdminArea();
         }

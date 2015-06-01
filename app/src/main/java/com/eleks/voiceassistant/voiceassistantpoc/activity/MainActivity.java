@@ -13,8 +13,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
+import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
 import com.eleks.voiceassistant.voiceassistantpoc.command.WeatherCommand;
+import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.nuance.nmdp.speechkit.Prompt;
 import com.nuance.nmdp.speechkit.Recognition;
 import com.nuance.nmdp.speechkit.Recognizer;
@@ -26,6 +30,7 @@ import java.text.DateFormat;
 
 public class MainActivity extends ActionBarActivity {
 
+    private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static SpeechKit sSpeechKit;
     private final Recognizer.Listener mNuanceListener;
     private EditText mSpeechResult;
@@ -124,6 +129,11 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        if (checkGooglePlayServices()) {
+            registerLocationController();
+        }else{
+            //TODO need to implement
+        }
         mSpeechResult = (EditText) findViewById(R.id.speechResult);
         //Nuance
         if (sSpeechKit == null) {
@@ -152,12 +162,43 @@ public class MainActivity extends ActionBarActivity {
         mCommandResult = (EditText) findViewById(R.id.commandResult);
     }
 
+    private void registerLocationController() {
+        LocationController.verifyGPSAvailability(this);
+        if (!LocationController.getInstance(this).isStarted()) {
+            LocationController.getInstance(this).startListenLocation();
+        }
+    }
+
+    public boolean checkGooglePlayServices() {
+        if (!((VoiceAssistantApp) getApplication()).isGpsVerified()) {
+            int resultCode = GooglePlayServicesUtil
+                    .isGooglePlayServicesAvailable(getApplicationContext());
+            if (resultCode == ConnectionResult.SUCCESS) {
+                ((VoiceAssistantApp) getApplication()).setGpsVerified();
+                return true;
+            } else if (resultCode == ConnectionResult.SERVICE_MISSING ||
+                    resultCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
+                    resultCode == ConnectionResult.SERVICE_DISABLED) {
+                GooglePlayServicesUtil
+                        .getErrorDialog(
+                                resultCode, MainActivity.this, REQUEST_CODE_RECOVER_PLAY_SERVICES)
+                        .show();
+                return false;
+            }
+            return false;
+        }
+        return true;
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (sSpeechKit != null) {
             sSpeechKit.release();
             sSpeechKit = null;
+        }
+        if (LocationController.getInstance(MainActivity.this).isStarted()) {
+            LocationController.getInstance(MainActivity.this).destroy();
         }
     }
 
