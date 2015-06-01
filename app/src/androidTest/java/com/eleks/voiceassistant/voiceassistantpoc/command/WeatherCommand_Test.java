@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.LatLng;
 public class WeatherCommand_Test extends InstrumentationTestCase {
 
     private final static String[] sPhrases = {
-            "show weather in saint petersburg florida tomorrow"
+            "show weather in July 22nd in saint petersburg florida"
     };
 
     public void test_Weather() {
@@ -26,9 +26,8 @@ public class WeatherCommand_Test extends InstrumentationTestCase {
     }
 
     public void test_JakkardCoefficients() {
-        BaseCommand baseCommand = new BaseCommand();
-        double coef1 = baseCommand.getJakkardBigrammCoeficient("weather", "weather");
-        double coef2 = baseCommand.getJakkardThreegrammCoeficient("weather", "wather");
+        double coef1 = CommandsUtils.getJakkardBigrammCoeficient("weather", "weather");
+        double coef2 = CommandsUtils.getJakkardThreegrammCoeficient("weather", "wather");
         assertTrue(coef1 > 0);
         assertTrue(coef2 > 0);
     }

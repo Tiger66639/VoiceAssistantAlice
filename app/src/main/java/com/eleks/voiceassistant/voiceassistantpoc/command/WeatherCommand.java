@@ -17,13 +17,7 @@ import java.util.Locale;
  */
 public class WeatherCommand extends BaseCommand implements CommandInterface {
 
-    private static final String[] DATE_WORDS = {"today", "tomorrow", "yesterday", "weekend",
-            "week", "month"};
     private static final String[] COMMAND_WORDS = {"weather", "temperature", "how hot", "how cold"};
-    private static final double JAKKARD_MIN_COEFFICIENT = 0.055;
-    private static final int LEVEINSTEIN_MAX_DISTANCE = 2;
-    private static final String MONTH = "month";
-    private static final String WEEK = "week";
     private final String mText;
     private final Context mContext;
     private String[] mWords;
@@ -61,22 +55,8 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     }
 
     private void prepareCommandDate() {
-        String dateString = getDateString();
-    }
-
-    private String getDateString() {
-        String result = null;
-        for (String word : mWords) {
-            if (isWordExistsInArray(word, DATE_WORDS)) {
-                if (word.equals(MONTH) || word.equals(WEEK)) {
-
-                } else {
-                    result = word;
-                    break;
-                }
-            }
-        }
-        return result;
+        DateParser dateParser = new DateParser(mText);
+        mCommandDate = dateParser.getDates();
     }
 
     private void prepareWhereData() {
@@ -154,32 +134,19 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
         return TextUtils.isDigitsOnly(word);
     }
 
-    private boolean isDayWord(String word) {
+    /*private boolean isDayWord(String word) {
         String[] days = new DateFormatSymbols(Locale.ENGLISH).getWeekdays();
-        return isWordExistsInArray(word, days) || isWordExistsInArray(word, DATE_WORDS);
-    }
+        return CommandsUtils.isWordExistsInArray(word, days) ||
+                CommandsUtils.isWordExistsInArray(word, DATE_WORDS);
+    }*/
 
     private boolean isMonthWord(String word) {
         String[] months = new DateFormatSymbols(Locale.ENGLISH).getMonths();
-        return isWordExistsInArray(word, months);
-    }
-
-    private boolean isWordExistsInArray(String word, String[] array) {
-        if (!TextUtils.isEmpty(word)) {
-            for (String arrayWord : array) {
-                if (!TextUtils.isEmpty(arrayWord)) {
-                    if (getLeveinsteinDistance(arrayWord.toLowerCase(), word) <= LEVEINSTEIN_MAX_DISTANCE &&
-                            getJakkardCoefficient(arrayWord.toLowerCase(), word) > JAKKARD_MIN_COEFFICIENT) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        return CommandsUtils.isWordExistsInArray(word, months);
     }
 
     private boolean isCommandWord(String word) {
-        return isWordExistsInArray(word, COMMAND_WORDS);
+        return CommandsUtils.isWordExistsInArray(word, COMMAND_WORDS);
     }
 
 
