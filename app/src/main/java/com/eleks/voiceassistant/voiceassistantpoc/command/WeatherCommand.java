@@ -76,7 +76,7 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
     }
 
     private void prepareWhereData() {
-        LatLng result = null;
+        LatLng result;
         if (mWords.length > 0) {
             result = getLatLngByName(mWords, mWords.length);
             if (result == null) {
@@ -97,7 +97,6 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
                     //do nothing
                 }
             }
-            //TODO need to return current position
         }
         mWhereLatLng = result;
     }
@@ -157,11 +156,6 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
         }
         return result;
     }
-
-    private boolean isCommandWord(String word) {
-        return CommandsUtils.isWordExistsInArrayFuzzyEquals(word, COMMAND_WORDS);
-    }
-
 
     @Override
     public boolean getIsCommand() {
