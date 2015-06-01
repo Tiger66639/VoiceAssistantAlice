@@ -112,7 +112,7 @@ public class MainActivity extends ActionBarActivity {
                     return;
                 }
                 if (mListeningDialog.isShowing()) {
-                    //dismissDialog(LISTENING_DIALOG);
+                    dismissDialog(LISTENING_DIALOG);
                 }
                 mCurrentRecognizer = null;
                 mListeningDialog.setRecording(false);
@@ -155,18 +155,6 @@ public class MainActivity extends ActionBarActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         _destroyed = false;
         mSpeechResult = (EditText) findViewById(R.id.speechResult);
-        Button googleButton = (Button) findViewById(R.id.googleButton);
-        googleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mSpeechResult.setText("");
-                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                startActivityForResult(intent, SPEECH_REQUEST_CODE);
-
-            }
-        });
         //Nuance
         if (sSpeechKit == null) {
             sSpeechKit = SpeechKit.initialize(getApplication().getApplicationContext(),

@@ -15,14 +15,6 @@
         android:editable="false" />
 
     <Button
-        android:id="@+id/googleButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/nuanceButton"
-        android:layout_marginBottom="10dp"
-        android:text="Google" />
-
-    <Button
         android:id="@+id/nuanceButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
