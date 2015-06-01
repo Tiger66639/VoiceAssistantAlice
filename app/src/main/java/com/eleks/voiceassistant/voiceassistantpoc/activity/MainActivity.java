@@ -3,20 +3,25 @@ package com.eleks.voiceassistant.voiceassistantpoc.activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
+import com.eleks.voiceassistant.voiceassistantpoc.command.WeatherCommand;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
 import com.nuance.nmdp.speechkit.Prompt;
 import com.nuance.nmdp.speechkit.Recognition;
 import com.nuance.nmdp.speechkit.Recognizer;
 import com.nuance.nmdp.speechkit.SpeechError;
 import com.nuance.nmdp.speechkit.SpeechKit;
+
+import java.text.DateFormat;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -27,6 +32,7 @@ public class MainActivity extends ActionBarActivity {
     private Recognizer mCurrentRecognizer;
     private Handler _handler = null;
     private ProgressDialog mProgressDialog;
+    private EditText mCommandResult;
 
     public MainActivity() {
         super();
@@ -38,14 +44,17 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void showProgressDialog(final CharSequence message) {
-        dismissProgressDialog();
-        final Context context = this;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mProgressDialog = ProgressDialog.show(context, getString(R.string.app_name), message);
-            }
-        });
+        if (mProgressDialog != null) {
+            mProgressDialog.setMessage(message);
+        } else {
+            final Context context = this;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mProgressDialog = ProgressDialog.show(context, getString(R.string.app_name), message);
+                }
+            });
+        }
     }
 
     private void dismissProgressDialog() {
@@ -102,6 +111,7 @@ public class MainActivity extends ActionBarActivity {
                             results.getResult(i).getText() + "\n";
                 }
                 mSpeechResult.setText(resultStr);
+                new RecognizeTextToCommandTask().execute(results);
                 // for debugging purpose: printing out the speechkit session id
                 android.util.Log.d("Nuance SampleVoiceApp", "Recognizer.Listener.onResults: session id ["
                         + getSpeechKit().getSessionId() + "]");
@@ -132,12 +142,14 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View view) {
                 showProgressDialog("Initializing...");
                 mSpeechResult.setText("");
+                mCommandResult.setText("");
                 mCurrentRecognizer = getSpeechKit().createRecognizer(
                         Recognizer.RecognizerType.Search, Recognizer.EndOfSpeechDetection.Short,
                         "en_US", mNuanceListener, _handler);
                 mCurrentRecognizer.start();
             }
         });
+        mCommandResult = (EditText) findViewById(R.id.commandResult);
     }
 
     @Override
@@ -146,6 +158,39 @@ public class MainActivity extends ActionBarActivity {
         if (sSpeechKit != null) {
             sSpeechKit.release();
             sSpeechKit = null;
+        }
+    }
+
+    private class RecognizeTextToCommandTask extends AsyncTask<Recognition, Void, WeatherCommand> {
+
+        @Override
+        protected WeatherCommand doInBackground(Recognition... params) {
+            Recognition recognition = params[0];
+            WeatherCommand result = null;
+            if (recognition.getResultCount() > 0) {
+                result =
+                        new WeatherCommand(MainActivity.this, recognition.getResult(0).getText());
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog("Try recognize voice command...");
+        }
+
+        @Override
+        protected void onPostExecute(WeatherCommand command) {
+            dismissProgressDialog();
+            if (command != null && command.getIsCommand()) {
+                DateFormat dateFormat = DateFormat.getDateInstance();
+                String text = command.getWhereName() + "\n" +
+                        dateFormat.format(command.getCommandDate().startDate) + "\n" +
+                        dateFormat.format(command.getCommandDate().finishDate);
+                mCommandResult.setText(text);
+            } else {
+                Toast.makeText(MainActivity.this, "Can not recognize voice command", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }

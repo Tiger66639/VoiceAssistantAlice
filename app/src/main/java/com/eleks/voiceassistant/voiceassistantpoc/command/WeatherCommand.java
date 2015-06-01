@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
-import java.text.DateFormatSymbols;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,6 +17,7 @@ import java.util.Locale;
 public class WeatherCommand extends BaseCommand implements CommandInterface {
 
     private static final String[] COMMAND_WORDS = {"weather", "temperature", "how hot", "how cold"};
+    private static final String[] NOISE_WORDS = {"in", "of", "the", "a", "please"};
     private final String mText;
     private final Context mContext;
     private String[] mWords;
@@ -40,43 +40,57 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
         mWords = mText.split(" ");
         verifyIsItCommand();
         if (mIsCommand) {
-            prepareWhereData();
             prepareCommandDate();
+            mWords = CommandsUtils.removeNoiseWords(mWords, NOISE_WORDS);
+            prepareWhereData();
         }
     }
 
     private void verifyIsItCommand() {
-        for (String word : mWords) {
-            if (isCommandWord(word)) {
-                mIsCommand = true;
+        for (String commandWord : COMMAND_WORDS) {
+            String[] commandWords = commandWord.split(" ");
+            if (mWords.length >= commandWords.length) {
+                for (int i = 0; i < mWords.length - commandWords.length + 1; i++) {
+                    boolean result = true;
+                    for (int j = 0; j < commandWords.length; j++) {
+                        result = result && CommandsUtils.fuzzyEquals(mWords[i + j], commandWords[j]);
+                    }
+                    if (result) {
+                        mWords = CommandsUtils.clearWordsUntilIndex(mWords, i + commandWords.length - 1);
+                        mIsCommand = true;
+                        break;
+                    }
+                }
+            }
+            if(mIsCommand){
                 break;
             }
         }
     }
 
     private void prepareCommandDate() {
-        DateParser dateParser = new DateParser(mText);
+        DateParser dateParser = new DateParser(mWords);
         mCommandDate = dateParser.getDates();
+        mWords = dateParser.getRemainingWords();
     }
 
     private void prepareWhereData() {
         LatLng result = null;
-        if (!TextUtils.isEmpty(mText)) {
-            String[] words = mText.split(" ");
-            result = getLatLngByName(mText, words.length);
+        if (mWords.length > 0) {
+            result = getLatLngByName(mWords, mWords.length);
             if (result == null) {
                 result = new LatLng(0, 0);
             }
         } else {
+            mWhereName = "Current position";
             //TODO need to return current position
         }
         mWhereLatLng = result;
     }
 
-    private LatLng getLatLngByName(String name, int windowSize) {
+    private LatLng getLatLngByName(String[] words, int windowSize) {
         LatLng result = null;
         if (windowSize > 0) {
-            String[] words = name.split(" ");
             int startIndex = 0;
             while (startIndex + windowSize <= words.length) {
                 result = getLatLngByName(prepareName(words, startIndex, windowSize));
@@ -87,7 +101,7 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
             }
             if (result == null) {
                 windowSize--;
-                result = getLatLngByName(name, windowSize);
+                result = getLatLngByName(words, windowSize);
             }
         }
         return result;
@@ -130,23 +144,8 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
         return result;
     }
 
-    private boolean isNumberWord(String word) {
-        return TextUtils.isDigitsOnly(word);
-    }
-
-    /*private boolean isDayWord(String word) {
-        String[] days = new DateFormatSymbols(Locale.ENGLISH).getWeekdays();
-        return CommandsUtils.isWordExistsInArray(word, days) ||
-                CommandsUtils.isWordExistsInArray(word, DATE_WORDS);
-    }*/
-
-    private boolean isMonthWord(String word) {
-        String[] months = new DateFormatSymbols(Locale.ENGLISH).getMonths();
-        return CommandsUtils.isWordExistsInArray(word, months);
-    }
-
     private boolean isCommandWord(String word) {
-        return CommandsUtils.isWordExistsInArray(word, COMMAND_WORDS);
+        return CommandsUtils.isWordExistsInArrayFuzzyEquals(word, COMMAND_WORDS);
     }
 
 

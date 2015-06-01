@@ -3,6 +3,7 @@ package com.eleks.voiceassistant.voiceassistantpoc.command;
 import android.text.TextUtils;
 
 import java.text.DateFormatSymbols;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -27,12 +28,14 @@ public class DateParser {
     private String[] mWords;
     private CommandPeriod mDates;
 
-    public DateParser(String text) {
-        mText = text;
-        mWords = text.split(" ");
+    public DateParser(String[] words) {
+        mWords = words;
+        mText = CommandsUtils.getTextFromArray(mWords);
         String dateString = getDateString();
         if (!TextUtils.isEmpty(dateString)) {
             mDates = getDatesFromDateString(dateString);
+        } else {
+            mDates = new CommandPeriod();
         }
     }
 
@@ -121,15 +124,18 @@ public class DateParser {
 
     private String getDateString() {
         String result = null;
-        for (String word : mWords) {
-            if (CommandsUtils.isWordExistsInArray(word, DATE_WORDS)) {
-                if (word.equals(MONTH) || word.equals(WEEK)) {
-                    if (mText.contains(NEXT + " " + word)) {
-                        result = NEXT + " " + word;
+        for (int i = 0; i < mWords.length; i++) {
+            if (CommandsUtils.isWordExistsInArrayFuzzyEquals(mWords[i], DATE_WORDS)) {
+                if (mWords[i].equals(MONTH) || mWords[i].equals(WEEK)) {
+                    if (mText.contains(NEXT + " " + mWords[i])) {
+                        result = NEXT + " " + mWords[i];
+                        mWords[i - 1] = "";
+                        mWords[i] = "";
                         break;
                     }
                 } else {
-                    result = word;
+                    result = mWords[i];
+                    mWords[i] = "";
                     break;
                 }
             }
@@ -154,13 +160,25 @@ public class DateParser {
     }
 
     private String tryFindMonthDate(String month, int monthPosition) {
+        String result = month;
         for (int i = 0; i < mWords.length; i++) {
             if (CommandsUtils.isWordContainsDigit(mWords[i]) &&
                     Math.abs(monthPosition - i) <= 2) {
-                return month + " " + CommandsUtils.clearMonthDate(mWords[i]);
+                int startIndex = monthPosition;
+                int finishIndex = i;
+                if (monthPosition > i) {
+                    startIndex = i;
+                    finishIndex = monthPosition;
+                }
+                result += " " + CommandsUtils.clearMonthDate(mWords[i]);
+                for (int j = startIndex; j <= finishIndex; j++) {
+                    mWords[j] = "";
+                }
+                break;
             }
         }
-        return month;
+        mWords[monthPosition] = "";
+        return result;
     }
 
     public CommandPeriod getDates() {
@@ -169,5 +187,15 @@ public class DateParser {
         } else {
             return new CommandPeriod();
         }
+    }
+
+    public String[] getRemainingWords() {
+        ArrayList<String> result = new ArrayList<>();
+        for (String word : mWords) {
+            if (!TextUtils.isEmpty(word)) {
+                result.add(word);
+            }
+        }
+        return result.toArray(new String[result.size()]);
     }
 }

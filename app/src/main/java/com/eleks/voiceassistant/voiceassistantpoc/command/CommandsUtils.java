@@ -15,7 +15,7 @@ public class CommandsUtils {
     private static final double JAKKARD_MIN_COEFFICIENT = 0.055;
     private static final int LEVEINSTEIN_MAX_DISTANCE = 2;
 
-    public static boolean isWordExistsInArray(String word, String[] array) {
+    public static boolean isWordExistsInArrayFuzzyEquals(String word, String[] array) {
         if (!TextUtils.isEmpty(word)) {
             for (String arrayWord : array) {
                 if (!TextUtils.isEmpty(arrayWord)) {
@@ -176,5 +176,45 @@ public class CommandsUtils {
         finishDate.set(year, month, lastDayOfMonth);
         result.finishDate = finishDate.getTime();
         return result;
+    }
+
+    public static String[] clearWordsUntilIndex(String[] words, int index) {
+        ArrayList<String> result = new ArrayList<>();
+        if (index + 1 < words.length) {
+            for (int i = index + 1; i < words.length; i++) {
+                result.add(words[i]);
+            }
+        }
+        return result.toArray(new String[result.size()]);
+    }
+
+    public static String[] removeNoiseWords(String[] words, String[] noiseWords) {
+        ArrayList<String> result = new ArrayList<>();
+        ArrayList<String> noiseWordList = new ArrayList<>();
+        for (String word : words) {
+            if (!isWordExistsInArrayAccurateEquals(word, noiseWords)) {
+                result.add(word);
+            }
+        }
+        return result.toArray(new String[result.size()]);
+    }
+
+    public static boolean isWordExistsInArrayAccurateEquals(String word, String[] array) {
+        for (String arrayWord : array) {
+            if (arrayWord.equals(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String getTextFromArray(String[] words) {
+        String result = "";
+        if (words.length > 0) {
+            for (String word : words) {
+                result += word + " ";
+            }
+        }
+        return result.trim();
     }
 }
