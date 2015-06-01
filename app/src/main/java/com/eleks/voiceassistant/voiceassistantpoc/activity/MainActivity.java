@@ -2,11 +2,13 @@ package com.eleks.voiceassistant.voiceassistantpoc.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -131,8 +133,8 @@ public class MainActivity extends ActionBarActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         if (checkGooglePlayServices()) {
             registerLocationController();
-        }else{
-            //TODO need to implement
+        } else {
+            processGooglePlayServiceIsNotExists();
         }
         mSpeechResult = (EditText) findViewById(R.id.speechResult);
         //Nuance
@@ -160,6 +162,21 @@ public class MainActivity extends ActionBarActivity {
             }
         });
         mCommandResult = (EditText) findViewById(R.id.commandResult);
+    }
+
+    private void processGooglePlayServiceIsNotExists() {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.app_name))
+                .setMessage(getString(R.string.gps_is_not_exists_message))
+                .setCancelable(true)
+                .setPositiveButton(getString(R.string.gps_is_not_exists_ok_button_name),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                .create().show();
     }
 
     private void registerLocationController() {
