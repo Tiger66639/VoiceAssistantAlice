@@ -29,21 +29,38 @@ import com.nuance.nmdp.speechkit.Recognition;
 import com.nuance.nmdp.speechkit.Recognizer;
 import com.nuance.nmdp.speechkit.SpeechError;
 import com.nuance.nmdp.speechkit.SpeechKit;
+import com.nuance.nmdp.speechkit.Vocalizer;
 
 import java.text.DateFormat;
 
 
 public class MainActivity extends ActionBarActivity {
 
+    public static final String TTS_KEY = "com.nuance.nmdp.sample.tts";
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static SpeechKit sSpeechKit;
     private final Recognizer.Listener mNuanceListener;
+    Vocalizer.Listener vocalizerListener = new Vocalizer.Listener() {
+
+        @Override
+        public void onSpeakingBegin(Vocalizer vocalizer, String s, Object o) {
+
+        }
+
+        @Override
+        public void onSpeakingDone(Vocalizer vocalizer, String s, SpeechError speechError, Object o) {
+
+        }
+    };
     private EditText mSpeechResult;
     private Recognizer mCurrentRecognizer;
     private Handler _handler = null;
     private ProgressDialog mProgressDialog;
     private EditText mCommandResult;
     private LocationController mLocationController;
+    private Vocalizer mVocalizer;
+    private Object mLastTtsContext = null;
+    private SpeechKit mSpeechKit;
 
     public MainActivity() {
         super();
@@ -52,6 +69,11 @@ public class MainActivity extends ActionBarActivity {
 
     static SpeechKit getSpeechKit() {
         return sSpeechKit;
+    }
+
+    private void speechText(String text) {
+        mLastTtsContext = new Object();
+        mVocalizer.speakString(text, mLastTtsContext);
     }
 
     private void showProgressDialog(final CharSequence message) {
@@ -166,6 +188,17 @@ public class MainActivity extends ActionBarActivity {
             }
         });
         mCommandResult = (EditText) findViewById(R.id.commandResult);
+        if (mSpeechKit == null) {
+            mSpeechKit = SpeechKit.initialize(getApplication().getApplicationContext(),
+                    NuanceAppInfo.SpeechKitAppId, NuanceAppInfo.SpeechKitServer,
+                    NuanceAppInfo.SpeechKitPort, NuanceAppInfo.SpeechKitSsl,
+                    NuanceAppInfo.SpeechKitApplicationKey);
+            mSpeechKit.connect();
+            Prompt beep = mSpeechKit.defineAudioPrompt(R.raw.beep);
+            mSpeechKit.setDefaultRecognizerPrompts(beep, Prompt.vibration(100), null, null);
+        }
+        mVocalizer = mSpeechKit.createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
+        mVocalizer.setVoice("Samantha");
     }
 
     private void processGooglePlayServiceIsNotExists() {
@@ -289,6 +322,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(ResponseModel responseModel) {
             dismissProgressDialog();
+            speechText("Weather forecast from server was gotten successfully");
         }
     }
 }
