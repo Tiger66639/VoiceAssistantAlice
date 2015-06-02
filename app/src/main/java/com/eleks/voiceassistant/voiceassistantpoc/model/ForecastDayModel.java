@@ -18,7 +18,7 @@ public class ForecastDayModel {
     public String iconName;
     @SerializedName("icon_url")
     public String iconUrl;
-    /*@SerializedName("qpf_allday")
+    @SerializedName("qpf_allday")
     public PrecipitationModel qpfAllDay;
     @SerializedName("qpf_day")
     public PrecipitationModel qpfDay;
@@ -39,5 +39,5 @@ public class ForecastDayModel {
     @SerializedName("maxhumidity")
     public int maxHumidity;
     @SerializedName("minhumidity")
-    public int minHumidity;*/
+    public int minHumidity;
 }

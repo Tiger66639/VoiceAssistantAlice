@@ -1,5 +1,7 @@
 package com.eleks.voiceassistant.voiceassistantpoc.model;
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -7,7 +9,23 @@ import com.google.gson.annotations.SerializedName;
  */
 public class PrecipitationModel {
     @SerializedName("in")
-    public int inches;
+    private String mInches;
     @SerializedName("mm")
-    public int millimeters;
+    private String mMillimeters;
+
+    public double getInches() {
+        if (!TextUtils.isEmpty(mInches)) {
+            return Double.parseDouble(mInches);
+        } else {
+            return 0;
+        }
+    }
+
+    public double getMillimeters() {
+        if (!TextUtils.isEmpty(mMillimeters)) {
+            return Double.parseDouble(mMillimeters);
+        } else {
+            return 0;
+        }
+    }
 }

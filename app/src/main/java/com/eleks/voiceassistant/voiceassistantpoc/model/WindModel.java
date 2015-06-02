@@ -11,7 +11,7 @@ public class WindModel {
     @SerializedName("kph")
     public int kilometersPerHour;
     @SerializedName("dir")
-    public int direction;
+    public String direction;
     @SerializedName("degrees")
     public int degrees;
 }
