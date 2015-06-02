@@ -1,0 +1,1 @@
+http://api.wunderground.com/api/d70daf057a579b33/forecast/geolookup/conditions/q/49.074579,33.4188265.json
