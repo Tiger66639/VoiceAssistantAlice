@@ -25,13 +25,13 @@ public class LocationController implements LocationListener, GoogleApiClient.Con
         GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = LocationController.class.getName();
-    private static final long POLLING_FREQ = 1000 * 30;
+    private static final long POLLING_FREQ = 1000 * 10;
     private static final long FASTEST_UPDATE_FREQ = 1000 * 5;
     private static LocationController mLocationController;
     private final LocationRequest mLocationRequest;
     private final GoogleApiClient mGoogleApiClient;
 
-    private Location mBestReading;
+    private Location mLastLocation;
     private boolean started = false;
 
     private LocationController(Context context) {
@@ -42,8 +42,8 @@ public class LocationController implements LocationListener, GoogleApiClient.Con
 
         mGoogleApiClient = new GoogleApiClient.Builder(context.getApplicationContext())
                 .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
+                .addConnectionCallbacks(LocationController.this)
+                .addOnConnectionFailedListener(LocationController.this)
                 .build();
     }
 
@@ -84,8 +84,8 @@ public class LocationController implements LocationListener, GoogleApiClient.Con
     }
 
     public LatLng getCurrentLocation() {
-        if (mBestReading != null) {
-            return new LatLng(mBestReading.getLatitude(), mBestReading.getLongitude());
+        if (mLastLocation != null) {
+            return new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
         } else {
             return null;
         }
@@ -114,12 +114,15 @@ public class LocationController implements LocationListener, GoogleApiClient.Con
 
     @Override
     public void onLocationChanged(Location location) {
-        mBestReading = location;
+        mLastLocation = location;
     }
 
     @Override
     public void onConnected(Bundle connectionHint) {
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, LocationController.this);
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
     }
 
     @Override
@@ -129,6 +132,9 @@ public class LocationController implements LocationListener, GoogleApiClient.Con
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
+        if (!result.isSuccess()) {
+
+        }
         /* empty */
     }
 

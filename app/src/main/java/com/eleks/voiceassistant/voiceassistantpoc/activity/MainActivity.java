@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,6 +41,7 @@ public class MainActivity extends ActionBarActivity {
     private Handler _handler = null;
     private ProgressDialog mProgressDialog;
     private EditText mCommandResult;
+    private LocationController mLocationController;
 
     public MainActivity() {
         super();
@@ -181,8 +183,9 @@ public class MainActivity extends ActionBarActivity {
 
     private void registerLocationController() {
         LocationController.verifyGPSAvailability(this);
-        if (!LocationController.getInstance(this).isStarted()) {
-            LocationController.getInstance(this).startListenLocation();
+        mLocationController = LocationController.getInstance(MainActivity.this);
+        if (!mLocationController.isStarted()) {
+            mLocationController.startListenLocation();
         }
     }
 
@@ -214,8 +217,9 @@ public class MainActivity extends ActionBarActivity {
             sSpeechKit.release();
             sSpeechKit = null;
         }
-        if (LocationController.getInstance(MainActivity.this).isStarted()) {
-            LocationController.getInstance(MainActivity.this).destroy();
+        if (mLocationController.isStarted()) {
+            mLocationController.stopListenLocation();
+            mLocationController.destroy();
         }
     }
 
@@ -242,7 +246,13 @@ public class MainActivity extends ActionBarActivity {
             dismissProgressDialog();
             if (command != null && command.getIsCommand()) {
                 DateFormat dateFormat = DateFormat.getDateInstance();
-                String text = command.getWhereName() + "\n" +
+                String text = "";
+                if (!TextUtils.isEmpty(command.getWhereName())) {
+                    text += command.getWhereName();
+                } else {
+                    text += "Can not recognize place.";
+                }
+                text += "\n" +
                         dateFormat.format(command.getCommandDate().startDate) + "\n" +
                         dateFormat.format(command.getCommandDate().finishDate);
                 mCommandResult.setText(text);
