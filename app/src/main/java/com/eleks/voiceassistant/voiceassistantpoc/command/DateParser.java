@@ -132,6 +132,10 @@ public class DateParser {
                         mWords[i - 1] = "";
                         mWords[i] = "";
                         break;
+                    }else{
+                        result = mWords[i];
+                        mWords[i] = "";
+                        break;
                     }
                 } else {
                     result = mWords[i];

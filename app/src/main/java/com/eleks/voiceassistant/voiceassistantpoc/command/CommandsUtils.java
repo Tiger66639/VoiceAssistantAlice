@@ -178,11 +178,16 @@ public class CommandsUtils {
         return result;
     }
 
-    public static String[] clearWordsUntilIndex(String[] words, int index) {
+    public static String[] clearWordsInArray(String[] words, int startIndex, int length) {
         ArrayList<String> result = new ArrayList<>();
-        if (index + 1 < words.length) {
-            for (int i = index + 1; i < words.length; i++) {
-                result.add(words[i]);
+        if (startIndex + length < words.length) {
+            for (int i = startIndex; i < startIndex + length; i++) {
+                words[i] = "";
+            }
+            for (String word : words) {
+                if (!TextUtils.isEmpty(word)) {
+                    result.add(word);
+                }
             }
         }
         return result.toArray(new String[result.size()]);

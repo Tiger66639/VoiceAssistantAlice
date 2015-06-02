@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.LatLng;
 public class WeatherCommand_Test extends InstrumentationTestCase {
 
     private final static String[] sPhrases = {
-            "show weather in July 22nd in saint petersburg florida"
+            "show Boston weather in this week"
     };
 
     public void test_Weather() {

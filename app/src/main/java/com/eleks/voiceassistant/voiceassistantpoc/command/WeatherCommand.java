@@ -18,7 +18,8 @@ import java.util.Locale;
 public class WeatherCommand extends BaseCommand implements CommandInterface {
 
     private static final String[] COMMAND_WORDS = {"weather", "temperature", "how hot", "how cold"};
-    private static final String[] NOISE_WORDS = {"in", "of", "the", "a", "please", "for"};
+    private static final String[] NOISE_WORDS = {"in", "of", "the", "a", "please", "for",
+            "this", "show"};
     private final String mText;
     private final Context mContext;
     private String[] mWords;
@@ -54,10 +55,12 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
                 for (int i = 0; i < mWords.length - commandWords.length + 1; i++) {
                     boolean result = true;
                     for (int j = 0; j < commandWords.length; j++) {
-                        result = result && CommandsUtils.fuzzyEquals(mWords[i + j], commandWords[j]);
+                        result = result && CommandsUtils
+                                .fuzzyEquals(mWords[i + j], commandWords[j]);
                     }
                     if (result) {
-                        mWords = CommandsUtils.clearWordsUntilIndex(mWords, i + commandWords.length - 1);
+                        mWords = CommandsUtils
+                                .clearWordsInArray(mWords, i, commandWords.length);
                         mIsCommand = true;
                         break;
                     }
@@ -128,19 +131,29 @@ public class WeatherCommand extends BaseCommand implements CommandInterface {
         return result.trim();
     }
 
-    private LatLng getLatLngByName(String name) {
+    private LatLng getLatLngByName(String placeName) {
         LatLng result = null;
-        if (!TextUtils.isEmpty(name)) {
+        if (!TextUtils.isEmpty(placeName)) {
             Geocoder geocoder = new Geocoder(mContext, Locale.ENGLISH);
             try {
-                List<Address> addresses = geocoder.getFromLocationName(name, 1);
-                if (addresses != null && addresses.size() > 0) {
+                List<Address> addresses = geocoder.getFromLocationName(placeName, 1);
+                if (isAddressCorrect(placeName, addresses)) {
                     result = new LatLng(addresses.get(0).getLatitude(),
                             addresses.get(0).getLongitude());
                     mWhereName = getWhereNameFromAddress(addresses.get(0));
                 }
             } catch (IOException e) {
                 //do nothing
+            }
+        }
+        return result;
+    }
+
+    private boolean isAddressCorrect(String placeName, List<Address> addresses) {
+        boolean result = false;
+        if (addresses != null && addresses.size() > 0) {
+            if (addresses.get(0).getAddressLine(0).toLowerCase().contains(placeName)) {
+                result = true;
             }
         }
         return result;
