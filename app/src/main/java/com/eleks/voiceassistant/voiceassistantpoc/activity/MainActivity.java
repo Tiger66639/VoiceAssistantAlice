@@ -299,7 +299,10 @@ public class MainActivity extends ActionBarActivity {
                 mCommandResult.setText(text);
                 processGetWeatherForecast(command);
             } else {
-                Toast.makeText(MainActivity.this, "Can not recognize voice command", Toast.LENGTH_LONG).show();
+                speechText(MainActivity.this.getString(R.string.cannot_recognize_voice_command));
+                Toast.makeText(MainActivity.this,
+                        MainActivity.this.getString(R.string.cannot_recognize_voice_command),
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
