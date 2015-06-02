@@ -19,7 +19,9 @@ import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
 import com.eleks.voiceassistant.voiceassistantpoc.command.WeatherCommand;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
+import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
+import com.eleks.voiceassistant.voiceassistantpoc.server.WebServerMethods;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.nuance.nmdp.speechkit.Prompt;
@@ -223,6 +225,12 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    private void processGetWeatherForecast(WeatherCommand command) {
+        if (command.getWhere() != null) {
+            new GetWeatherForecastTask().execute(command);
+        }
+    }
+
     private class RecognizeTextToCommandTask extends AsyncTask<Recognition, Void, WeatherCommand> {
 
         @Override
@@ -256,9 +264,31 @@ public class MainActivity extends ActionBarActivity {
                         dateFormat.format(command.getCommandDate().startDate) + "\n" +
                         dateFormat.format(command.getCommandDate().finishDate);
                 mCommandResult.setText(text);
+                processGetWeatherForecast(command);
             } else {
                 Toast.makeText(MainActivity.this, "Can not recognize voice command", Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    private class GetWeatherForecastTask extends AsyncTask<WeatherCommand, Void, ResponseModel> {
+
+        @Override
+        protected ResponseModel doInBackground(WeatherCommand... params) {
+            WeatherCommand command = params[0];
+            ResponseModel responseModel = WebServerMethods
+                    .getServerData(MainActivity.this, command.getWhere());
+            return responseModel;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog("Get weather forecast...");
+        }
+
+        @Override
+        protected void onPostExecute(ResponseModel responseModel) {
+            dismissProgressDialog();
         }
     }
 }
