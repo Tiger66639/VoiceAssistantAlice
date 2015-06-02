@@ -195,7 +195,6 @@ public class CommandsUtils {
 
     public static String[] removeNoiseWords(String[] words, String[] noiseWords) {
         ArrayList<String> result = new ArrayList<>();
-        ArrayList<String> noiseWordList = new ArrayList<>();
         for (String word : words) {
             if (!isWordExistsInArrayAccurateEquals(word, noiseWords)) {
                 result.add(word);
