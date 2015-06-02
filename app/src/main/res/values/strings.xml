@@ -1,8 +1,5 @@
 <resources>
-    <string name="app_name">"VoiceAssistantPoC "</string>
-
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">"VoiceAssistantPoC"</string>
     <string name="dialog_gps_message">GPS is disabled in your device. Would you like to enable it?</string>
     <string name="button_ok">Enable GPS</string>
     <string name="button_cancel">Cancel</string>
