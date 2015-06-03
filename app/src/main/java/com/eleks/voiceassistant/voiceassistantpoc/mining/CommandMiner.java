@@ -2,8 +2,6 @@ package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
 import android.content.Context;
 
-import com.eleks.voiceassistant.voiceassistantpoc.command.CommandsUtils;
-
 import java.util.ArrayList;
 
 /**

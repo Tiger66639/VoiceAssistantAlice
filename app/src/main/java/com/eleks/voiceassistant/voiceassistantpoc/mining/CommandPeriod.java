@@ -1,4 +1,4 @@
-package com.eleks.voiceassistant.voiceassistantpoc.command;
+package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
 import java.util.Date;
 

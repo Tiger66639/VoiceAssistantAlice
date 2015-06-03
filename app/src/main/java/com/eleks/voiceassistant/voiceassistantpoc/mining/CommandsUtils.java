@@ -1,8 +1,7 @@
-package com.eleks.voiceassistant.voiceassistantpoc.command;
+package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
 import android.text.TextUtils;
 
-import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -14,22 +13,6 @@ public class CommandsUtils {
 
     private static final double JAKKARD_MIN_COEFFICIENT = 0.055;
     private static final int LEVEINSTEIN_MAX_DISTANCE = 2;
-
-    public static boolean isWordExistsInArrayFuzzyEquals(String word, String[] array) {
-        if (!TextUtils.isEmpty(word)) {
-            for (String arrayWord : array) {
-                if (!TextUtils.isEmpty(arrayWord)) {
-                    if (getLeveinsteinDistance(arrayWord.toLowerCase(), word) <=
-                            LEVEINSTEIN_MAX_DISTANCE &&
-                            getJakkardCoefficient(arrayWord.toLowerCase(), word) >
-                                    JAKKARD_MIN_COEFFICIENT) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
 
     protected static int getLeveinsteinDistance(String word1, String word2) {
         int m = word1.length(), n = word2.length();
@@ -110,22 +93,6 @@ public class CommandsUtils {
         return result;
     }
 
-    public static int getWordPositionInArray(String word, String[] array) {
-        if (!TextUtils.isEmpty(word)) {
-            for (int i = 0; i < array.length; i++) {
-                if (!TextUtils.isEmpty(array[i])) {
-                    if (getLeveinsteinDistance(array[i].toLowerCase(), word) <=
-                            LEVEINSTEIN_MAX_DISTANCE &&
-                            getJakkardCoefficient(array[i].toLowerCase(), word) >
-                                    JAKKARD_MIN_COEFFICIENT) {
-                        return i;
-                    }
-                }
-            }
-        }
-        return -1;
-    }
-
     public static String clearMonthDate(String word) {
         String result = "";
         for (int i = 0; i < word.length(); i++) {
@@ -154,18 +121,6 @@ public class CommandsUtils {
                         JAKKARD_MIN_COEFFICIENT;
     }
 
-    public static int getMonthFromWord(String word) {
-        String[] months = new DateFormatSymbols(Locale.ENGLISH).getMonths();
-        int result = 0;
-        for (int i = 0; i < months.length; i++) {
-            if (months[i].toLowerCase().equals(word)) {
-                result = i;
-                break;
-            }
-        }
-        return result;
-    }
-
     public static CommandPeriod getMonthDates(int month, int year) {
         CommandPeriod result = new CommandPeriod();
         Calendar startDate = Calendar.getInstance(Locale.ENGLISH);
@@ -178,47 +133,4 @@ public class CommandsUtils {
         return result;
     }
 
-    public static String[] clearWordsInArray(String[] words, int startIndex, int length) {
-        ArrayList<String> result = new ArrayList<>();
-        if (startIndex + length < words.length) {
-            for (int i = startIndex; i < startIndex + length; i++) {
-                words[i] = "";
-            }
-            for (String word : words) {
-                if (!TextUtils.isEmpty(word)) {
-                    result.add(word);
-                }
-            }
-        }
-        return result.toArray(new String[result.size()]);
-    }
-
-    public static String[] removeNoiseWords(String[] words, String[] noiseWords) {
-        ArrayList<String> result = new ArrayList<>();
-        for (String word : words) {
-            if (!isWordExistsInArrayAccurateEquals(word, noiseWords)) {
-                result.add(word);
-            }
-        }
-        return result.toArray(new String[result.size()]);
-    }
-
-    public static boolean isWordExistsInArrayAccurateEquals(String word, String[] array) {
-        for (String arrayWord : array) {
-            if (arrayWord.equals(word)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static String getTextFromArray(String[] words) {
-        String result = "";
-        if (words.length > 0) {
-            for (String word : words) {
-                result += word + " ";
-            }
-        }
-        return result.trim();
-    }
 }

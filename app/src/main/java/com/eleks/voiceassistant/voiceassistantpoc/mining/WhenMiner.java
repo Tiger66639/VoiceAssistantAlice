@@ -3,8 +3,6 @@ package com.eleks.voiceassistant.voiceassistantpoc.mining;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.eleks.voiceassistant.voiceassistantpoc.command.CommandsUtils;
-
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Locale;

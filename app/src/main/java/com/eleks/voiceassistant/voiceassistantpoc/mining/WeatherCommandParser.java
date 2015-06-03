@@ -2,7 +2,6 @@ package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
 import android.content.Context;
 
-import com.eleks.voiceassistant.voiceassistantpoc.command.CommandPeriod;
 import com.google.android.gms.maps.model.LatLng;
 
 /**

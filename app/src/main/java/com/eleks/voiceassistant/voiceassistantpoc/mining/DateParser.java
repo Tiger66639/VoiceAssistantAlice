@@ -2,9 +2,6 @@ package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
 import android.text.TextUtils;
 
-import com.eleks.voiceassistant.voiceassistantpoc.command.CommandPeriod;
-import com.eleks.voiceassistant.voiceassistantpoc.command.CommandsUtils;
-
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.Date;
