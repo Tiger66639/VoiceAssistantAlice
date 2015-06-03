@@ -15,7 +15,7 @@ import java.util.Locale;
 public class WhenMiner implements ITextMiner {
 
     private static final String[] DATE_WORDS = {"today", "tomorrow", "yesterday", "weekend",
-            "week", "this week", "next week", "month", "this month", "next month"};
+            "this week", "next week", "this month", "next month"};
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {
