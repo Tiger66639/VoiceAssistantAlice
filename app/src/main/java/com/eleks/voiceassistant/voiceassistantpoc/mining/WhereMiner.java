@@ -3,6 +3,7 @@ package com.eleks.voiceassistant.voiceassistantpoc.mining;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public class WhereMiner implements ITextMiner {
             WordHolder[] words, String place, WordMeaning wordMeaning) {
         String[] placeWords = place.split(" ");
         int startIndex = -1;
-        for (int i = 0; i < words.length - placeWords.length; i++) {
+        for (int i = 0; i < words.length - placeWords.length + 1; i++) {
             boolean found = true;
             for (int j = 0; j < placeWords.length; j++) {
                 found = (words[i + j].wordMeaning == null ||
@@ -139,6 +140,9 @@ public class WhereMiner implements ITextMiner {
                     startFlag = false;
                 }
             }
+        }
+        if (startFlag && !TextUtils.isEmpty(pretender)) {
+            result.add(pretender);
         }
         return result;
     }
