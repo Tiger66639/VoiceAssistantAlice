@@ -112,8 +112,10 @@ public class WhereMiner implements ITextMiner {
                 break;
             }
         }
-        for (int i = startIndex; i < startIndex + placeWords.length; i++) {
-            words[i].wordMeaning = wordMeaning;
+        if (startIndex >= 0) {
+            for (int i = startIndex; i < startIndex + placeWords.length; i++) {
+                words[i].wordMeaning = wordMeaning;
+            }
         }
         return words;
     }
