@@ -1,5 +1,6 @@
 package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -9,10 +10,12 @@ import java.util.ArrayList;
  */
 public class BaseCommandParser {
 
+    protected final Context mContext;
     protected WordHolder[] mWords;
     protected ITextMiner[] mMiners;
 
-    public BaseCommandParser(String text) {
+    public BaseCommandParser(Context context, String text) {
+        this.mContext = context;
         if (!TextUtils.isEmpty(text)) {
             mWords = getWords(text);
         }
@@ -22,7 +25,7 @@ public class BaseCommandParser {
         if (mMiners != null && mMiners.length > 0) {
             for (ITextMiner miner : mMiners) {
                 if (miner != null) {
-                    mWords = miner.investigate(mWords);
+                    mWords = miner.investigate(mContext, mWords);
                 }
             }
         }

@@ -1,0 +1,10 @@
+What would be the weather in Boston today
+What would be the weather in Boston tomorrow
+What would be the weather in Boston in three/four/five days (конкретний день)
+What would be the weather in Boston next two/three/four/five days(сума днів)
+What would be the weather in Boston this week(сума днів)
+What would be the weather in Boston in a week(конкретний день через тиждень)
+What would be the weather in Boston this month/ in a month/ in a year
+What is today's weather like in New York 
+today's weather 
+tomorrow's weather

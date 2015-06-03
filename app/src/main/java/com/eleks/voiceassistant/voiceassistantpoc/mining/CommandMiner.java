@@ -1,5 +1,7 @@
 package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
+import android.content.Context;
+
 import com.eleks.voiceassistant.voiceassistantpoc.command.CommandsUtils;
 
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ public class CommandMiner implements ITextMiner {
     private static final int INFINITY_DISTANCE = 999;
 
     @Override
-    public WordHolder[] investigate(WordHolder[] words) {
+    public WordHolder[] investigate(Context context, WordHolder[] words) {
         for (String command : COMMAND_KEYWORDS) {
             String[] commandWords = command.split(" ");
             if (words.length >= commandWords.length) {

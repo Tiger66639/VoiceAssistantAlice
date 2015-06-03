@@ -1,5 +1,8 @@
 package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
+import android.content.Context;
+import android.text.TextUtils;
+
 import com.eleks.voiceassistant.voiceassistantpoc.command.CommandsUtils;
 
 import java.text.DateFormatSymbols;
@@ -15,15 +18,19 @@ public class WhenMiner implements ITextMiner {
             "week", "this week", "next week", "month", "this month", "next month"};
 
     @Override
-    public WordHolder[] investigate(WordHolder[] words) {
+    public WordHolder[] investigate(Context context, WordHolder[] words) {
+        boolean found = false;
         for (String dateWord : DATE_WORDS) {
             Integer[] result = findDateMatch(dateWord, words);
             if (result != null) {
+                found = true;
                 for (int index : result) {
                     words[index].wordMeaning = WordMeaning.DATE;
                 }
             }
-            result = findMonthDatePattern(words);
+        }
+        if (!found) {
+            Integer[] result = findMonthDatePattern(words);
             if (result != null) {
                 for (int index : result) {
                     words[index].wordMeaning = WordMeaning.DATE;
@@ -40,6 +47,7 @@ public class WhenMiner implements ITextMiner {
             for (String month : months) {
                 if (CommandsUtils.fuzzyEquals(words[i].word, month)) {
                     result = tryToFindMonthDate(words, i);
+                    break;
                 }
             }
         }
@@ -53,13 +61,41 @@ public class WhenMiner implements ITextMiner {
     private ArrayList<Integer> tryToFindMonthDate(WordHolder[] words, int monthIndex) {
         ArrayList<Integer> result = new ArrayList<>();
         result.add(monthIndex);
+        boolean found = false;
         for (int i = monthIndex; i >= 0; i--) {
-            if (monthIndex - i <= 2 && ContainsNumber(words[i])) {
-                result.add(i);
+            if (monthIndex - i <= 2) {
+                if (ContainsNumber(words[i].word)) {
+                    result.add(i);
+                    found = true;
+                    break;
+                }
+            } else {
                 break;
             }
         }
+        if (!found) {
+            for (int i = monthIndex; i < words.length; i++) {
+                if (i - monthIndex - i <= 1) {
+                    if (ContainsNumber(words[i].word)) {
+                        result.add(i);
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        return result;
+    }
 
+    private boolean ContainsNumber(String word) {
+        boolean result = false;
+        for (int i = 0; i < word.length(); i++) {
+            if (TextUtils.isDigitsOnly(Character.toString(word.charAt(i)))) {
+                result = true;
+                break;
+            }
+        }
         return result;
     }
 

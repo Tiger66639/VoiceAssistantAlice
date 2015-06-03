@@ -7,5 +7,6 @@ public enum WordMeaning {
     COMMAND,
     DATE,
     PLACE,
+    POSSIBLE_PLACE,
     NOISE
 }
