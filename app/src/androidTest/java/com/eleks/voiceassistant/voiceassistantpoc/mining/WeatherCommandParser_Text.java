@@ -8,7 +8,7 @@ import android.test.InstrumentationTestCase;
 public class WeatherCommandParser_Text extends InstrumentationTestCase {
 
     private final static String[] sPhrases = {
-            "new show New York's weather in June 22d",
+            "Boston Jewelz Hdkdkdk weather ",
             "show Boston's weather on Monday",
             "show Boston weather in June"
     };

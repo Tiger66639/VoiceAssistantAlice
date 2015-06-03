@@ -21,6 +21,7 @@ public class WhereMiner implements ITextMiner {
     public WordHolder[] investigate(Context context, WordHolder[] words) {
         this.mContext = context;
         ArrayList<String> placePretenders = getPlacePretenders(words);
+        placePretenders = splitPretenders(placePretenders);
         Collections.sort(placePretenders, new PlaceComparator());
         if (placePretenders.size() > 0) {
             boolean foundPlace = false;
@@ -34,6 +35,38 @@ public class WhereMiner implements ITextMiner {
             }
         }
         return words;
+    }
+
+    private ArrayList<String> splitPretenders(ArrayList<String> pretenders) {
+        ArrayList<String> result = new ArrayList<>();
+        for (String pretender : pretenders) {
+            String[] parts = pretender.split(" ");
+            if (parts.length > 1) {
+                result.addAll(splitTextToNGramms(parts, parts.length));
+            } else {
+                result.add(pretender);
+            }
+        }
+        return result;
+    }
+
+    private ArrayList<String> splitTextToNGramms(String[] words, int windowSize) {
+        ArrayList<String> result = new ArrayList<>();
+        if (windowSize > 0) {
+            for (int i = 0; i < words.length - windowSize + 1; i++) {
+                String nGramm = "";
+                for (int j = 0; j < windowSize; j++) {
+                    nGramm += words[i + j] + " ";
+                }
+                result.add(nGramm.trim());
+            }
+            windowSize--;
+            ArrayList<String> tmpResult = splitTextToNGramms(words, windowSize);
+            if (tmpResult != null && tmpResult.size() > 0) {
+                result.addAll(tmpResult);
+            }
+        }
+        return result;
     }
 
     private boolean isRealPlace(String place) {
@@ -67,7 +100,12 @@ public class WhereMiner implements ITextMiner {
         for (int i = 0; i < words.length - placeWords.length; i++) {
             boolean found = true;
             for (int j = 0; j < placeWords.length; j++) {
-                found = words[i + j].wordMeaning == null && words[i + j].word.equals(placeWords[j]);
+                found = (words[i + j].wordMeaning == null ||
+                        words[i + j].wordMeaning == WordMeaning.POSSIBLE_PLACE) &&
+                        words[i + j].word.equals(placeWords[j]);
+                if (!found) {
+                    break;
+                }
             }
             if (found) {
                 startIndex = i;
