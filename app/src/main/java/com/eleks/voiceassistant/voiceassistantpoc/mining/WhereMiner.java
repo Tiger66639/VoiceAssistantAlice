@@ -15,13 +15,11 @@ import java.util.Locale;
  */
 public class WhereMiner implements ITextMiner {
 
-    private static final String POSSESSIVE_SUFFIX = "'s";
     private Context mContext;
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {
         this.mContext = context;
-        words = removePossessives(words);
         ArrayList<String> placePretenders = getPlacePretenders(words);
         Collections.sort(placePretenders, new PlaceComparator());
         if (placePretenders.size() > 0) {
@@ -33,16 +31,6 @@ public class WhereMiner implements ITextMiner {
                     wordMeaning = WordMeaning.PLACE;
                 }
                 words = setWordsMeaning(words, place, wordMeaning);
-            }
-        }
-        return words;
-    }
-
-    private WordHolder[] removePossessives(WordHolder[] words) {
-        for (WordHolder wordHolder : words) {
-            if (wordHolder.word.endsWith(POSSESSIVE_SUFFIX)) {
-                wordHolder.word = wordHolder.word
-                        .substring(0, wordHolder.word.length() - POSSESSIVE_SUFFIX.length());
             }
         }
         return words;

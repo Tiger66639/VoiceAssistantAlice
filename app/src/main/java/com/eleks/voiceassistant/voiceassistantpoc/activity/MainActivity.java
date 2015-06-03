@@ -17,8 +17,8 @@ import android.widget.Toast;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
-import com.eleks.voiceassistant.voiceassistantpoc.command.WeatherCommand;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
+import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
 import com.eleks.voiceassistant.voiceassistantpoc.server.WebServerMethods;
@@ -247,21 +247,21 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private void processGetWeatherForecast(WeatherCommand command) {
-        if (command.getWhere() != null) {
+    private void processGetWeatherForecast(WeatherCommandParser command) {
+        if (command.getWhereLatLng() != null) {
             new GetWeatherForecastTask().execute(command);
         }
     }
 
-    private class RecognizeTextToCommandTask extends AsyncTask<Recognition, Void, WeatherCommand> {
+    private class RecognizeTextToCommandTask extends AsyncTask<Recognition, Void, WeatherCommandParser> {
 
         @Override
-        protected WeatherCommand doInBackground(Recognition... params) {
+        protected WeatherCommandParser doInBackground(Recognition... params) {
             Recognition recognition = params[0];
-            WeatherCommand result = null;
+            WeatherCommandParser result = null;
             if (recognition.getResultCount() > 0) {
                 result =
-                        new WeatherCommand(MainActivity.this, recognition.getResult(0).getText());
+                        new WeatherCommandParser(MainActivity.this, recognition.getResult(0).getText());
             }
             return result;
         }
@@ -272,9 +272,9 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        protected void onPostExecute(WeatherCommand command) {
+        protected void onPostExecute(WeatherCommandParser command) {
             dismissProgressDialog();
-            if (command != null && command.getIsCommand()) {
+            if (command != null && command.isCommand()) {
                 DateFormat dateFormat = DateFormat.getDateInstance();
                 String text = "";
                 if (!TextUtils.isEmpty(command.getWhereName())) {
@@ -283,8 +283,8 @@ public class MainActivity extends ActionBarActivity {
                     text += "Can not recognize place.";
                 }
                 text += "\n" +
-                        dateFormat.format(command.getCommandDate().startDate) + "\n" +
-                        dateFormat.format(command.getCommandDate().finishDate);
+                        dateFormat.format(command.getWhenDates().startDate) + "\n" +
+                        dateFormat.format(command.getWhenDates().finishDate);
                 mCommandResult.setText(text);
                 processGetWeatherForecast(command);
             } else {
@@ -296,13 +296,13 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private class GetWeatherForecastTask extends AsyncTask<WeatherCommand, Void, ResponseModel> {
+    private class GetWeatherForecastTask extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
 
         @Override
-        protected ResponseModel doInBackground(WeatherCommand... params) {
-            WeatherCommand command = params[0];
+        protected ResponseModel doInBackground(WeatherCommandParser... params) {
+            WeatherCommandParser command = params[0];
             return WebServerMethods
-                    .getServerData(MainActivity.this, command.getWhere());
+                    .getServerData(MainActivity.this, command.getWhereLatLng());
         }
 
         @Override
@@ -313,7 +313,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(ResponseModel responseModel) {
             dismissProgressDialog();
-            speechText("Weather forecast from server was gotten successfully");
+            //speechText("Weather forecast from server was gotten successfully");
         }
     }
 }

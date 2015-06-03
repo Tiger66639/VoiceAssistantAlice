@@ -8,7 +8,7 @@ import android.content.Context;
 public class NoiseMiner implements ITextMiner {
 
     private static final String[] NOISE_WORDS = {"in", "of", "the", "a", "please", "for", "what",
-            "would", "be"};
+            "would", "be", "on"};
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {

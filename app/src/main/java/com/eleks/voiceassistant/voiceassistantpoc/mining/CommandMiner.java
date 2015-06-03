@@ -11,6 +11,7 @@ import java.util.ArrayList;
  */
 public class CommandMiner implements ITextMiner {
 
+    private static final String POSSESSIVE_SUFFIX = "'s";
     private static final String[] COMMAND_KEYWORDS = {
             "weather", "show weather", "get weather", "what weather", "what temperature",
             "temperature", "how hot", "how cold"
@@ -19,6 +20,7 @@ public class CommandMiner implements ITextMiner {
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {
+        words = removePossessives(words);
         for (String command : COMMAND_KEYWORDS) {
             String[] commandWords = command.split(" ");
             if (words.length >= commandWords.length) {
@@ -28,6 +30,16 @@ public class CommandMiner implements ITextMiner {
                         words[index].wordMeaning = WordMeaning.COMMAND;
                     }
                 }
+            }
+        }
+        return words;
+    }
+
+    private WordHolder[] removePossessives(WordHolder[] words) {
+        for (WordHolder wordHolder : words) {
+            if (wordHolder.word.endsWith(POSSESSIVE_SUFFIX)) {
+                wordHolder.word = wordHolder.word
+                        .substring(0, wordHolder.word.length() - POSSESSIVE_SUFFIX.length());
             }
         }
         return words;

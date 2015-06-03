@@ -2,6 +2,7 @@ package com.eleks.voiceassistant.voiceassistantpoc.mining;
 
 import android.content.Context;
 
+import com.eleks.voiceassistant.voiceassistantpoc.command.CommandPeriod;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -10,6 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
 public class WeatherCommandParser extends BaseCommandParser {
 
     private final PlaceParser mPlaceParser;
+    private final DateParser mDateParser;
     //private final DateParser mDateParser;
 
     public WeatherCommandParser(Context context, String text) {
@@ -17,7 +19,7 @@ public class WeatherCommandParser extends BaseCommandParser {
         fillMiners();
         applyMiners();
         mPlaceParser = new PlaceParser(mContext, mWords);
-        //mDateParser=new DateParser(mWords);
+        mDateParser=new DateParser(mWords);
     }
 
     private void fillMiners() {
@@ -34,5 +36,9 @@ public class WeatherCommandParser extends BaseCommandParser {
 
     public String getWhereName() {
         return mPlaceParser.getPlaceName();
+    }
+
+    public CommandPeriod getWhenDates() {
+        return mDateParser.getDates();
     }
 }

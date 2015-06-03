@@ -37,7 +37,35 @@ public class WhenMiner implements ITextMiner {
                 }
             }
         }
+        if (!found) {
+            Integer[] result = findDayOfWeekDatePattern(words);
+            if (result != null) {
+                for (int index : result) {
+                    words[index].wordMeaning = WordMeaning.DATE;
+                }
+            }
+        }
         return words;
+    }
+
+    private Integer[] findDayOfWeekDatePattern(WordHolder[] words) {
+        ArrayList<Integer> result = new ArrayList<>();
+        String[] weekdays = new DateFormatSymbols(Locale.ENGLISH).getWeekdays();
+        for (int i = 0; i < words.length; i++) {
+            for (String weekday : weekdays) {
+                if (!TextUtils.isEmpty(weekday)) {
+                    if (CommandsUtils.fuzzyEquals(words[i].word, weekday)) {
+                        result.add(i);
+                        break;
+                    }
+                }
+            }
+        }
+        if (result.size() > 0) {
+            return result.toArray(new Integer[result.size()]);
+        } else {
+            return null;
+        }
     }
 
     private Integer[] findMonthDatePattern(WordHolder[] words) {
