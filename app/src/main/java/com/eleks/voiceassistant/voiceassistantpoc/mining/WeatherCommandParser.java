@@ -10,12 +10,14 @@ import com.google.android.gms.maps.model.LatLng;
 public class WeatherCommandParser extends BaseCommandParser {
 
     private final PlaceParser mPlaceParser;
+    //private final DateParser mDateParser;
 
     public WeatherCommandParser(Context context, String text) {
         super(context, text);
         fillMiners();
         applyMiners();
         mPlaceParser = new PlaceParser(mContext, mWords);
+        //mDateParser=new DateParser(mWords);
     }
 
     private void fillMiners() {
