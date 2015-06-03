@@ -17,6 +17,10 @@ public class WeatherCommandParser_Text extends InstrumentationTestCase {
         for (String phrase : sPhrases) {
             WeatherCommandParser weatherCommand = new WeatherCommandParser(getInstrumentation().getTargetContext(), phrase);
             assertTrue(weatherCommand.isCommand());
+            if (weatherCommand.isCommand()) {
+                assertNotNull(weatherCommand.getWhereLatLng());
+                assertNotNull(weatherCommand.getWhereName());
+            }
         }
     }
 }
