@@ -14,6 +14,7 @@ public class WhenMiner implements ITextMiner {
 
     private static final String[] DATE_WORDS = {"today", "tomorrow", "yesterday", "weekend",
             "this week", "next week", "this month", "next month"};
+    private static final String DAYS = "days";
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {
@@ -22,28 +23,46 @@ public class WhenMiner implements ITextMiner {
             Integer[] result = findDateMatch(dateWord, words);
             if (result != null) {
                 found = true;
-                for (int index : result) {
-                    words[index].wordMeaning = WordMeaning.DATE;
-                }
+                setWordsMeaning(words, result);
             }
         }
         if (!found) {
             Integer[] result = findMonthDatePattern(words);
             if (result != null) {
-                for (int index : result) {
-                    words[index].wordMeaning = WordMeaning.DATE;
-                }
+                found = true;
+                setWordsMeaning(words, result);
             }
         }
         if (!found) {
             Integer[] result = findDayOfWeekDatePattern(words);
             if (result != null) {
-                for (int index : result) {
-                    words[index].wordMeaning = WordMeaning.DATE;
-                }
+                found = true;
+                setWordsMeaning(words, result);
+            }
+        }
+        if (!found) {
+            Integer[] result = findDaysPattern(words);
+            if (result != null) {
+                //found = true;
+                setWordsMeaning(words, result);
             }
         }
         return words;
+    }
+
+    private Integer[] findDaysPattern(WordHolder[] words) {
+        ArrayList<Integer> result = null;
+        for (int i = 0; i < words.length; i++) {
+            if (CommandsUtils.fuzzyEquals(words[i].word, DAYS)) {
+                result = collectDaysWords(words, i);
+            }
+        }
+    }
+
+    private void setWordsMeaning(WordHolder[] words, Integer[] indexes) {
+        for (int index : indexes) {
+            words[index].wordMeaning = WordMeaning.DATE;
+        }
     }
 
     private Integer[] findDayOfWeekDatePattern(WordHolder[] words) {
