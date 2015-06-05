@@ -1,5 +1,7 @@
 package com.eleks.voiceassistant.voiceassistantpoc.activity;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,8 +9,6 @@ import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.widget.EditText;
@@ -33,7 +33,7 @@ import com.nuance.nmdp.speechkit.Vocalizer;
 import java.text.DateFormat;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static final long RECOGNIZER_DELAY = 5000;
@@ -164,10 +164,7 @@ public class MainActivity extends ActionBarActivity {
         } else {
             processGooglePlayServiceIsNotExists();
         }
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        FloatingActionButtonFragment fragment = new FloatingActionButtonFragment();
-        transaction.replace(R.id.sample_content_fragment, fragment);
-        transaction.commit();
+        addFloatingActionButtonFragment();
         /*mSpeechResult = (EditText) findViewById(R.id.speechResult);
         //Nuance
         if (sSpeechKit == null) {
@@ -204,6 +201,13 @@ public class MainActivity extends ActionBarActivity {
         mVocalizer = sSpeechKit
                 .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
         mVocalizer.setVoice("Samantha");*/
+    }
+
+    private void addFloatingActionButtonFragment() {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        FloatingActionButtonFragment fragment = new FloatingActionButtonFragment();
+        transaction.replace(R.id.sample_content_fragment, fragment);
+        transaction.commit();
     }
 
     private void verifyRecognizerState() {
