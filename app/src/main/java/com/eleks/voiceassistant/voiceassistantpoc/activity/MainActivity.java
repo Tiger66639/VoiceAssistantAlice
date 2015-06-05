@@ -21,6 +21,7 @@ import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
+import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
 import com.eleks.voiceassistant.voiceassistantpoc.server.WebServerMethods;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -37,6 +38,7 @@ import java.text.DateFormat;
 public class MainActivity extends ActionBarActivity {
 
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
+    private static final long RECOGNIZER_DELAY = 5000;
     private static SpeechKit sSpeechKit;
     private final Recognizer.Listener mNuanceListener;
     Vocalizer.Listener vocalizerListener = new Vocalizer.Listener() {
@@ -58,6 +60,7 @@ public class MainActivity extends ActionBarActivity {
     private EditText mCommandResult;
     private LocationController mLocationController;
     private Vocalizer mVocalizer;
+    private RecognizerState mRecognizerState;
 
     public MainActivity() {
         super();
@@ -103,11 +106,13 @@ public class MainActivity extends ActionBarActivity {
         return new Recognizer.Listener() {
             @Override
             public void onRecordingBegin(Recognizer recognizer) {
+                mRecognizerState = RecognizerState.RECORDING;
                 showProgressDialog("Recording...");
             }
 
             @Override
             public void onRecordingDone(Recognizer recognizer) {
+                mRecognizerState = RecognizerState.PROCESSING;
                 showProgressDialog("Processing...");
             }
 
@@ -116,6 +121,7 @@ public class MainActivity extends ActionBarActivity {
                 if (recognizer != mCurrentRecognizer) {
                     return;
                 }
+                mRecognizerState = RecognizerState.STOPPED;
                 dismissProgressDialog();
                 mCurrentRecognizer = null;
 
@@ -133,6 +139,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onResults(Recognizer recognizer, Recognition results) {
                 dismissProgressDialog();
+                mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
                 int count = results.getResultCount();
                 String resultStr = "";
@@ -176,18 +183,32 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 showProgressDialog("Initializing...");
+                mRecognizerState = RecognizerState.INITIALIZING;
                 mSpeechResult.setText("");
                 mCommandResult.setText("");
                 mCurrentRecognizer = getSpeechKit().createRecognizer(
                         Recognizer.RecognizerType.Search, Recognizer.EndOfSpeechDetection.Short,
                         "en_US", mNuanceListener, _handler);
                 mCurrentRecognizer.start();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        verifyRecognizerState();
+                    }
+                }, RECOGNIZER_DELAY);
             }
         });
         mCommandResult = (EditText) findViewById(R.id.commandResult);
         mVocalizer = sSpeechKit
                 .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
         mVocalizer.setVoice("Samantha");
+    }
+
+    private void verifyRecognizerState() {
+        if (mRecognizerState == RecognizerState.INITIALIZING ||
+                mRecognizerState == RecognizerState.RECORDING) {
+            mCurrentRecognizer.stopRecording();
+        }
     }
 
     private void processGooglePlayServiceIsNotExists() {
