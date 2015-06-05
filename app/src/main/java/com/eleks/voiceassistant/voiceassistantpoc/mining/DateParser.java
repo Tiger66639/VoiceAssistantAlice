@@ -24,13 +24,18 @@ public class DateParser {
     private static final String NEXT_MONTH = "next month";
     private static final String NEXT_WEEK = "next week";
     private static final String TODAY = "today";
-    private WordHolder[] mWords;
+    private static final String IN = "in";
+    private static final String DAYS = "days";
+    private static final String NEXT = "next";
+    private static final String[] NUMERATORS = {"two", "three", "four", "five", "six", "seven"};
+    private static final int DAY_NUMERATOR_POSITION = 1;
+    private static final int DAYS_SHIFT = 2;
     private CommandPeriod mDates;
     private Date mToday;
     private Calendar mCalendar;
 
     public DateParser(WordHolder[] words) {
-        mWords = words;
+        WordHolder[] mWords = words;
         String dateString = getDateString(mWords);
         if (!TextUtils.isEmpty(dateString)) {
             mDates = getDatesFromDateString(dateString);
@@ -78,13 +83,55 @@ public class DateParser {
             result = getNextMonth();
         } else if (CommandsUtils.fuzzyEquals(dateString, NEXT_WEEK)) {                              //Next week
             result = getNextWeek();
+        } else if (dateString.startsWith(IN) && dateString.endsWith(DAYS) &&
+                dateString.split(" ").length == 3) {
+            result = getInDays(dateString);
+        } else if (dateString.startsWith(NEXT) && dateString.endsWith(DAYS) &&
+                dateString.split(" ").length == 3) {
+            result = getNextDays(dateString);
+        }
+
+        return result;
+    }
+
+    private CommandPeriod getNextDays(String dateString) {
+        CommandPeriod result = null;
+        String[] words = dateString.split(" ");
+        String dayNumerator = words[DAY_NUMERATOR_POSITION];
+        int daysDiff = -1;
+        for (int i = 0; i < NUMERATORS.length; i++) {
+            if (CommandsUtils.fuzzyEquals(NUMERATORS[i], dayNumerator)) {
+                daysDiff = DAYS_SHIFT + i;
+            }
+        }
+        if (daysDiff > 0) {
+            result = new CommandPeriod();
+            result.startDate = new Date(mToday.getTime() + MILLISECONDS_IN_DAY);
+            result.finishDate = new Date(mToday.getTime() + daysDiff * MILLISECONDS_IN_DAY);
+        }
+        return result;
+    }
+
+    private CommandPeriod getInDays(String dateString) {
+        CommandPeriod result = null;
+        String[] words = dateString.split(" ");
+        String dayNumerator = words[DAY_NUMERATOR_POSITION];
+        int daysDiff = -1;
+        for (int i = 0; i < NUMERATORS.length; i++) {
+            if (CommandsUtils.fuzzyEquals(NUMERATORS[i], dayNumerator)) {
+                daysDiff = DAYS_SHIFT + i;
+            }
+        }
+        if (daysDiff > 0) {
+            result = new CommandPeriod();
+            result.startDate = new Date(mToday.getTime() + daysDiff * MILLISECONDS_IN_DAY);
+            result.finishDate = result.startDate;
         }
         return result;
     }
 
     private CommandPeriod getTodayDates() {
-        CommandPeriod result = new CommandPeriod();
-        return result;
+        return new CommandPeriod();
     }
 
     private CommandPeriod getMonthDateFromDateString(String dateString) {
@@ -197,7 +244,7 @@ public class DateParser {
     }
 
     private CommandPeriod getThisMonth() {
-        CommandPeriod result = new CommandPeriod();
+        CommandPeriod result;
         int year = mCalendar.get(Calendar.YEAR);
         int month = mCalendar.get(Calendar.MONTH);
         result = CommandsUtils.getMonthDates(month, year);

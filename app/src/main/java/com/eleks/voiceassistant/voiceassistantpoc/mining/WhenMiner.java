@@ -14,6 +14,9 @@ public class WhenMiner implements ITextMiner {
 
     private static final String[] DATE_WORDS = {"today", "tomorrow", "yesterday", "weekend",
             "this week", "next week", "this month", "next month"};
+    private static final String DAYS = "days";
+    private static final String[] NUMERATORS = {"two", "three", "four", "five", "six", "seven"};
+    private static final String[] DAYS_ADVERBS = {"in", "next"};
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {
@@ -22,28 +25,65 @@ public class WhenMiner implements ITextMiner {
             Integer[] result = findDateMatch(dateWord, words);
             if (result != null) {
                 found = true;
-                for (int index : result) {
-                    words[index].wordMeaning = WordMeaning.DATE;
-                }
+                setWordsMeaning(words, result);
             }
         }
         if (!found) {
             Integer[] result = findMonthDatePattern(words);
             if (result != null) {
-                for (int index : result) {
-                    words[index].wordMeaning = WordMeaning.DATE;
-                }
+                found = true;
+                setWordsMeaning(words, result);
             }
         }
         if (!found) {
             Integer[] result = findDayOfWeekDatePattern(words);
             if (result != null) {
-                for (int index : result) {
-                    words[index].wordMeaning = WordMeaning.DATE;
-                }
+                found = true;
+                setWordsMeaning(words, result);
+            }
+        }
+        if (!found) {
+            Integer[] result = findDaysPattern(words);
+            if (result != null) {
+                //found = true;
+                setWordsMeaning(words, result);
             }
         }
         return words;
+    }
+
+    private Integer[] findDaysPattern(WordHolder[] words) {
+        ArrayList<Integer> result = null;
+        for (int i = 0; i < words.length; i++) {
+            if (CommandsUtils.fuzzyEquals(words[i].word, DAYS)) {
+                result = collectDaysWords(words, i);
+            }
+        }
+        if (result != null && result.size() > 0) {
+            return result.toArray(new Integer[result.size()]);
+        } else {
+            return null;
+        }
+    }
+
+    private ArrayList<Integer> collectDaysWords(WordHolder[] words, int i) {
+        ArrayList<Integer> result = new ArrayList<>();
+        result.add(i);
+        i--;
+        if (i >= 0 && CommandsUtils.wordExistsInArrayFuzzyEquals(words[i].word, NUMERATORS)) {
+            result.add(i);
+        }
+        i--;
+        if (i >= 0 && CommandsUtils.wordExistsInArrayEquals(words[i].word, DAYS_ADVERBS)) {
+            result.add(i);
+        }
+        return result;
+    }
+
+    private void setWordsMeaning(WordHolder[] words, Integer[] indexes) {
+        for (int index : indexes) {
+            words[index].wordMeaning = WordMeaning.DATE;
+        }
     }
 
     private Integer[] findDayOfWeekDatePattern(WordHolder[] words) {

@@ -303,9 +303,13 @@ public class MainActivity extends ActionBarActivity {
                 } else {
                     text += "Can not recognize place.";
                 }
-                text += "\n" +
-                        dateFormat.format(command.getWhenDates().startDate) + "\n" +
-                        dateFormat.format(command.getWhenDates().finishDate);
+                if (command.getWhenDates() != null) {
+                    text += "\n" +
+                            dateFormat.format(command.getWhenDates().startDate) + "\n" +
+                            dateFormat.format(command.getWhenDates().finishDate);
+                } else {
+                    text += "\nCan not recognize dates";
+                }
                 mCommandResult.setText(text);
                 processGetWeatherForecast(command);
             } else {
