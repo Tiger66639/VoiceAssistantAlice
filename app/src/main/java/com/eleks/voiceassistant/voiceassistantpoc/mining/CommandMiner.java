@@ -12,7 +12,7 @@ public class CommandMiner implements ITextMiner {
     private static final String POSSESSIVE_SUFFIX = "'s";
     private static final String[] COMMAND_KEYWORDS = {
             "weather", "show weather", "get weather", "what weather", "what temperature",
-            "temperature", "how hot", "how cold"
+            "temperature", "how hot", "how cold", "weather forecast", "forecast"
     };
     private static final int INFINITY_DISTANCE = 999;
 
