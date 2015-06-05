@@ -15,6 +15,8 @@ public class WhenMiner implements ITextMiner {
     private static final String[] DATE_WORDS = {"today", "tomorrow", "yesterday", "weekend",
             "this week", "next week", "this month", "next month"};
     private static final String DAYS = "days";
+    private static final String[] NUMERATORS = {"two", "three", "four", "five", "six", "seven"};
+    private static final String[] DAYS_ADVERBS = {"in", "next"};
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {
@@ -57,6 +59,25 @@ public class WhenMiner implements ITextMiner {
                 result = collectDaysWords(words, i);
             }
         }
+        if (result != null && result.size() > 0) {
+            return result.toArray(new Integer[result.size()]);
+        } else {
+            return null;
+        }
+    }
+
+    private ArrayList<Integer> collectDaysWords(WordHolder[] words, int i) {
+        ArrayList<Integer> result = new ArrayList<>();
+        result.add(i);
+        i--;
+        if (i >= 0 && CommandsUtils.wordExistsInArrayFuzzyEquals(words[i].word, NUMERATORS)) {
+            result.add(i);
+        }
+        i--;
+        if (i >= 0 && CommandsUtils.wordExistsInArrayEquals(words[i].word, DAYS_ADVERBS)) {
+            result.add(i);
+        }
+        return result;
     }
 
     private void setWordsMeaning(WordHolder[] words, Integer[] indexes) {

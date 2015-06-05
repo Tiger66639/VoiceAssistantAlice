@@ -133,4 +133,21 @@ public class CommandsUtils {
         return result;
     }
 
+    public static boolean wordExistsInArrayFuzzyEquals(String word, String[] wordsArray) {
+        for (String arrayWord : wordsArray) {
+            if (fuzzyEquals(word, arrayWord)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean wordExistsInArrayEquals(String word, String[] wordsArray) {
+        for (String arrayWord : wordsArray) {
+            if (arrayWord.toLowerCase().equals(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
