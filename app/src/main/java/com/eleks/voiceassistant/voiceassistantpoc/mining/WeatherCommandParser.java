@@ -11,7 +11,6 @@ public class WeatherCommandParser extends BaseCommandParser {
 
     private final PlaceParser mPlaceParser;
     private final DateParser mDateParser;
-    //private final DateParser mDateParser;
 
     public WeatherCommandParser(Context context, String text) {
         super(context, text);
