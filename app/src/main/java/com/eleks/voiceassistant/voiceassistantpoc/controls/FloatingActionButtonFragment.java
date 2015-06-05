@@ -28,9 +28,10 @@ import com.eleks.voiceassistant.voiceassistantpoc.R;
  * This fragment inflates a layout with two Floating Action Buttons and acts as a listener to
  * changes on them.
  */
-public class FloatingActionButtonBasicFragment extends Fragment implements FloatingActionButton.OnCheckedChangeListener {
+public class FloatingActionButtonFragment extends Fragment
+        implements FloatingActionButton.OnCheckedChangeListener {
 
-    private final static String TAG = "FloatingActionButtonBasicFragment";
+    private final static String TAG = "FloatingActionButtonFragment";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,8 +42,6 @@ public class FloatingActionButtonBasicFragment extends Fragment implements Float
         // Make this {@link Fragment} listen for changes in both FABs.
         FloatingActionButton fab1 = (FloatingActionButton) rootView.findViewById(R.id.fab_1);
         fab1.setOnCheckedChangeListener(this);
-        FloatingActionButton fab2 = (FloatingActionButton) rootView.findViewById(R.id.fab_2);
-        fab2.setOnCheckedChangeListener(this);
         return rootView;
     }
 
@@ -52,8 +51,6 @@ public class FloatingActionButtonBasicFragment extends Fragment implements Float
         // When a FAB is toggled, log the action.
         switch (fabView.getId()) {
             case R.id.fab_1:
-                break;
-            case R.id.fab_2:
                 break;
             default:
                 break;

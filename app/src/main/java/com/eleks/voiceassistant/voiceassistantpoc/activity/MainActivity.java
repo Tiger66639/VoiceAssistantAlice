@@ -11,23 +11,19 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
-import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonBasicFragment;
+import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
-import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
 import com.eleks.voiceassistant.voiceassistantpoc.server.WebServerMethods;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.nuance.nmdp.speechkit.Prompt;
 import com.nuance.nmdp.speechkit.Recognition;
 import com.nuance.nmdp.speechkit.Recognizer;
 import com.nuance.nmdp.speechkit.SpeechError;
@@ -169,7 +165,7 @@ public class MainActivity extends ActionBarActivity {
             processGooglePlayServiceIsNotExists();
         }
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        FloatingActionButtonBasicFragment fragment = new FloatingActionButtonBasicFragment();
+        FloatingActionButtonFragment fragment = new FloatingActionButtonFragment();
         transaction.replace(R.id.sample_content_fragment, fragment);
         transaction.commit();
         /*mSpeechResult = (EditText) findViewById(R.id.speechResult);

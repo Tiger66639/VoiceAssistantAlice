@@ -6,4 +6,6 @@
     <string name="gps_is_not_exists_message">Application can not work without Google Play Service. Please install Google Play Service and try again.</string>
     <string name="gps_is_not_exists_ok_button_name">Ok</string>
     <string name="cannot_recognize_voice_command">Can not recognize voice command</string>
+    <string name="welcome_text1">Tap and ask</string>
+    <string name="welcome_text2">about weather</string>
 </resources>
