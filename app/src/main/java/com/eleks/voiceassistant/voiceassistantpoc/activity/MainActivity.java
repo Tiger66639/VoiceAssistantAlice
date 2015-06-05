@@ -7,6 +7,7 @@ import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
+import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonBasicFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
@@ -166,7 +168,11 @@ public class MainActivity extends ActionBarActivity {
         } else {
             processGooglePlayServiceIsNotExists();
         }
-        mSpeechResult = (EditText) findViewById(R.id.speechResult);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        FloatingActionButtonBasicFragment fragment = new FloatingActionButtonBasicFragment();
+        transaction.replace(R.id.sample_content_fragment, fragment);
+        transaction.commit();
+        /*mSpeechResult = (EditText) findViewById(R.id.speechResult);
         //Nuance
         if (sSpeechKit == null) {
             sSpeechKit = SpeechKit.initialize(getApplication().getApplicationContext(),
@@ -201,7 +207,7 @@ public class MainActivity extends ActionBarActivity {
         mCommandResult = (EditText) findViewById(R.id.commandResult);
         mVocalizer = sSpeechKit
                 .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
-        mVocalizer.setVoice("Samantha");
+        mVocalizer.setVoice("Samantha");*/
     }
 
     private void verifyRecognizerState() {
