@@ -1,5 +1,7 @@
 package com.eleks.voiceassistant.voiceassistantpoc.activity;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
@@ -11,13 +13,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
+import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
+import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
@@ -206,7 +211,41 @@ public class MainActivity extends Activity {
     private void addFloatingActionButtonFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         FloatingActionButtonFragment fragment = new FloatingActionButtonFragment();
-        transaction.replace(R.id.sample_content_fragment, fragment);
+        fragment.setCheckedChangeListener(new FloatingActionButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(FloatingActionButton fabView, boolean isChecked) {
+
+            }
+        });
+        fragment.setOnFabClickListener(new FloatingActionButton.OnFabClickListener() {
+            @Override
+            public void onFabClick(FloatingActionButton fabView) {
+                Integer colorFrom;
+                Integer colorTo;
+                if (fabView.getFabState() == FloatingActionButtonStates.MICROPHONE_ACTIVATED) {
+                    fabView.setFabState(FloatingActionButtonStates.MICROPHONE_DEACTIVATED);
+                    colorFrom = getResources().getColor(R.color.background_passive_color);
+                    colorTo = getResources().getColor(R.color.background_active_color);
+                } else {
+                    fabView.setFabState(FloatingActionButtonStates.MICROPHONE_ACTIVATED);
+                    colorFrom = getResources().getColor(R.color.background_active_color);
+                    colorTo = getResources().getColor(R.color.background_passive_color);
+                }
+                final View mainView = MainActivity.this.findViewById(R.id.main_container);
+                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+                colorAnimation.setDuration(1000);
+                colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animator) {
+                        mainView.setBackgroundColor((Integer) animator.getAnimatedValue());
+                    }
+
+                });
+                colorAnimation.start();
+            }
+        });
+        transaction.replace(R.id.fab_fragment, fragment, FloatingActionButtonFragment.TAG);
         transaction.commit();
     }
 

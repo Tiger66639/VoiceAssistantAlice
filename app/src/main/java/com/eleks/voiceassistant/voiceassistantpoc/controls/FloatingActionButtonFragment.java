@@ -24,14 +24,19 @@ import android.view.ViewGroup;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 
+import java.util.ArrayList;
+
 /**
  * This fragment inflates a layout with two Floating Action Buttons and acts as a listener to
  * changes on them.
  */
 public class FloatingActionButtonFragment extends Fragment
-        implements FloatingActionButton.OnCheckedChangeListener {
+        implements FloatingActionButton.OnCheckedChangeListener,
+        FloatingActionButton.OnFabClickListener {
 
-    private final static String TAG = "FloatingActionButtonFragment";
+    public final static String TAG = FloatingActionButtonFragment.class.getName();
+    private ArrayList<FloatingActionButton.OnCheckedChangeListener> mCheckedListeners;
+    private ArrayList<FloatingActionButton.OnFabClickListener> mFabClickListeners;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,18 +47,39 @@ public class FloatingActionButtonFragment extends Fragment
         // Make this {@link Fragment} listen for changes in both FABs.
         FloatingActionButton fab1 = (FloatingActionButton) rootView.findViewById(R.id.fab_1);
         fab1.setOnCheckedChangeListener(this);
+        fab1.setOnFabClickListener(this);
         return rootView;
     }
 
+    public void setCheckedChangeListener(FloatingActionButton.OnCheckedChangeListener listener) {
+        if (mCheckedListeners == null) {
+            mCheckedListeners = new ArrayList<>();
+        }
+        mCheckedListeners.add(listener);
+    }
+
+    public void setOnFabClickListener(FloatingActionButton.OnFabClickListener listener) {
+        if (mFabClickListeners == null) {
+            mFabClickListeners = new ArrayList<>();
+        }
+        mFabClickListeners.add(listener);
+    }
 
     @Override
     public void onCheckedChanged(FloatingActionButton fabView, boolean isChecked) {
-        // When a FAB is toggled, log the action.
-        switch (fabView.getId()) {
-            case R.id.fab_1:
-                break;
-            default:
-                break;
+        if (mCheckedListeners != null) {
+            for (FloatingActionButton.OnCheckedChangeListener listener : mCheckedListeners) {
+                listener.onCheckedChanged(fabView, isChecked);
+            }
+        }
+    }
+
+    @Override
+    public void onFabClick(FloatingActionButton fabView) {
+        if (mFabClickListeners != null) {
+            for (FloatingActionButton.OnFabClickListener listener : mFabClickListeners) {
+                listener.onFabClick(fabView);
+            }
         }
     }
 }

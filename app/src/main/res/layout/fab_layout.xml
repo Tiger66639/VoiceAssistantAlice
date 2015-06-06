@@ -30,6 +30,7 @@
         android:stateListAnimator="@animator/fab_anim">
 
         <ImageView
+            android:id="@+id/fab_icon"
             android:layout_width="@dimen/fab_icon_size"
             android:layout_height="@dimen/fab_icon_size"
             android:layout_gravity="center"

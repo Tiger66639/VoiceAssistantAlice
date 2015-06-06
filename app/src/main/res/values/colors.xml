@@ -15,9 +15,11 @@
  limitations under the License.
 -->
 <resources>
+    <color name="background_active_color">#f50057</color>
+    <color name="background_passive_color">#ffffff</color>
     <color name="welcome_text_color">#f50057</color>
     <color name="fab_color_1">#f50057</color>
     <color name="fab_color_1_muted">#ff8080</color>
     <color name="fab_color_2">#eeeeee</color>
     <color name="fab_color_2_muted">#a56ab0</color>
-</resources>
+    </resources>

@@ -21,7 +21,7 @@
     </item>
 
     <item>
-        <inset android:drawable="@drawable/ic_mic" />
+        <inset android:drawable="@drawable/ic_mic_white" />
     </item>
 
 </selector>

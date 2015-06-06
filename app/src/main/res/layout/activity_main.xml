@@ -1,14 +1,29 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
     <RelativeLayout
+        android:id="@+id/list_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/fab_fragment"
+        android:layout_alignParentTop="true"
+        android:visibility="gone">
+
+        <ListView
+            android:id="@+id/application_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/welcome_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/sample_content_fragment">
+        android:layout_above="@+id/fab_fragment">
 
         <TextView
             android:id="@+id/welcome_text1"
@@ -42,7 +57,7 @@
     </RelativeLayout>
 
     <FrameLayout
-        android:id="@+id/sample_content_fragment"
+        android:id="@+id/fab_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

@@ -21,29 +21,17 @@ import android.graphics.Outline;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
-import android.widget.Checkable;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+
+import com.eleks.voiceassistant.voiceassistantpoc.R;
 
 /**
  * A Floating Action Button is a {@link android.widget.Checkable} view distinguished by a circled
  * icon floating above the UI, with special motion behaviors.
  */
-public class FloatingActionButton extends FrameLayout implements Checkable {
-
-    /**
-     * Interface definition for a callback to be invoked when the checked state
-     * of a compound button changes.
-     */
-    public static interface OnCheckedChangeListener {
-
-        /**
-         * Called when the checked state of a FAB has changed.
-         *
-         * @param fabView   The FAB view whose state has changed.
-         * @param isChecked The new checked state of buttonView.
-         */
-        void onCheckedChanged(FloatingActionButton fabView, boolean isChecked);
-    }
+public class FloatingActionButton extends FrameLayout// implements Checkable
+{
 
     /**
      * An array of states.
@@ -51,14 +39,14 @@ public class FloatingActionButton extends FrameLayout implements Checkable {
     private static final int[] CHECKED_STATE_SET = {
             android.R.attr.state_checked
     };
-
     private static final String TAG = "FloatingActionButton";
-
+    private ImageView mFabIcon;
     // A boolean that tells if the FAB is checked or not.
     private boolean mChecked;
-
     // A listener to communicate that the FAB has changed it's state
     private OnCheckedChangeListener mOnCheckedChangeListener;
+    private OnFabClickListener mOnFabClickListener;
+    private FloatingActionButtonStates mFabState;
 
     public FloatingActionButton(Context context) {
         this(context, null, 0, 0);
@@ -75,9 +63,8 @@ public class FloatingActionButton extends FrameLayout implements Checkable {
     public FloatingActionButton(Context context, AttributeSet attrs, int defStyleAttr,
                                 int defStyleRes) {
         super(context, attrs, defStyleAttr);
-
         setClickable(true);
-
+        mFabState = FloatingActionButtonStates.MICROPHONE_ACTIVATED;
         // Set the outline provider for this view. The provider is given the outline which it can
         // then modify as needed. In this case we set the outline to be an oval fitting the height
         // and width.
@@ -92,8 +79,44 @@ public class FloatingActionButton extends FrameLayout implements Checkable {
         setClipToOutline(true);
     }
 
+    public FloatingActionButtonStates getFabState() {
+        return mFabState;
+    }
+
+    public void setFabState(FloatingActionButtonStates state) {
+        if (mFabIcon == null) {
+            mFabIcon = (ImageView) findViewById(R.id.fab_icon);
+        }
+        mFabState = state;
+        switch (state) {
+            case MICROPHONE_ACTIVATED:
+                setBackgroundColor(getResources().getColor(R.color.fab_color_1));
+                mFabIcon.setImageResource(R.drawable.ic_mic_white);
+                break;
+            case MICROPHONE_DEACTIVATED:
+                setBackgroundColor(getResources().getColor(R.color.fab_color_2));
+                mFabIcon.setImageResource(R.drawable.ic_mic_red);
+                break;
+        }
+    }
+
+    /**
+     * Register a callback to be invoked when the checked state of this button
+     * changes.
+     *
+     * @param listener the callback to call on checked state change
+     */
+    public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
+        mOnCheckedChangeListener = listener;
+    }
+
+    public void setOnFabClickListener(OnFabClickListener listener) {
+        mOnFabClickListener = listener;
+    }
+
     /**
      * Sets the checked/unchecked state of the FAB.
+     *
      * @param checked
      */
     public void setChecked(boolean checked) {
@@ -112,31 +135,13 @@ public class FloatingActionButton extends FrameLayout implements Checkable {
     }
 
     /**
-     * Register a callback to be invoked when the checked state of this button
-     * changes.
-     *
-     * @param listener the callback to call on checked state change
-     */
-    public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
-        mOnCheckedChangeListener = listener;
-    }
-
-    @Override
-    public boolean isChecked() {
-        return mChecked;
-    }
-
-    @Override
-    public void toggle() {
-        setChecked(!mChecked);
-    }
-
-    /**
      * Override performClick() so that we can toggle the checked state when the view is clicked
      */
     @Override
     public boolean performClick() {
-        toggle();
+        if (mOnFabClickListener != null) {
+            mOnFabClickListener.onFabClick(FloatingActionButton.this);
+        }
         return super.performClick();
     }
 
@@ -149,12 +154,23 @@ public class FloatingActionButton extends FrameLayout implements Checkable {
         invalidateOutline();
     }
 
-    @Override
-    protected int[] onCreateDrawableState(int extraSpace) {
-        final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
-        if (isChecked()) {
-            mergeDrawableStates(drawableState, CHECKED_STATE_SET);
-        }
-        return drawableState;
+
+    /**
+     * Interface definition for a callback to be invoked when the checked state
+     * of a compound button changes.
+     */
+    public static interface OnCheckedChangeListener {
+
+        /**
+         * Called when the checked state of a FAB has changed.
+         *
+         * @param fabView   The FAB view whose state has changed.
+         * @param isChecked The new checked state of buttonView.
+         */
+        void onCheckedChanged(FloatingActionButton fabView, boolean isChecked);
+    }
+
+    public static interface OnFabClickListener {
+        void onFabClick(FloatingActionButton fabView);
     }
 }
