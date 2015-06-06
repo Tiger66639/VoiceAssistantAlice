@@ -24,6 +24,7 @@ import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
+import com.eleks.voiceassistant.voiceassistantpoc.model.ApplicationState;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
 import com.eleks.voiceassistant.voiceassistantpoc.server.WebServerMethods;
@@ -64,6 +65,8 @@ public class MainActivity extends Activity {
     private LocationController mLocationController;
     private Vocalizer mVocalizer;
     private RecognizerState mRecognizerState;
+    private ApplicationState mApplicationState = ApplicationState.WAIT_USER_ACTION;
+    private View mMainView;
 
     public MainActivity() {
         super();
@@ -170,6 +173,7 @@ public class MainActivity extends Activity {
             processGooglePlayServiceIsNotExists();
         }
         addFloatingActionButtonFragment();
+        mMainView = MainActivity.this.findViewById(R.id.main_container);
         /*mSpeechResult = (EditText) findViewById(R.id.speechResult);
         //Nuance
         if (sSpeechKit == null) {
@@ -211,42 +215,59 @@ public class MainActivity extends Activity {
     private void addFloatingActionButtonFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         FloatingActionButtonFragment fragment = new FloatingActionButtonFragment();
-        fragment.setCheckedChangeListener(new FloatingActionButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(FloatingActionButton fabView, boolean isChecked) {
-
-            }
-        });
         fragment.setOnFabClickListener(new FloatingActionButton.OnFabClickListener() {
             @Override
             public void onFabClick(FloatingActionButton fabView) {
-                Integer colorFrom;
-                Integer colorTo;
-                if (fabView.getFabState() == FloatingActionButtonStates.MICROPHONE_ACTIVATED) {
-                    fabView.setFabState(FloatingActionButtonStates.MICROPHONE_DEACTIVATED);
-                    colorFrom = getResources().getColor(R.color.background_passive_color);
-                    colorTo = getResources().getColor(R.color.background_active_color);
-                } else {
-                    fabView.setFabState(FloatingActionButtonStates.MICROPHONE_ACTIVATED);
-                    colorFrom = getResources().getColor(R.color.background_active_color);
-                    colorTo = getResources().getColor(R.color.background_passive_color);
-                }
-                final View mainView = MainActivity.this.findViewById(R.id.main_container);
-                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-                colorAnimation.setDuration(1000);
-                colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animator) {
-                        mainView.setBackgroundColor((Integer) animator.getAnimatedValue());
-                    }
-
-                });
-                colorAnimation.start();
+                processFabClick(fabView);
             }
         });
         transaction.replace(R.id.fab_fragment, fragment, FloatingActionButtonFragment.TAG);
         transaction.commit();
+    }
+
+    private void processFabClick(FloatingActionButton fabView) {
+        //changeApplicationState();
+        changeFabState(mApplicationState, fabView);
+        changeBackgroundColor(mApplicationState);
+    }
+
+    private void changeFabState(ApplicationState applicationState, FloatingActionButton fabView) {
+        FloatingActionButtonStates fabState = FloatingActionButtonStates.MICROPHONE_ACTIVATED;
+        switch (applicationState) {
+            case WAIT_USER_ACTION:
+                fabState = FloatingActionButtonStates.MICROPHONE_ACTIVATED;
+                break;
+            case RECOGNIZE_VOICE:
+                fabState = FloatingActionButtonStates.MICROPHONE_DEACTIVATED;
+        }
+        fabView.setFabState(fabState);
+    }
+
+    private void changeBackgroundColor(ApplicationState applicationState) {
+        Integer colorFrom = getResources().getColor(R.color.background_passive_color);
+        ;
+        Integer colorTo = getResources().getColor(R.color.background_active_color);
+        switch (applicationState) {
+            case WAIT_USER_ACTION:
+                colorFrom = getResources().getColor(R.color.background_passive_color);
+                colorTo = getResources().getColor(R.color.background_active_color);
+                break;
+            case RECOGNIZE_VOICE:
+                colorFrom = getResources().getColor(R.color.background_active_color);
+                colorTo = getResources().getColor(R.color.background_passive_color);
+                break;
+        }
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        colorAnimation.setDuration(1000);
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                mMainView.setBackgroundColor((Integer) animator.getAnimatedValue());
+            }
+
+        });
+        colorAnimation.start();
     }
 
     private void verifyRecognizerState() {

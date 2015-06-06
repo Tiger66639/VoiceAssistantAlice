@@ -31,11 +31,9 @@ import java.util.ArrayList;
  * changes on them.
  */
 public class FloatingActionButtonFragment extends Fragment
-        implements FloatingActionButton.OnCheckedChangeListener,
-        FloatingActionButton.OnFabClickListener {
+        implements FloatingActionButton.OnFabClickListener {
 
     public final static String TAG = FloatingActionButtonFragment.class.getName();
-    private ArrayList<FloatingActionButton.OnCheckedChangeListener> mCheckedListeners;
     private ArrayList<FloatingActionButton.OnFabClickListener> mFabClickListeners;
 
     @Override
@@ -46,16 +44,8 @@ public class FloatingActionButtonFragment extends Fragment
 
         // Make this {@link Fragment} listen for changes in both FABs.
         FloatingActionButton fab1 = (FloatingActionButton) rootView.findViewById(R.id.fab_1);
-        fab1.setOnCheckedChangeListener(this);
         fab1.setOnFabClickListener(this);
         return rootView;
-    }
-
-    public void setCheckedChangeListener(FloatingActionButton.OnCheckedChangeListener listener) {
-        if (mCheckedListeners == null) {
-            mCheckedListeners = new ArrayList<>();
-        }
-        mCheckedListeners.add(listener);
     }
 
     public void setOnFabClickListener(FloatingActionButton.OnFabClickListener listener) {
@@ -63,15 +53,6 @@ public class FloatingActionButtonFragment extends Fragment
             mFabClickListeners = new ArrayList<>();
         }
         mFabClickListeners.add(listener);
-    }
-
-    @Override
-    public void onCheckedChanged(FloatingActionButton fabView, boolean isChecked) {
-        if (mCheckedListeners != null) {
-            for (FloatingActionButton.OnCheckedChangeListener listener : mCheckedListeners) {
-                listener.onCheckedChanged(fabView, isChecked);
-            }
-        }
     }
 
     @Override
