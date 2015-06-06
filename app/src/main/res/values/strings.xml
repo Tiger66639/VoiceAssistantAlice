@@ -8,4 +8,5 @@
     <string name="cannot_recognize_voice_command">Can not recognize voice command</string>
     <string name="welcome_text1">Tap and ask</string>
     <string name="welcome_text2">about weather</string>
+    <string name="message_sample_text">What will be the weather like tomorrow</string>
 </resources>
