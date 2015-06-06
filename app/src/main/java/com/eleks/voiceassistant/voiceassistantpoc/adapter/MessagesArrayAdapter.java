@@ -26,6 +26,7 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
 
     public void setMessages(MessageHolder[] messages) {
         mMessages = messages;
+        notifyDataSetChanged();
     }
 
     @Override
