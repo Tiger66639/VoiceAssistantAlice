@@ -9,4 +9,13 @@ public class MessageHolder {
 
     public String message;
     public WordHolder[] words;
+
+    public MessageHolder(String message, WordHolder[] words) {
+        this.message = message;
+        this.words = words;
+    }
+
+    public MessageHolder(String message) {
+        this.message = message;
+    }
 }

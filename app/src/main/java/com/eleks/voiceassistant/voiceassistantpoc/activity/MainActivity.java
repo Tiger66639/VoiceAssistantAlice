@@ -17,16 +17,19 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
+import com.eleks.voiceassistant.voiceassistantpoc.adapter.MessagesArrayAdapter;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ApplicationState;
+import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
@@ -41,6 +44,7 @@ import com.nuance.nmdp.speechkit.SpeechKit;
 import com.nuance.nmdp.speechkit.Vocalizer;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 
 
 public class MainActivity extends Activity {
@@ -68,6 +72,10 @@ public class MainActivity extends Activity {
     private RecognizerState mRecognizerState;
     private ApplicationState mApplicationState = ApplicationState.WAIT_USER_ACTION;
     private View mMainView;
+    private ListView mListView;
+    private ArrayList<MessageHolder> mMessages;
+    private View mListContainer;
+    private MessagesArrayAdapter mMessageAdapter;
 
     public MainActivity() {
         super();
@@ -76,6 +84,23 @@ public class MainActivity extends Activity {
 
     static SpeechKit getSpeechKit() {
         return sSpeechKit;
+    }
+
+    private void addMessage(String message) {
+        if (mMessages == null) {
+            mMessages = new ArrayList<>();
+        }
+        mMessages.add(new MessageHolder(message));
+    }
+
+    private void refreshMessageList() {
+        if (mMessageAdapter != null) {
+            if (mMessages != null) {
+                mMessageAdapter.setMessages(mMessages.toArray(new MessageHolder[mMessages.size()]));
+            } else {
+                mMessageAdapter.setMessages(null);
+            }
+        }
     }
 
     private void speechText(String text) {
@@ -137,7 +162,9 @@ public class MainActivity extends Activity {
                 String suggestion = error.getSuggestion();
 
                 if (suggestion == null) suggestion = "";
-                //mSpeechResult.setText(detail + "\n" + suggestion);
+                changeRecognizerState();
+                addMessage(detail + "\n" + suggestion);
+                refreshMessageList();
                 // for debugging purpose: printing out the speechkit session id
                 android.util.Log.d("Nuance SampleVoiceApp", "Recognizer.Listener.onError: session id ["
                         + getSpeechKit().getSessionId() + "]");
@@ -154,7 +181,9 @@ public class MainActivity extends Activity {
                     resultStr += "[" + results.getResult(i).getScore() + "] " +
                             results.getResult(i).getText() + "\n";
                 }
-                //mSpeechResult.setText(resultStr);
+                changeRecognizerState();
+                addMessage(resultStr);
+                refreshMessageList();
                 new RecognizeTextToCommandTask().execute(results);
                 // for debugging purpose: printing out the speechkit session id
                 android.util.Log.d("Nuance SampleVoiceApp", "Recognizer.Listener.onResults: session id ["
@@ -188,6 +217,10 @@ public class MainActivity extends Activity {
         mVocalizer = sSpeechKit
                 .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
         mVocalizer.setVoice("Samantha");
+        mListView = (ListView) findViewById(R.id.messages_list);
+        mListContainer = findViewById(R.id.messages_container);
+        mMessageAdapter = new MessagesArrayAdapter(MainActivity.this, null);
+        mListView.setAdapter(mMessageAdapter);
     }
 
     private void addFloatingActionButtonFragment() {
@@ -214,6 +247,13 @@ public class MainActivity extends Activity {
             case WAIT_USER_ACTION:
                 mApplicationState = ApplicationState.RECOGNIZE_VOICE;
                 startRecognizer();
+                mMessageAdapter.setMessages(null);
+                break;
+            case RECOGNIZE_VOICE:
+
+                mListContainer.setVisibility(View.VISIBLE);
+                mListView.setVisibility(View.VISIBLE);
+                break;
         }
     }
 

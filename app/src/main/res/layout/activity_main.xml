@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <RelativeLayout
-        android:id="@+id/list_container"
+        android:id="@+id/messages_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignBottom="@+id/fab_fragment"
@@ -15,7 +15,7 @@
         android:visibility="gone">
 
         <ListView
-            android:id="@+id/application_list"
+            android:id="@+id/messages_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </RelativeLayout>
@@ -34,7 +34,8 @@
             android:gravity="center"
             android:text="@string/welcome_text1"
             android:textColor="@color/welcome_text_color"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            android:typeface="monospace" />
 
         <TextView
             android:id="@+id/welcome_text2"
@@ -46,7 +47,8 @@
             android:gravity="center"
             android:text="@string/welcome_text2"
             android:textColor="@color/welcome_text_color"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            android:typeface="monospace" />
 
         <ImageView
             android:id="@+id/arrow_down"
