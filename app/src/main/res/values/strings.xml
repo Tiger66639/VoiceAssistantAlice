@@ -36,5 +36,6 @@
     <string name="snow" translatable="false">&#xf00a;</string>
     <string name="sunny" translatable="false">&#xf00d;</string>
     <string name="tstorms" translatable="false">&#xf010;</string>
+    <string name="icon_name_sample">Thunderstorm</string>
 
 </resources>

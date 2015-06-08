@@ -4,21 +4,55 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/weather_icon"
+        android:id="@+id/city_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:text="@string/weather_sample_icon"
-        android:textColor="@color/text_red_color"
-        android:textSize="100sp" />
-
-    <TextView
-        android:id="@+id/city_name" android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_toRightOf="@+id/weather_icon"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
         android:text="@string/place_sample_message"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:typeface="monospace" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/city_name"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/weather_icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/weather_sample_icon"
+                android:textColor="@color/text_red_color"
+                android:textSize="100sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2">
+
+            <TextView
+                android:id="@+id/iconName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/icon_name_sample"
+                android:textSize="16sp"
+                android:typeface="monospace" />
+        </RelativeLayout>
+    </LinearLayout>
+
 
 </RelativeLayout>

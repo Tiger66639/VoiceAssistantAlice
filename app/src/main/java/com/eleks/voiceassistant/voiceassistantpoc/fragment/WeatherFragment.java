@@ -4,12 +4,14 @@ import android.app.Fragment;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
+import com.eleks.voiceassistant.voiceassistantpoc.model.DisplayLocation;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 
 /**
@@ -36,6 +38,7 @@ public class WeatherFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTypeface = Typeface.createFromAsset(getActivity().getAssets(), WEATHER_FONT_NAME);
+        setRetainInstance(true);
     }
 
     @Override
@@ -52,10 +55,22 @@ public class WeatherFragment extends Fragment {
     private void fillControls() {
         TextView cityName = (TextView) mFragmentView.findViewById(R.id.city_name);
         cityName.setTypeface(mTypeface);
+        cityName.setText(getCityName(mWeatherModel.currentObservation.displayLocation));
         TextView weatherIcon = (TextView) mFragmentView.findViewById(R.id.weather_icon);
         weatherIcon.setTypeface(mTypeface);
         weatherIcon.setText(
                 getWeatherIcon(mWeatherModel.forecast.simpleForecast.forecastDays[0].iconName));
+        TextView iconName = (TextView) mFragmentView.findViewById(R.id.iconName);
+        iconName.setTypeface(mTypeface);
+        iconName.setText(mWeatherModel.forecast.simpleForecast.forecastDays[0].conditions);
+    }
+
+    private String getCityName(DisplayLocation location) {
+        String result = "";
+        if (location != null && !TextUtils.isEmpty(location.fullName)) {
+            result += location.fullName;
+        }
+        return result;
     }
 
     private String getWeatherIcon(String iconName) {
