@@ -448,6 +448,11 @@ public class MainActivity extends Activity {
     private void processGetWeatherForecast(WeatherCommandParser command) {
         if (command.getWhereLatLng() != null) {
             new GetWeatherForecastTask().execute(command);
+        } else {
+            addMessage(getString(R.string.cannot_recognize_place), true);
+            refreshMessageList();
+            mApplicationState = MainViewState.SHOW_RESULT;
+            changeMainViewAppearance();
         }
     }
 

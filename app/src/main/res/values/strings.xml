@@ -37,5 +37,6 @@
     <string name="sunny" translatable="false">&#xf00d;</string>
     <string name="tstorms" translatable="false">&#xf010;</string>
     <string name="icon_name_sample">Thunderstorm</string>
+    <string name="cannot_recognize_place">Can not recognize place in command text.</string>
 
 </resources>
