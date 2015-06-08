@@ -17,5 +17,24 @@
     <string name="divider_text">- - -</string>
     <string name="place_sample_message">Boston, MA</string>
     <string name="weather_sample_icon">&#xf00d;</string>
+    <string name="chanceflurries" translatable="false">&#xf064;</string>
+    <string name="chancerain" translatable="false">&#xf019;</string>
+    <string name="chancesleet" translatable="false">&#xf0b5;</string>
+    <string name="chancesnow" translatable="false">&#xf01b;</string>
+    <string name="chancetstorms" translatable="false">&#xf010;</string>
+    <string name="clear" translatable="false">&#xf00d;</string>
+    <string name="cloudy" translatable="false">&#xf013;</string>
+    <string name="flurries" translatable="false">&#xf00a;</string>
+    <string name="fog" translatable="false">&#xf014;</string>
+    <string name="hazy" translatable="false">&#xf0b6;</string>
+    <string name="mostlycloudy" translatable="false">&#xf00c;</string>
+    <string name="mostlysunny" translatable="false">&#xf00c;</string>
+    <string name="partlycloudy" translatable="false">&#xf002;</string>
+    <string name="partlysunny" translatable="false">&#xf00c;</string>
+    <string name="sleet" translatable="false">&#xf0b2;</string>
+    <string name="rain" translatable="false">&#xf007;</string>
+    <string name="snow" translatable="false">&#xf00a;</string>
+    <string name="sunny" translatable="false">&#xf00d;</string>
+    <string name="tstorms" translatable="false">&#xf010;</string>
 
 </resources>
