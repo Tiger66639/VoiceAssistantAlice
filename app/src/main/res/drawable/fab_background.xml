@@ -20,7 +20,7 @@
         <ripple android:color="@color/fab_color_2_muted">
             <item>
                 <shape>
-                    <solid android:color="@color/fab_color_2" />
+                    <solid android:color="@color/fab_color_white" />
                 </shape>
             </item>
         </ripple>
@@ -30,7 +30,7 @@
         <ripple android:color="@color/fab_color_1_muted">
             <item>
                 <shape>
-                    <solid android:color="@color/fab_color_1" />
+                    <solid android:color="@color/fab_color_red" />
                 </shape>
             </item>
         </ripple>

@@ -18,15 +18,15 @@ public class FloatingActionButton extends FrameLayout {
     private FloatingActionButtonStates mFabState;
 
     public FloatingActionButton(Context context) {
-        this(context, null, 0, FloatingActionButtonStates.MICROPHONE_ACTIVATED);
+        this(context, null, 0, FloatingActionButtonStates.MICROPHONE_RED);
     }
 
     public FloatingActionButton(Context context, AttributeSet attrs) {
-        this(context, attrs, 0, FloatingActionButtonStates.MICROPHONE_ACTIVATED);
+        this(context, attrs, 0, FloatingActionButtonStates.MICROPHONE_RED);
     }
 
     public FloatingActionButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, FloatingActionButtonStates.MICROPHONE_ACTIVATED);
+        this(context, attrs, defStyleAttr, FloatingActionButtonStates.MICROPHONE_RED);
     }
 
     public FloatingActionButton(Context context, AttributeSet attrs, int defStyleAttr,
@@ -55,14 +55,17 @@ public class FloatingActionButton extends FrameLayout {
         mFabState = state;
         if (mFabIcon != null) {
             switch (state) {
-                case MICROPHONE_ACTIVATED:
-                    setBackgroundColor(getResources().getColor(R.color.fab_color_1));
+                case MICROPHONE_RED:
+                    setBackgroundColor(getResources().getColor(R.color.fab_color_red));
                     mFabIcon.setImageResource(R.drawable.ic_mic_white);
                     break;
-                case MICROPHONE_DEACTIVATED:
-                    setBackgroundColor(getResources().getColor(R.color.fab_color_2));
-                    mFabIcon.setImageResource(R.drawable.ic_mic_red);
+                case CLOSE_RED:
+                    setBackgroundColor(getResources().getColor(R.color.fab_color_red));
+                    mFabIcon.setImageResource(R.drawable.ic_close_white);
                     break;
+                case CLOSE_WHITE:
+                    setBackgroundColor(getResources().getColor(R.color.fab_color_white));
+                    mFabIcon.setImageResource(R.drawable.ic_close_red);
             }
         }
     }

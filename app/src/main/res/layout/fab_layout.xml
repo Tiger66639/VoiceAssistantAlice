@@ -35,7 +35,7 @@
             android:layout_height="@dimen/fab_icon_size"
             android:layout_gravity="center"
             android:duplicateParentState="true"
-            android:src="@drawable/fab_icons" />
+            android:src="@drawable/ic_mic_white" />
 
     </com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton>
 
