@@ -4,9 +4,21 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/weather_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:text="@string/weather_sample_icon"
+        android:textColor="@color/text_red_color"
+        android:textSize="100sp" />
+
+    <TextView
+        android:id="@+id/city_name" android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_toRightOf="@+id/weather_icon"
         android:text="@string/place_sample_message"
-        android:textSize="16sp" />
+        android:textSize="24sp" />
 
 </RelativeLayout>

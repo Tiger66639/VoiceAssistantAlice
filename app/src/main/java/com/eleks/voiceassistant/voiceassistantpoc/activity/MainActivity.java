@@ -15,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
 
@@ -43,7 +42,6 @@ import com.nuance.nmdp.speechkit.SpeechError;
 import com.nuance.nmdp.speechkit.SpeechKit;
 import com.nuance.nmdp.speechkit.Vocalizer;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 
 
@@ -82,6 +80,7 @@ public class MainActivity extends Activity {
     private View mWeatherContainer;
     private WeatherFragment mWeatherFragment;
     private WeatherCommandParser mWeatherCommand;
+    private ResponseModel mWeatherModel;
 
     public MainActivity() {
         super();
@@ -327,7 +326,7 @@ public class MainActivity extends Activity {
 
     private void prepareWeatherFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        mWeatherFragment = WeatherFragment.getInstance();
+        mWeatherFragment = WeatherFragment.getInstance(mWeatherModel);
         transaction.replace(R.id.weather_container, mWeatherFragment, WeatherFragment.TAG);
         transaction.commit();
     }
@@ -476,7 +475,7 @@ public class MainActivity extends Activity {
         protected void onPostExecute(WeatherCommandParser command) {
             //dismissProgressDialog();
             if (command != null && command.isCommand()) {
-                mWeatherCommand=command;
+                mWeatherCommand = command;
                 processGetWeatherForecast(command);
             } else {
                 addMessage(
@@ -507,9 +506,8 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(ResponseModel responseModel) {
             mApplicationState = MainViewState.SHOW_WEATHER;
+            mWeatherModel = responseModel;
             changeMainViewAppearance();
-            //dismissProgressDialog();
-            //speechText("Weather forecast from server was gotten successfully");
         }
     }
 }

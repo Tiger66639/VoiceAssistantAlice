@@ -3,6 +3,7 @@
 <resources>
     <color name="background_red">#f50057</color>
     <color name="background_white">#ffffff</color>
+    <color name="text_red_color">#f50057</color>
     <color name="message_red_color">#f50057</color>
     <color name="message_white_color">#ffffff</color>
     <color name="welcome_text_color">#f50057</color>

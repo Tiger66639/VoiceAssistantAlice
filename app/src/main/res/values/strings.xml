@@ -16,4 +16,6 @@
     <string name="listening_message">Listening...</string>
     <string name="divider_text">- - -</string>
     <string name="place_sample_message">Boston, MA</string>
+    <string name="weather_sample_icon">&#xf00d;</string>
+
 </resources>

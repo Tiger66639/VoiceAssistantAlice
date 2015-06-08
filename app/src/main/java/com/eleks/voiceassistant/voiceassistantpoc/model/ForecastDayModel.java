@@ -2,10 +2,12 @@ package com.eleks.voiceassistant.voiceassistantpoc.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by Serhiy.Krasovskyy on 02.06.2015.
  */
-public class ForecastDayModel {
+public class ForecastDayModel implements Serializable {
     @SerializedName("date")
     public DateModel dateModel;
     @SerializedName("high")
