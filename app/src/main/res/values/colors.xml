@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <resources>
-    <color name="background_active_color">#f50057</color>
-    <color name="background_passive_color">#ffffff</color>
-    <color name="message_color">#f50057</color>
-    <color name="message_inverted_color">#ffffff</color>
+    <color name="background_red">#f50057</color>
+    <color name="background_white">#ffffff</color>
+    <color name="message_red_color">#f50057</color>
+    <color name="message_white_color">#ffffff</color>
     <color name="welcome_text_color">#f50057</color>
     <color name="fab_color_red">#f50057</color>
     <color name="fab_color_1_muted">#ff8080</color>

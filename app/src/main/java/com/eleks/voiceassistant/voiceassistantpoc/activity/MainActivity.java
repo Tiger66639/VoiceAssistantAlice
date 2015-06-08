@@ -28,7 +28,7 @@ import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
-import com.eleks.voiceassistant.voiceassistantpoc.model.ApplicationState;
+import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
@@ -61,7 +61,8 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        public void onSpeakingDone(Vocalizer vocalizer, String s, SpeechError speechError, Object o) {
+        public void onSpeakingDone(
+                Vocalizer vocalizer, String s, SpeechError speechError, Object o) {
 
         }
     };
@@ -70,12 +71,14 @@ public class MainActivity extends Activity {
     private LocationController mLocationController;
     private Vocalizer mVocalizer;
     private RecognizerState mRecognizerState;
-    private ApplicationState mApplicationState = ApplicationState.WAIT_USER_ACTION;
+    private MainViewState mApplicationState = MainViewState.WELCOME_SCREEN;
     private View mMainView;
     private ListView mListView;
     private ArrayList<MessageHolder> mMessages;
     private View mListContainer;
     private MessagesArrayAdapter mMessageAdapter;
+    private FloatingActionButtonFragment mFabFragment;
+    private View mWelcomeContainer;
 
     public MainActivity() {
         super();
@@ -86,17 +89,18 @@ public class MainActivity extends Activity {
         return sSpeechKit;
     }
 
-    private void addMessage(String message) {
+    private void addMessage(String message, boolean isCursive) {
         if (mMessages == null) {
             mMessages = new ArrayList<>();
         }
-        mMessages.add(new MessageHolder(message));
+        mMessages.add(new MessageHolder(message, isCursive));
     }
 
     private void refreshMessageList() {
         if (mMessageAdapter != null) {
             if (mMessages != null) {
                 mMessageAdapter.setMessages(mMessages.toArray(new MessageHolder[mMessages.size()]));
+                mListView.setSelection(mMessages.size() - 1);
             } else {
                 mMessageAdapter.setMessages(null);
             }
@@ -116,7 +120,8 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mProgressDialog = ProgressDialog.show(context, getString(R.string.app_name), message);
+                    mProgressDialog = ProgressDialog
+                            .show(context, getString(R.string.app_name), message);
                 }
             });
         }
@@ -139,13 +144,13 @@ public class MainActivity extends Activity {
             @Override
             public void onRecordingBegin(Recognizer recognizer) {
                 mRecognizerState = RecognizerState.RECORDING;
-                showProgressDialog("Recording...");
+                //showProgressDialog(MainActivity.this.getText(R.string.recording_message));
             }
 
             @Override
             public void onRecordingDone(Recognizer recognizer) {
                 mRecognizerState = RecognizerState.PROCESSING;
-                showProgressDialog("Processing...");
+                //showProgressDialog(MainActivity.this.getText(R.string.processing_message));
             }
 
             @Override
@@ -154,7 +159,7 @@ public class MainActivity extends Activity {
                     return;
                 }
                 mRecognizerState = RecognizerState.STOPPED;
-                dismissProgressDialog();
+                //dismissProgressDialog();
                 mCurrentRecognizer = null;
 
                 // Display the error + suggestion in the edit box
@@ -162,17 +167,14 @@ public class MainActivity extends Activity {
                 String suggestion = error.getSuggestion();
 
                 if (suggestion == null) suggestion = "";
-                changeRecognizerState();
-                addMessage(detail + "\n" + suggestion);
+                changeMainViewAppearance();
+                addMessage(suggestion, true);
                 refreshMessageList();
-                // for debugging purpose: printing out the speechkit session id
-                android.util.Log.d("Nuance SampleVoiceApp", "Recognizer.Listener.onError: session id ["
-                        + getSpeechKit().getSessionId() + "]");
             }
 
             @Override
             public void onResults(Recognizer recognizer, Recognition results) {
-                dismissProgressDialog();
+                //dismissProgressDialog();
                 mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
                 int count = results.getResultCount();
@@ -181,13 +183,10 @@ public class MainActivity extends Activity {
                     resultStr += "[" + results.getResult(i).getScore() + "] " +
                             results.getResult(i).getText() + "\n";
                 }
-                changeRecognizerState();
-                addMessage(resultStr);
+                changeMainViewAppearance();
+                addMessage(resultStr, false);
                 refreshMessageList();
                 new RecognizeTextToCommandTask().execute(results);
-                // for debugging purpose: printing out the speechkit session id
-                android.util.Log.d("Nuance SampleVoiceApp", "Recognizer.Listener.onResults: session id ["
-                        + getSpeechKit().getSessionId() + "]");
             }
         };
     }
@@ -221,45 +220,87 @@ public class MainActivity extends Activity {
         mListContainer = findViewById(R.id.messages_container);
         mMessageAdapter = new MessagesArrayAdapter(MainActivity.this, null);
         mListView.setAdapter(mMessageAdapter);
+        mWelcomeContainer = findViewById(R.id.welcome_container);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        changeMainViewAppearance();
     }
 
     private void addFloatingActionButtonFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        FloatingActionButtonFragment fragment = new FloatingActionButtonFragment();
-        fragment.setOnFabClickListener(new FloatingActionButton.OnFabClickListener() {
+        mFabFragment = new FloatingActionButtonFragment();
+        mFabFragment.setOnFabClickListener(new FloatingActionButton.OnFabClickListener() {
             @Override
             public void onFabClick(FloatingActionButton fabView) {
-                processFabClick(fabView);
+                processFabClick();
             }
         });
-        transaction.replace(R.id.fab_fragment, fragment, FloatingActionButtonFragment.TAG);
+        transaction.replace(R.id.fab_fragment, mFabFragment, FloatingActionButtonFragment.TAG);
         transaction.commit();
     }
 
-    private void processFabClick(FloatingActionButton fabView) {
-        changeRecognizerState();
-        changeFabState(mApplicationState, fabView);
-        changeBackgroundColor(mApplicationState);
+    private void processFabClick() {
+        switch (mApplicationState) {
+            case WELCOME_SCREEN:
+                mMessages = null;
+                refreshMessageList();
+                mApplicationState = MainViewState.VOICE_RECORDING;
+                startRecognizer();
+                changeMainViewAppearance();
+                addMessage(getString(R.string.listening_message), false);
+                refreshMessageList();
+                break;
+            case VOICE_RECORDING:
+                stopRecognizer();
+                break;
+            case SHOW_RESULT:
+                mApplicationState = MainViewState.VOICE_RECORDING;
+                startRecognizer();
+                changeMainViewAppearance();
+                addMessage(getString(R.string.listening_message), false);
+                refreshMessageList();
+        }
     }
 
-    private void changeRecognizerState() {
+    private void changeMainViewAppearance() {
         switch (mApplicationState) {
-            case WAIT_USER_ACTION:
-                mApplicationState = ApplicationState.RECOGNIZE_VOICE;
-                startRecognizer();
+            case WELCOME_SCREEN:
                 mMessageAdapter.setMessages(null);
+                mWelcomeContainer.setVisibility(View.VISIBLE);
+                mListContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
+                changeBackgroundColor(R.color.background_white);
                 break;
-            case RECOGNIZE_VOICE:
-
+            case VOICE_RECORDING:
                 mListContainer.setVisibility(View.VISIBLE);
-                mListView.setVisibility(View.VISIBLE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_WHITE);
+                changeBackgroundColor(R.color.background_red);
+                mMessageAdapter.setInvertedColors(true);
                 break;
+            case SHOW_RESULT:
+                mListContainer.setVisibility(View.VISIBLE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
+                changeBackgroundColor(R.color.background_white);
+                mMessageAdapter.setInvertedColors(false);
         }
+    }
+
+    private void stopRecognizer() {
+        if (mCurrentRecognizer != null) {
+            mCurrentRecognizer.stopRecording();
+        }
+        mApplicationState = MainViewState.SHOW_RESULT;
+        changeMainViewAppearance();
     }
 
     private void startRecognizer() {
         Handler _handler = new Handler();
-        showProgressDialog("Initializing...");
+        //showProgressDialog("Initializing...");
         mRecognizerState = RecognizerState.INITIALIZING;
         mCurrentRecognizer = getSpeechKit().createRecognizer(
                 Recognizer.RecognizerType.Search, Recognizer.EndOfSpeechDetection.Short,
@@ -273,30 +314,10 @@ public class MainActivity extends Activity {
         }, RECOGNIZER_DELAY);
     }
 
-    private void changeFabState(ApplicationState applicationState, FloatingActionButton fabView) {
-        FloatingActionButtonStates fabState = FloatingActionButtonStates.MICROPHONE_ACTIVATED;
-        switch (applicationState) {
-            case WAIT_USER_ACTION:
-                fabState = FloatingActionButtonStates.MICROPHONE_ACTIVATED;
-                break;
-            case RECOGNIZE_VOICE:
-                fabState = FloatingActionButtonStates.MICROPHONE_DEACTIVATED;
-        }
-        fabView.setFabState(fabState);
-    }
-
-    private void changeBackgroundColor(ApplicationState applicationState) {
+    private void changeBackgroundColor(int resourceColor) {
+        Integer colorTo = getResources().getColor(resourceColor);
         Integer colorFrom = getBackgroundColor();
-        Integer colorTo = getResources().getColor(R.color.background_active_color);
-        switch (applicationState) {
-            case WAIT_USER_ACTION:
-                colorTo = getResources().getColor(R.color.background_passive_color);
-                break;
-            case RECOGNIZE_VOICE:
-                colorTo = getResources().getColor(R.color.background_active_color);
-                break;
-        }
-        if (colorFrom != colorTo) {
+        if (!colorFrom.equals(colorTo)) {
             ValueAnimator colorAnimation =
                     ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
             colorAnimation.setDuration(1000);
@@ -324,7 +345,7 @@ public class MainActivity extends Activity {
     private void verifyRecognizerState() {
         if (mRecognizerState == RecognizerState.INITIALIZING ||
                 mRecognizerState == RecognizerState.RECORDING) {
-            mCurrentRecognizer.stopRecording();
+            stopRecognizer();
         }
     }
 
@@ -391,22 +412,23 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class RecognizeTextToCommandTask extends AsyncTask<Recognition, Void, WeatherCommandParser> {
+    private class RecognizeTextToCommandTask
+            extends AsyncTask<Recognition, Void, WeatherCommandParser> {
 
         @Override
         protected WeatherCommandParser doInBackground(Recognition... params) {
             Recognition recognition = params[0];
             WeatherCommandParser result = null;
             if (recognition.getResultCount() > 0) {
-                result =
-                        new WeatherCommandParser(MainActivity.this, recognition.getResult(0).getText());
+                result = new WeatherCommandParser(
+                        MainActivity.this, recognition.getResult(0).getText());
             }
             return result;
         }
 
         @Override
         protected void onPreExecute() {
-            showProgressDialog("Try recognize voice command...");
+            showProgressDialog(getText(R.string.try_recognize_voice_command));
         }
 
         @Override
@@ -438,7 +460,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class GetWeatherForecastTask extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
+    private class GetWeatherForecastTask
+            extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
 
         @Override
         protected ResponseModel doInBackground(WeatherCommandParser... params) {
@@ -449,7 +472,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            showProgressDialog("Get weather forecast...");
+            showProgressDialog(MainActivity.this.getText(R.string.get_weather_forecast_message));
         }
 
         @Override

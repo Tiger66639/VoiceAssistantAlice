@@ -9,4 +9,10 @@
     <string name="welcome_text1">Tap and ask</string>
     <string name="welcome_text2">about weather</string>
     <string name="message_sample_text">What will be the weather like tomorrow</string>
+    <string name="recording_message">Recording...</string>
+    <string name="processing_message">Processing...</string>
+    <string name="try_recognize_voice_command">Try recognize voice command...</string>
+    <string name="get_weather_forecast_message">Get weather forecast...</string>
+    <string name="listening_message">Listening...</string>
+    <string name="divider_text">- - -</string>
 </resources>

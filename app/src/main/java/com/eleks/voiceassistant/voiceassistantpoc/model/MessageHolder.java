@@ -9,13 +9,16 @@ public class MessageHolder {
 
     public String message;
     public WordHolder[] words;
+    public boolean isCursive;
 
-    public MessageHolder(String message, WordHolder[] words) {
+    public MessageHolder(String message, WordHolder[] words, boolean isCursive) {
         this.message = message;
         this.words = words;
+        this.isCursive = isCursive;
     }
 
-    public MessageHolder(String message) {
+    public MessageHolder(String message, boolean isCursive) {
         this.message = message;
+        this.isCursive = isCursive;
     }
 }

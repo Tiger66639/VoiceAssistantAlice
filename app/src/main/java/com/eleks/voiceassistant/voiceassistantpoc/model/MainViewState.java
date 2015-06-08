@@ -3,9 +3,9 @@ package com.eleks.voiceassistant.voiceassistantpoc.model;
 /**
  * Created by Sergey on 06.06.2015.
  */
-public enum ApplicationState {
-    WAIT_USER_ACTION,
+public enum MainViewState {
+    WELCOME_SCREEN,
     VOICE_RECORDING,
-    RECOGNIZE_VOICE,
-    SHOW_RESULTS
+    SHOW_RESULT,
+    SHOW_WEATHER
 }

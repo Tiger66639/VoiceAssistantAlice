@@ -35,6 +35,7 @@ public class FloatingActionButtonFragment extends Fragment
 
     public final static String TAG = FloatingActionButtonFragment.class.getName();
     private ArrayList<FloatingActionButton.OnFabClickListener> mFabClickListeners;
+    private FloatingActionButton mFabView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,8 +44,8 @@ public class FloatingActionButtonFragment extends Fragment
         View rootView = inflater.inflate(R.layout.fab_layout, container, false);
 
         // Make this {@link Fragment} listen for changes in both FABs.
-        FloatingActionButton fab1 = (FloatingActionButton) rootView.findViewById(R.id.fab_1);
-        fab1.setOnFabClickListener(this);
+        mFabView = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        mFabView.setOnFabClickListener(this);
         return rootView;
     }
 
@@ -62,5 +63,9 @@ public class FloatingActionButtonFragment extends Fragment
                 listener.onFabClick(fabView);
             }
         }
+    }
+
+    public void setFabState(FloatingActionButtonStates fabState) {
+        mFabView.setFabState(fabState);
     }
 }
