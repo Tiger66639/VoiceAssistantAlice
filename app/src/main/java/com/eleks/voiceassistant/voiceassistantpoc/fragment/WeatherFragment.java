@@ -60,7 +60,7 @@ public class WeatherFragment extends Fragment {
         weatherIcon.setTypeface(mTypeface);
         weatherIcon.setText(
                 getWeatherIcon(mWeatherModel.forecast.simpleForecast.forecastDays[0].iconName));
-        TextView iconName = (TextView) mFragmentView.findViewById(R.id.iconName);
+        TextView iconName = (TextView) mFragmentView.findViewById(R.id.icon_name);
         iconName.setTypeface(mTypeface);
         iconName.setText(mWeatherModel.forecast.simpleForecast.forecastDays[0].conditions);
     }
