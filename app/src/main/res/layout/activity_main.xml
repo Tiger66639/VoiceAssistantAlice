@@ -6,6 +6,11 @@
     android:background="@color/background_white"
     tools:context=".MainActivity">
 
+    <FrameLayout
+        android:id="@+id/weather_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <RelativeLayout
         android:id="@+id/messages_container"
         android:layout_width="match_parent"

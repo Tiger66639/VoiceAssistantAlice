@@ -18,7 +18,6 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
@@ -27,6 +26,7 @@ import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
+import com.eleks.voiceassistant.voiceassistantpoc.fragment.WeatherFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
@@ -79,6 +79,9 @@ public class MainActivity extends Activity {
     private MessagesArrayAdapter mMessageAdapter;
     private FloatingActionButtonFragment mFabFragment;
     private View mWelcomeContainer;
+    private View mWeatherContainer;
+    private WeatherFragment mWeatherFragment;
+    private WeatherCommandParser mWeatherCommand;
 
     public MainActivity() {
         super();
@@ -159,14 +162,10 @@ public class MainActivity extends Activity {
                     return;
                 }
                 mRecognizerState = RecognizerState.STOPPED;
-                //dismissProgressDialog();
                 mCurrentRecognizer = null;
-
-                // Display the error + suggestion in the edit box
-                String detail = error.getErrorDetail();
                 String suggestion = error.getSuggestion();
-
                 if (suggestion == null) suggestion = "";
+                mApplicationState = MainViewState.SHOW_RESULT;
                 changeMainViewAppearance();
                 addMessage(suggestion, true);
                 refreshMessageList();
@@ -174,16 +173,12 @@ public class MainActivity extends Activity {
 
             @Override
             public void onResults(Recognizer recognizer, Recognition results) {
-                //dismissProgressDialog();
                 mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
-                int count = results.getResultCount();
                 String resultStr = "";
-                for (int i = 0; i < count; i++) {
-                    resultStr += "[" + results.getResult(i).getScore() + "] " +
-                            results.getResult(i).getText() + "\n";
+                if (results.getResultCount() > 0) {
+                    resultStr += results.getResult(0).getText();
                 }
-                changeMainViewAppearance();
                 addMessage(resultStr, false);
                 refreshMessageList();
                 new RecognizeTextToCommandTask().execute(results);
@@ -221,6 +216,7 @@ public class MainActivity extends Activity {
         mMessageAdapter = new MessagesArrayAdapter(MainActivity.this, null);
         mListView.setAdapter(mMessageAdapter);
         mWelcomeContainer = findViewById(R.id.welcome_container);
+        mWeatherContainer = findViewById(R.id.weather_container);
     }
 
     @Override
@@ -262,6 +258,16 @@ public class MainActivity extends Activity {
                 changeMainViewAppearance();
                 addMessage(getString(R.string.listening_message), false);
                 refreshMessageList();
+                break;
+            case SHOW_WEATHER:
+                mMessages = null;
+                refreshMessageList();
+                mApplicationState = MainViewState.VOICE_RECORDING;
+                startRecognizer();
+                changeMainViewAppearance();
+                addMessage(getString(R.string.listening_message), false);
+                refreshMessageList();
+                break;
         }
     }
 
@@ -271,12 +277,14 @@ public class MainActivity extends Activity {
                 mMessageAdapter.setMessages(null);
                 mWelcomeContainer.setVisibility(View.VISIBLE);
                 mListContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
                 changeBackgroundColor(R.color.background_white);
                 break;
             case VOICE_RECORDING:
                 mListContainer.setVisibility(View.VISIBLE);
                 mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_WHITE);
                 changeBackgroundColor(R.color.background_red);
                 mMessageAdapter.setInvertedColors(true);
@@ -284,18 +292,50 @@ public class MainActivity extends Activity {
             case SHOW_RESULT:
                 mListContainer.setVisibility(View.VISIBLE);
                 mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
                 changeBackgroundColor(R.color.background_white);
                 mMessageAdapter.setInvertedColors(false);
+                break;
+            case RECOGNIZE_COMMAND:
+                mListContainer.setVisibility(View.VISIBLE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_RED);
+                changeBackgroundColor(R.color.background_white);
+                mMessageAdapter.setInvertedColors(false);
+                break;
+            case GET_WEATHER_FORECAST:
+                mListContainer.setVisibility(View.VISIBLE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_RED);
+                changeBackgroundColor(R.color.background_white);
+                mMessageAdapter.setInvertedColors(false);
+                break;
+            case SHOW_WEATHER:
+                mListContainer.setVisibility(View.GONE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.VISIBLE);
+                mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
+                changeBackgroundColor(R.color.background_white);
+                mMessageAdapter.setInvertedColors(false);
+                prepareWeatherFragment();
+                break;
         }
+    }
+
+    private void prepareWeatherFragment() {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        mWeatherFragment = WeatherFragment.getInstance();
+        transaction.replace(R.id.weather_container, mWeatherFragment, WeatherFragment.TAG);
+        transaction.commit();
     }
 
     private void stopRecognizer() {
         if (mCurrentRecognizer != null) {
             mCurrentRecognizer.stopRecording();
         }
-        mApplicationState = MainViewState.SHOW_RESULT;
-        changeMainViewAppearance();
     }
 
     private void startRecognizer() {
@@ -428,34 +468,22 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            showProgressDialog(getText(R.string.try_recognize_voice_command));
+            mApplicationState = MainViewState.RECOGNIZE_COMMAND;
+            changeMainViewAppearance();
         }
 
         @Override
         protected void onPostExecute(WeatherCommandParser command) {
-            dismissProgressDialog();
+            //dismissProgressDialog();
             if (command != null && command.isCommand()) {
-                DateFormat dateFormat = DateFormat.getDateInstance();
-                String text = "";
-                if (!TextUtils.isEmpty(command.getWhereName())) {
-                    text += command.getWhereName();
-                } else {
-                    text += "Can not recognize place.";
-                }
-                if (command.getWhenDates() != null) {
-                    text += "\n" +
-                            dateFormat.format(command.getWhenDates().startDate) + "\n" +
-                            dateFormat.format(command.getWhenDates().finishDate);
-                } else {
-                    text += "\nCan not recognize dates";
-                }
-                //mCommandResult.setText(text);
+                mWeatherCommand=command;
                 processGetWeatherForecast(command);
             } else {
-                speechText(MainActivity.this.getString(R.string.cannot_recognize_voice_command));
-                Toast.makeText(MainActivity.this,
-                        MainActivity.this.getString(R.string.cannot_recognize_voice_command),
-                        Toast.LENGTH_LONG).show();
+                addMessage(
+                        MainActivity.this.getString(R.string.cannot_recognize_voice_command), true);
+                refreshMessageList();
+                mApplicationState = MainViewState.SHOW_RESULT;
+                changeMainViewAppearance();
             }
         }
     }
@@ -472,12 +500,15 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            showProgressDialog(MainActivity.this.getText(R.string.get_weather_forecast_message));
+            mApplicationState = MainViewState.GET_WEATHER_FORECAST;
+            changeMainViewAppearance();
         }
 
         @Override
         protected void onPostExecute(ResponseModel responseModel) {
-            dismissProgressDialog();
+            mApplicationState = MainViewState.SHOW_WEATHER;
+            changeMainViewAppearance();
+            //dismissProgressDialog();
             //speechText("Weather forecast from server was gotten successfully");
         }
     }
