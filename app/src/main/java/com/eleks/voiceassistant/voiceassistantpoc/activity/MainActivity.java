@@ -477,6 +477,18 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void processWeatherResult(ResponseModel weatherInfo) {
+        if (weatherInfo != null) {
+            mApplicationState = MainViewState.SHOW_WEATHER;
+            mWeatherModel = weatherInfo;
+        } else {
+            addMessage(getString(R.string.cannot_get_weather_from_server), true);
+            refreshMessageList();
+            mApplicationState = MainViewState.SHOW_RESULT;
+        }
+        changeMainViewAppearance();
+    }
+
     private class RecognizeTextToCommandTask
             extends AsyncTask<Recognition, Void, WeatherCommandParser> {
 
@@ -531,9 +543,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPostExecute(ResponseModel responseModel) {
-            mApplicationState = MainViewState.SHOW_WEATHER;
-            mWeatherModel = responseModel;
-            changeMainViewAppearance();
+            processWeatherResult(responseModel);
         }
     }
 }
