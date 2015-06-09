@@ -606,7 +606,9 @@ public class MainActivity extends Activity {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            processWeatherResult(responseModel);
+                            if (!isCancelled()) {
+                                processWeatherResult(responseModel);
+                            }
                         }
                     }, delay);
                 } else {
