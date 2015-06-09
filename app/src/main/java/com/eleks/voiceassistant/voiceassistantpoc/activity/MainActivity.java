@@ -54,7 +54,6 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static final long RECOGNIZER_DELAY = 5000;
     private static final long DELAY_BETWEEN_SCREENS = 3000;
-    private static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
     private static final int THREE_DAYS = 3;
     private static SpeechKit sSpeechKit;
     private final Recognizer.Listener mNuanceListener;
