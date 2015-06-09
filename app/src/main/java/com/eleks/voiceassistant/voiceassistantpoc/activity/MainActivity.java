@@ -81,6 +81,8 @@ public class MainActivity extends Activity {
     private WeatherFragment mWeatherFragment;
     private WeatherCommandParser mWeatherCommand;
     private ResponseModel mWeatherModel;
+    private Handler mHandler;
+    private Runnable mWatchDogRunnable;
 
     public MainActivity() {
         super();
@@ -160,6 +162,7 @@ public class MainActivity extends Activity {
                 if (recognizer != mCurrentRecognizer) {
                     return;
                 }
+                stopWatchDogTask();
                 mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
                 String suggestion = error.getSuggestion();
@@ -174,6 +177,7 @@ public class MainActivity extends Activity {
             public void onResults(Recognizer recognizer, Recognition results) {
                 mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
+                stopWatchDogTask();
                 String resultStr = "";
                 if (results.getResultCount() > 0) {
                     resultStr += results.getResult(0).getText();
@@ -195,9 +199,22 @@ public class MainActivity extends Activity {
         } else {
             processGooglePlayServiceIsNotExists();
         }
+        prepareSpeechKitAndVocalizer();
+        prepareActivityControls();
+    }
+
+    private void prepareActivityControls() {
         addFloatingActionButtonFragment();
         mMainView = MainActivity.this.findViewById(R.id.main_container);
-        //Nuance
+        mListView = (ListView) findViewById(R.id.messages_list);
+        mListContainer = findViewById(R.id.messages_container);
+        mMessageAdapter = new MessagesArrayAdapter(MainActivity.this, null);
+        mListView.setAdapter(mMessageAdapter);
+        mWelcomeContainer = findViewById(R.id.welcome_container);
+        mWeatherContainer = findViewById(R.id.weather_container);
+    }
+
+    private void prepareSpeechKitAndVocalizer() {
         if (sSpeechKit == null) {
             sSpeechKit = SpeechKit.initialize(getApplication().getApplicationContext(),
                     NuanceAppInfo.SpeechKitAppId, NuanceAppInfo.SpeechKitServer,
@@ -210,12 +227,6 @@ public class MainActivity extends Activity {
         mVocalizer = sSpeechKit
                 .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
         mVocalizer.setVoice("Samantha");
-        mListView = (ListView) findViewById(R.id.messages_list);
-        mListContainer = findViewById(R.id.messages_container);
-        mMessageAdapter = new MessagesArrayAdapter(MainActivity.this, null);
-        mListView.setAdapter(mMessageAdapter);
-        mWelcomeContainer = findViewById(R.id.welcome_container);
-        mWeatherContainer = findViewById(R.id.weather_container);
     }
 
     @Override
@@ -335,6 +346,13 @@ public class MainActivity extends Activity {
         if (mCurrentRecognizer != null) {
             mCurrentRecognizer.stopRecording();
         }
+        stopWatchDogTask();
+    }
+
+    private void stopWatchDogTask() {
+        if (mHandler != null && mWatchDogRunnable != null) {
+            mHandler.removeCallbacks(mWatchDogRunnable);
+        }
     }
 
     private void startRecognizer() {
@@ -345,12 +363,15 @@ public class MainActivity extends Activity {
                 Recognizer.RecognizerType.Search, Recognizer.EndOfSpeechDetection.Short,
                 "en_US", mNuanceListener, _handler);
         mCurrentRecognizer.start();
-        new Handler().postDelayed(new Runnable() {
+        mHandler = new Handler();
+        mWatchDogRunnable = new Runnable() {
             @Override
             public void run() {
                 verifyRecognizerState();
             }
-        }, RECOGNIZER_DELAY);
+        };
+        mHandler.postDelayed(mWatchDogRunnable, RECOGNIZER_DELAY);
+
     }
 
     private void changeBackgroundColor(int resourceColor) {
