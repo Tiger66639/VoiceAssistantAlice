@@ -4,10 +4,12 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by Serhiy.Krasovskyy on 02.06.2015.
  */
-public class PrecipitationModel {
+public class PrecipitationModel implements Serializable {
     @SerializedName("in")
     private String mInches;
     @SerializedName("mm")

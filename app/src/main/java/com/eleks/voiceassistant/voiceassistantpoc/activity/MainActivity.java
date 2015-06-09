@@ -1,24 +1,34 @@
 package com.eleks.voiceassistant.voiceassistantpoc.activity;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ListView;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
+import com.eleks.voiceassistant.voiceassistantpoc.adapter.MessagesArrayAdapter;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
+import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
+import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
+import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
+import com.eleks.voiceassistant.voiceassistantpoc.fragment.WeatherFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
+import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
+import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
@@ -32,10 +42,10 @@ import com.nuance.nmdp.speechkit.SpeechError;
 import com.nuance.nmdp.speechkit.SpeechKit;
 import com.nuance.nmdp.speechkit.Vocalizer;
 
-import java.text.DateFormat;
+import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static final long RECOGNIZER_DELAY = 5000;
@@ -49,18 +59,30 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        public void onSpeakingDone(Vocalizer vocalizer, String s, SpeechError speechError, Object o) {
+        public void onSpeakingDone(
+                Vocalizer vocalizer, String s, SpeechError speechError, Object o) {
 
         }
     };
-    private EditText mSpeechResult;
     private Recognizer mCurrentRecognizer;
-    private Handler _handler = null;
     private ProgressDialog mProgressDialog;
-    private EditText mCommandResult;
     private LocationController mLocationController;
     private Vocalizer mVocalizer;
     private RecognizerState mRecognizerState;
+    private MainViewState mApplicationState = MainViewState.WELCOME_SCREEN;
+    private View mMainView;
+    private ListView mListView;
+    private ArrayList<MessageHolder> mMessages;
+    private View mListContainer;
+    private MessagesArrayAdapter mMessageAdapter;
+    private FloatingActionButtonFragment mFabFragment;
+    private View mWelcomeContainer;
+    private View mWeatherContainer;
+    private WeatherFragment mWeatherFragment;
+    private WeatherCommandParser mWeatherCommand;
+    private ResponseModel mWeatherModel;
+    private Handler mHandler;
+    private Runnable mWatchDogRunnable;
 
     public MainActivity() {
         super();
@@ -69,6 +91,24 @@ public class MainActivity extends ActionBarActivity {
 
     static SpeechKit getSpeechKit() {
         return sSpeechKit;
+    }
+
+    private void addMessage(String message, boolean isCursive) {
+        if (mMessages == null) {
+            mMessages = new ArrayList<>();
+        }
+        mMessages.add(new MessageHolder(message, isCursive));
+    }
+
+    private void refreshMessageList() {
+        if (mMessageAdapter != null) {
+            if (mMessages != null) {
+                mMessageAdapter.setMessages(mMessages.toArray(new MessageHolder[mMessages.size()]));
+                mListView.setSelection(mMessages.size() - 1);
+            } else {
+                mMessageAdapter.setMessages(null);
+            }
+        }
     }
 
     private void speechText(String text) {
@@ -84,7 +124,8 @@ public class MainActivity extends ActionBarActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mProgressDialog = ProgressDialog.show(context, getString(R.string.app_name), message);
+                    mProgressDialog = ProgressDialog
+                            .show(context, getString(R.string.app_name), message);
                 }
             });
         }
@@ -107,13 +148,13 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onRecordingBegin(Recognizer recognizer) {
                 mRecognizerState = RecognizerState.RECORDING;
-                showProgressDialog("Recording...");
+                //showProgressDialog(MainActivity.this.getText(R.string.recording_message));
             }
 
             @Override
             public void onRecordingDone(Recognizer recognizer) {
                 mRecognizerState = RecognizerState.PROCESSING;
-                showProgressDialog("Processing...");
+                //showProgressDialog(MainActivity.this.getText(R.string.processing_message));
             }
 
             @Override
@@ -121,37 +162,29 @@ public class MainActivity extends ActionBarActivity {
                 if (recognizer != mCurrentRecognizer) {
                     return;
                 }
+                stopWatchDogTask();
                 mRecognizerState = RecognizerState.STOPPED;
-                dismissProgressDialog();
                 mCurrentRecognizer = null;
-
-                // Display the error + suggestion in the edit box
-                String detail = error.getErrorDetail();
                 String suggestion = error.getSuggestion();
-
                 if (suggestion == null) suggestion = "";
-                mSpeechResult.setText(detail + "\n" + suggestion);
-                // for debugging purpose: printing out the speechkit session id
-                android.util.Log.d("Nuance SampleVoiceApp", "Recognizer.Listener.onError: session id ["
-                        + getSpeechKit().getSessionId() + "]");
+                mApplicationState = MainViewState.SHOW_RESULT;
+                changeMainViewAppearance();
+                addMessage(suggestion, true);
+                refreshMessageList();
             }
 
             @Override
             public void onResults(Recognizer recognizer, Recognition results) {
-                dismissProgressDialog();
                 mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
-                int count = results.getResultCount();
+                stopWatchDogTask();
                 String resultStr = "";
-                for (int i = 0; i < count; i++) {
-                    resultStr += "[" + results.getResult(i).getScore() + "] " +
-                            results.getResult(i).getText() + "\n";
+                if (results.getResultCount() > 0) {
+                    resultStr += results.getResult(0).getText();
                 }
-                mSpeechResult.setText(resultStr);
+                addMessage(resultStr, false);
+                refreshMessageList();
                 new RecognizeTextToCommandTask().execute(results);
-                // for debugging purpose: printing out the speechkit session id
-                android.util.Log.d("Nuance SampleVoiceApp", "Recognizer.Listener.onResults: session id ["
-                        + getSpeechKit().getSessionId() + "]");
             }
         };
     }
@@ -166,8 +199,22 @@ public class MainActivity extends ActionBarActivity {
         } else {
             processGooglePlayServiceIsNotExists();
         }
-        mSpeechResult = (EditText) findViewById(R.id.speechResult);
-        //Nuance
+        prepareSpeechKitAndVocalizer();
+        prepareActivityControls();
+    }
+
+    private void prepareActivityControls() {
+        addFloatingActionButtonFragment();
+        mMainView = MainActivity.this.findViewById(R.id.main_container);
+        mListView = (ListView) findViewById(R.id.messages_list);
+        mListContainer = findViewById(R.id.messages_container);
+        mMessageAdapter = new MessagesArrayAdapter(MainActivity.this, null);
+        mListView.setAdapter(mMessageAdapter);
+        mWelcomeContainer = findViewById(R.id.welcome_container);
+        mWeatherContainer = findViewById(R.id.weather_container);
+    }
+
+    private void prepareSpeechKitAndVocalizer() {
         if (sSpeechKit == null) {
             sSpeechKit = SpeechKit.initialize(getApplication().getApplicationContext(),
                     NuanceAppInfo.SpeechKitAppId, NuanceAppInfo.SpeechKitServer,
@@ -177,37 +224,188 @@ public class MainActivity extends ActionBarActivity {
             Prompt beep = sSpeechKit.defineAudioPrompt(R.raw.beep);
             sSpeechKit.setDefaultRecognizerPrompts(beep, Prompt.vibration(100), null, null);
         }
-        _handler = new Handler();
-        Button nuanceButton = (Button) findViewById(R.id.nuanceButton);
-        nuanceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showProgressDialog("Initializing...");
-                mRecognizerState = RecognizerState.INITIALIZING;
-                mSpeechResult.setText("");
-                mCommandResult.setText("");
-                mCurrentRecognizer = getSpeechKit().createRecognizer(
-                        Recognizer.RecognizerType.Search, Recognizer.EndOfSpeechDetection.Short,
-                        "en_US", mNuanceListener, _handler);
-                mCurrentRecognizer.start();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        verifyRecognizerState();
-                    }
-                }, RECOGNIZER_DELAY);
-            }
-        });
-        mCommandResult = (EditText) findViewById(R.id.commandResult);
         mVocalizer = sSpeechKit
                 .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
         mVocalizer.setVoice("Samantha");
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        changeMainViewAppearance();
+    }
+
+    private void addFloatingActionButtonFragment() {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        mFabFragment = new FloatingActionButtonFragment();
+        mFabFragment.setOnFabClickListener(new FloatingActionButton.OnFabClickListener() {
+            @Override
+            public void onFabClick(FloatingActionButton fabView) {
+                processFabClick();
+            }
+        });
+        transaction.replace(R.id.fab_fragment, mFabFragment, FloatingActionButtonFragment.TAG);
+        transaction.commit();
+    }
+
+    private void processFabClick() {
+        switch (mApplicationState) {
+            case WELCOME_SCREEN:
+                mMessages = null;
+                refreshMessageList();
+                mApplicationState = MainViewState.VOICE_RECORDING;
+                startRecognizer();
+                changeMainViewAppearance();
+                addMessage(getString(R.string.listening_message), false);
+                refreshMessageList();
+                break;
+            case VOICE_RECORDING:
+                stopRecognizer();
+                break;
+            case SHOW_RESULT:
+                mApplicationState = MainViewState.VOICE_RECORDING;
+                startRecognizer();
+                changeMainViewAppearance();
+                addMessage(getString(R.string.listening_message), false);
+                refreshMessageList();
+                break;
+            case SHOW_WEATHER:
+                mMessages = null;
+                refreshMessageList();
+                mApplicationState = MainViewState.VOICE_RECORDING;
+                startRecognizer();
+                changeMainViewAppearance();
+                addMessage(getString(R.string.listening_message), false);
+                refreshMessageList();
+                break;
+        }
+    }
+
+    private void changeMainViewAppearance() {
+        switch (mApplicationState) {
+            case WELCOME_SCREEN:
+                mMessageAdapter.setMessages(null);
+                mWelcomeContainer.setVisibility(View.VISIBLE);
+                mListContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
+                changeBackgroundColor(R.color.background_white);
+                break;
+            case VOICE_RECORDING:
+                mListContainer.setVisibility(View.VISIBLE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_WHITE);
+                changeBackgroundColor(R.color.background_red);
+                mMessageAdapter.setInvertedColors(true);
+                break;
+            case SHOW_RESULT:
+                mListContainer.setVisibility(View.VISIBLE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
+                changeBackgroundColor(R.color.background_white);
+                mMessageAdapter.setInvertedColors(false);
+                break;
+            case RECOGNIZE_COMMAND:
+                mListContainer.setVisibility(View.VISIBLE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_RED);
+                changeBackgroundColor(R.color.background_white);
+                mMessageAdapter.setInvertedColors(false);
+                break;
+            case GET_WEATHER_FORECAST:
+                mListContainer.setVisibility(View.VISIBLE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.GONE);
+                mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_RED);
+                changeBackgroundColor(R.color.background_white);
+                mMessageAdapter.setInvertedColors(false);
+                break;
+            case SHOW_WEATHER:
+                mListContainer.setVisibility(View.GONE);
+                mWelcomeContainer.setVisibility(View.GONE);
+                mWeatherContainer.setVisibility(View.VISIBLE);
+                mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
+                changeBackgroundColor(R.color.background_white);
+                mMessageAdapter.setInvertedColors(false);
+                prepareWeatherFragment();
+                break;
+        }
+    }
+
+    private void prepareWeatherFragment() {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        mWeatherFragment = WeatherFragment.getInstance(mWeatherModel);
+        transaction.replace(R.id.weather_container, mWeatherFragment, WeatherFragment.TAG);
+        transaction.commit();
+    }
+
+    private void stopRecognizer() {
+        if (mCurrentRecognizer != null) {
+            mCurrentRecognizer.stopRecording();
+        }
+        stopWatchDogTask();
+    }
+
+    private void stopWatchDogTask() {
+        if (mHandler != null && mWatchDogRunnable != null) {
+            mHandler.removeCallbacks(mWatchDogRunnable);
+        }
+    }
+
+    private void startRecognizer() {
+        Handler _handler = new Handler();
+        //showProgressDialog("Initializing...");
+        mRecognizerState = RecognizerState.INITIALIZING;
+        mCurrentRecognizer = getSpeechKit().createRecognizer(
+                Recognizer.RecognizerType.Search, Recognizer.EndOfSpeechDetection.Short,
+                "en_US", mNuanceListener, _handler);
+        mCurrentRecognizer.start();
+        mHandler = new Handler();
+        mWatchDogRunnable = new Runnable() {
+            @Override
+            public void run() {
+                verifyRecognizerState();
+            }
+        };
+        mHandler.postDelayed(mWatchDogRunnable, RECOGNIZER_DELAY);
+
+    }
+
+    private void changeBackgroundColor(int resourceColor) {
+        Integer colorTo = getResources().getColor(resourceColor);
+        Integer colorFrom = getBackgroundColor();
+        if (!colorFrom.equals(colorTo)) {
+            ValueAnimator colorAnimation =
+                    ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            colorAnimation.setDuration(1000);
+            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    mMainView.setBackgroundColor((Integer) animator.getAnimatedValue());
+                }
+
+            });
+            colorAnimation.start();
+        }
+    }
+
+    private Integer getBackgroundColor() {
+        int color = Color.TRANSPARENT;
+        Drawable background = mMainView.getBackground();
+        if (background instanceof ColorDrawable) {
+            color = ((ColorDrawable) background).getColor();
+        }
+        return color;
+    }
+
     private void verifyRecognizerState() {
         if (mRecognizerState == RecognizerState.INITIALIZING ||
                 mRecognizerState == RecognizerState.RECORDING) {
-            mCurrentRecognizer.stopRecording();
+            stopRecognizer();
         }
     }
 
@@ -271,57 +469,64 @@ public class MainActivity extends ActionBarActivity {
     private void processGetWeatherForecast(WeatherCommandParser command) {
         if (command.getWhereLatLng() != null) {
             new GetWeatherForecastTask().execute(command);
+        } else {
+            addMessage(getString(R.string.cannot_recognize_place), true);
+            refreshMessageList();
+            mApplicationState = MainViewState.SHOW_RESULT;
+            changeMainViewAppearance();
         }
     }
 
-    private class RecognizeTextToCommandTask extends AsyncTask<Recognition, Void, WeatherCommandParser> {
+    private void processWeatherResult(ResponseModel weatherInfo) {
+        if (weatherInfo != null) {
+            mApplicationState = MainViewState.SHOW_WEATHER;
+            mWeatherModel = weatherInfo;
+        } else {
+            addMessage(getString(R.string.cannot_get_weather_from_server), true);
+            refreshMessageList();
+            mApplicationState = MainViewState.SHOW_RESULT;
+        }
+        changeMainViewAppearance();
+    }
+
+    private class RecognizeTextToCommandTask
+            extends AsyncTask<Recognition, Void, WeatherCommandParser> {
 
         @Override
         protected WeatherCommandParser doInBackground(Recognition... params) {
             Recognition recognition = params[0];
             WeatherCommandParser result = null;
             if (recognition.getResultCount() > 0) {
-                result =
-                        new WeatherCommandParser(MainActivity.this, recognition.getResult(0).getText());
+                result = new WeatherCommandParser(
+                        MainActivity.this, recognition.getResult(0).getText());
             }
             return result;
         }
 
         @Override
         protected void onPreExecute() {
-            showProgressDialog("Try recognize voice command...");
+            mApplicationState = MainViewState.RECOGNIZE_COMMAND;
+            changeMainViewAppearance();
         }
 
         @Override
         protected void onPostExecute(WeatherCommandParser command) {
-            dismissProgressDialog();
+            //dismissProgressDialog();
             if (command != null && command.isCommand()) {
-                DateFormat dateFormat = DateFormat.getDateInstance();
-                String text = "";
-                if (!TextUtils.isEmpty(command.getWhereName())) {
-                    text += command.getWhereName();
-                } else {
-                    text += "Can not recognize place.";
-                }
-                if (command.getWhenDates() != null) {
-                    text += "\n" +
-                            dateFormat.format(command.getWhenDates().startDate) + "\n" +
-                            dateFormat.format(command.getWhenDates().finishDate);
-                } else {
-                    text += "\nCan not recognize dates";
-                }
-                mCommandResult.setText(text);
+                mWeatherCommand = command;
                 processGetWeatherForecast(command);
             } else {
-                speechText(MainActivity.this.getString(R.string.cannot_recognize_voice_command));
-                Toast.makeText(MainActivity.this,
-                        MainActivity.this.getString(R.string.cannot_recognize_voice_command),
-                        Toast.LENGTH_LONG).show();
+                addMessage(
+                        MainActivity.this.getString(R.string.cannot_recognize_voice_command), true);
+                refreshMessageList();
+                mApplicationState = MainViewState.SHOW_RESULT;
+                changeMainViewAppearance();
             }
         }
     }
 
-    private class GetWeatherForecastTask extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
+    private class GetWeatherForecastTask
+            extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
 
         @Override
         protected ResponseModel doInBackground(WeatherCommandParser... params) {
@@ -332,13 +537,13 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         protected void onPreExecute() {
-            showProgressDialog("Get weather forecast...");
+            mApplicationState = MainViewState.GET_WEATHER_FORECAST;
+            changeMainViewAppearance();
         }
 
         @Override
         protected void onPostExecute(ResponseModel responseModel) {
-            dismissProgressDialog();
-            //speechText("Weather forecast from server was gotten successfully");
+            processWeatherResult(responseModel);
         }
     }
 }

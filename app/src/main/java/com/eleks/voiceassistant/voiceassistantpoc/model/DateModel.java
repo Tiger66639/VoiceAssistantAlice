@@ -2,6 +2,7 @@ package com.eleks.voiceassistant.voiceassistantpoc.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -9,7 +10,7 @@ import java.util.Locale;
 /**
  * Created by Serhiy.Krasovskyy on 02.06.2015.
  */
-public class DateModel {
+public class DateModel implements Serializable {
     @SerializedName("day")
     private int mDay;
     @SerializedName("month")

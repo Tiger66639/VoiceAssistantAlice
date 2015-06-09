@@ -6,4 +6,45 @@
     <string name="gps_is_not_exists_message">Application can not work without Google Play Service. Please install Google Play Service and try again.</string>
     <string name="gps_is_not_exists_ok_button_name">Ok</string>
     <string name="cannot_recognize_voice_command">Can not recognize voice command</string>
+    <string name="welcome_text1">Tap and ask</string>
+    <string name="welcome_text2">about weather</string>
+    <string name="message_sample_text">What will be the weather like tomorrow</string>
+    <string name="recording_message">Recording...</string>
+    <string name="processing_message">Processing...</string>
+    <string name="try_recognize_voice_command">Try recognize voice command...</string>
+    <string name="get_weather_forecast_message">Get weather forecast...</string>
+    <string name="listening_message">Listening...</string>
+    <string name="divider_text">- - -</string>
+    <string name="place_sample_message">Boston, MA</string>
+    <string name="weather_sample_icon">&#xf00d;</string>
+    <string name="chanceflurries" translatable="false">&#xf064;</string>
+    <string name="chancerain" translatable="false">&#xf019;</string>
+    <string name="chancesleet" translatable="false">&#xf0b5;</string>
+    <string name="chancesnow" translatable="false">&#xf01b;</string>
+    <string name="chancetstorms" translatable="false">&#xf010;</string>
+    <string name="clear" translatable="false">&#xf00d;</string>
+    <string name="cloudy" translatable="false">&#xf013;</string>
+    <string name="flurries" translatable="false">&#xf00a;</string>
+    <string name="fog" translatable="false">&#xf014;</string>
+    <string name="hazy" translatable="false">&#xf0b6;</string>
+    <string name="mostlycloudy" translatable="false">&#xf00c;</string>
+    <string name="mostlysunny" translatable="false">&#xf00c;</string>
+    <string name="partlycloudy" translatable="false">&#xf002;</string>
+    <string name="partlysunny" translatable="false">&#xf00c;</string>
+    <string name="sleet" translatable="false">&#xf0b2;</string>
+    <string name="rain" translatable="false">&#xf007;</string>
+    <string name="snow" translatable="false">&#xf00a;</string>
+    <string name="sunny" translatable="false">&#xf00d;</string>
+    <string name="tstorms" translatable="false">&#xf010;</string>
+    <string name="icon_name_sample" translatable="false">Thunderstorm</string>
+    <string name="cannot_recognize_place">Can not recognize place in command text.</string>
+    <string name="temperature_sample" translatable="false">72 \u00B0F</string>
+    <string name="degree_sign" translatable="false">\u00B0</string>
+    <string name="feels_like">Feels like:</string>
+    <string name="humidity_label" >Humidity:</string>
+    <string name="humidity_sample" translatable="false">45%</string>
+    <string name="wind_label">Wind:</string>
+    <string name="wind_sample" translatable="false">3 mph</string>
+    <string name="cannot_get_weather_from_server">Can not get weather info from the server.</string>
+
 </resources>

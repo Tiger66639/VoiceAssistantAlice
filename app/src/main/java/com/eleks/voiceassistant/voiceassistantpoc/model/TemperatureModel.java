@@ -4,10 +4,12 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by Serhiy.Krasovskyy on 02.06.2015.
  */
-public class TemperatureModel {
+public class TemperatureModel  implements Serializable {
     @SerializedName("fahrenheit")
     private String mFahrenheit;
     @SerializedName("celsius")
