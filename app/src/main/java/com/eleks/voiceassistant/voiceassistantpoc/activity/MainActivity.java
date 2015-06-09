@@ -83,8 +83,6 @@ public class MainActivity extends Activity {
     private FloatingActionButtonFragment mFabFragment;
     private View mWelcomeContainer;
     private View mWeatherContainer;
-    private WeatherFragment mWeatherFragment;
-    private WeatherCommandParser mWeatherCommand;
     private ResponseModel mWeatherModel;
     private Handler mHandler;
     private Runnable mWatchDogRunnable;
@@ -135,6 +133,7 @@ public class MainActivity extends Activity {
         }
     }
 
+    @SuppressWarnings("unused")
     private void speechText(String text) {
         Object lastTtsContext = new Object();
         mVocalizer.speakString(text, lastTtsContext);
@@ -359,7 +358,7 @@ public class MainActivity extends Activity {
     private void prepareWeatherFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.pull_in, R.anim.push_out);
-        mWeatherFragment = WeatherFragment.getInstance(mWeatherModel);
+        WeatherFragment mWeatherFragment = WeatherFragment.getInstance(mWeatherModel);
         transaction.replace(R.id.weather_container, mWeatherFragment, WeatherFragment.TAG);
         transaction.commit();
     }
@@ -528,12 +527,8 @@ public class MainActivity extends Activity {
         calendar.set(Calendar.HOUR_OF_DAY, 24);
         calendar.add(Calendar.DAY_OF_YEAR, THREE_DAYS);
         Date endDate = calendar.getTime();
-        if (dates.startDate.after(startDate) && dates.startDate.before(endDate) &&
-                dates.finishDate.after(startDate) && dates.finishDate.before(endDate)) {
-            return true;
-        } else {
-            return false;
-        }
+        return dates.startDate.after(startDate) && dates.startDate.before(endDate) &&
+                dates.finishDate.after(startDate) && dates.finishDate.before(endDate);
     }
 
     private void processWeatherResult(ResponseModel weatherInfo) {
@@ -572,7 +567,6 @@ public class MainActivity extends Activity {
         protected void onPostExecute(final WeatherCommandParser command) {
             //dismissProgressDialog();
             if (command != null && command.isCommand()) {
-                mWeatherCommand = command;
                 processVoiceCommand(command);
             } else {
                 addMessage(
@@ -616,7 +610,7 @@ public class MainActivity extends Activity {
                         }
                     }, delay);
                 } else {
-                    processWeatherResult(responseModel);
+                    processWeatherResult(null);
                 }
             }
         }
