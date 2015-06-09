@@ -38,7 +38,7 @@
     <string name="tstorms" translatable="false">&#xf010;</string>
     <string name="icon_name_sample" translatable="false">Thunderstorm</string>
     <string name="cannot_recognize_place">Can not recognize place in command text.</string>
-    <string name="temperature_sample" translatable="false">72 \u00B0F</string>
+    <string name="temperature_sample" translatable="false">72</string>
     <string name="degree_sign" translatable="false">\u00B0</string>
     <string name="feels_like">Feels like:</string>
     <string name="humidity_label">Humidity:</string>
@@ -49,7 +49,13 @@
     <string name="wrong_period_message">Sorry, I can show weather for three days only.</string>
     <string name="cannot_recognize_period">Can not recognize dates preiod.</string>
     <string name="speech_not_recognized">Sorry, speech not recognized. Please try again.</string>
-    <string name="version_info_sample">0.1.1</string>
-    <string name="default_application_version">0.1.0</string>
+    <string name="version_info_sample" translatable="false">0.1.1</string>
+    <string name="default_application_version" translatable="false">0.1.0</string>
+    <string name="fahrenheit_degree" translatable="false">\u00B0F</string>
+    <string name="first_day_name_sample" translatable="false">Sat</string>
+    <string name="second_day_name_sample" translatable="false">Sun</string>
+    <string name="third_day_name_sample" translatable="false">Mon</string>
+    <string name="temperature_high" translatable="false">&#xf058;</string>
+    <string name="temperature_low" translatable="false">&#xf044;</string>
 
 </resources>

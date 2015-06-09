@@ -14,6 +14,9 @@ import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.model.DisplayLocation;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 
+import java.util.Calendar;
+import java.util.Locale;
+
 /**
  * Created by Serhiy.Krasovskyy on 08.06.2015.
  */
@@ -54,15 +57,73 @@ public class WeatherFragment extends Fragment {
 
     private void fillControls() {
         TextView cityName = (TextView) mFragmentView.findViewById(R.id.city_name);
-        cityName.setTypeface(mTypeface);
         cityName.setText(getCityName(mWeatherModel.currentObservation.displayLocation));
         TextView weatherIcon = (TextView) mFragmentView.findViewById(R.id.weather_icon);
         weatherIcon.setTypeface(mTypeface);
         weatherIcon.setText(
-                getWeatherIcon(mWeatherModel.forecast.simpleForecast.forecastDays[0].iconName));
-        TextView iconName = (TextView) mFragmentView.findViewById(R.id.icon_name);
-        iconName.setTypeface(mTypeface);
-        iconName.setText(mWeatherModel.forecast.simpleForecast.forecastDays[0].conditions);
+                getWeatherIcon(mWeatherModel.currentObservation.iconName));
+        TextView iconName = (TextView) mFragmentView.findViewById(R.id.weather_text);
+        iconName.setText(mWeatherModel.currentObservation.weather);
+        TextView temperature = (TextView) mFragmentView.findViewById(R.id.temperature);
+        temperature.setText(
+                String.format("%.0f", mWeatherModel.currentObservation.temperatureFahrenheit));
+        //day 1
+        TextView firstDayName = (TextView) mFragmentView.findViewById(R.id.first_day_name);
+        firstDayName.setText(getShortDayName(1));
+        TextView firstDayWeatherIcon = (TextView) mFragmentView.findViewById(R.id.first_day_weather_icon);
+        firstDayWeatherIcon.setTypeface(mTypeface);
+        firstDayWeatherIcon.setText(
+                getWeatherIcon(mWeatherModel.forecast.simpleForecast.forecastDays[1].iconName));
+        TextView firstDayHigh = (TextView) mFragmentView.findViewById(R.id.first_day_high_icon);
+        firstDayHigh.setTypeface(mTypeface);
+        TextView firstDayHighTemperature = (TextView) mFragmentView.findViewById(R.id.first_day_high_temperature);
+        firstDayHighTemperature.setText(
+                String.format("%d", mWeatherModel.forecast.simpleForecast.forecastDays[1].highTemperature.getFahrenheit()));
+        TextView firstDayLow = (TextView) mFragmentView.findViewById(R.id.first_day_low_icon);
+        firstDayLow.setTypeface(mTypeface);
+        TextView firstDayLowTemperature = (TextView) mFragmentView.findViewById(R.id.first_day_low_temperature);
+        firstDayLowTemperature.setText(
+                String.format("%d", mWeatherModel.forecast.simpleForecast.forecastDays[1].lowTemperature.getFahrenheit()));
+        //day 2
+        TextView secondDayName = (TextView) mFragmentView.findViewById(R.id.second_day_name);
+        secondDayName.setText(getShortDayName(2));
+        TextView secondDayWeatherIcon = (TextView) mFragmentView.findViewById(R.id.second_day_weather_icon);
+        secondDayWeatherIcon.setTypeface(mTypeface);
+        secondDayWeatherIcon.setText(
+                getWeatherIcon(mWeatherModel.forecast.simpleForecast.forecastDays[2].iconName));
+        TextView secondDayHigh = (TextView) mFragmentView.findViewById(R.id.second_day_high_icon);
+        secondDayHigh.setTypeface(mTypeface);
+        TextView secondDayHighTemperature = (TextView) mFragmentView.findViewById(R.id.second_day_high_temperature);
+        secondDayHighTemperature.setText(
+                String.format("%d", mWeatherModel.forecast.simpleForecast.forecastDays[2].highTemperature.getFahrenheit()));
+        TextView secondDayLow = (TextView) mFragmentView.findViewById(R.id.second_day_low_icon);
+        secondDayLow.setTypeface(mTypeface);
+        TextView secondDayLowTemperature = (TextView) mFragmentView.findViewById(R.id.second_day_low_temperature);
+        secondDayLowTemperature.setText(
+                String.format("%d", mWeatherModel.forecast.simpleForecast.forecastDays[2].lowTemperature.getFahrenheit()));
+        //day 3
+        TextView thirdDayName = (TextView) mFragmentView.findViewById(R.id.third_day_name);
+        thirdDayName.setText(getShortDayName(3));
+        TextView thirdDayWeatherIcon = (TextView) mFragmentView.findViewById(R.id.third_day_weather_icon);
+        thirdDayWeatherIcon.setTypeface(mTypeface);
+        thirdDayWeatherIcon.setText(
+                getWeatherIcon(mWeatherModel.forecast.simpleForecast.forecastDays[3].iconName));
+        TextView thirdDayHigh = (TextView) mFragmentView.findViewById(R.id.third_day_high_icon);
+        thirdDayHigh.setTypeface(mTypeface);
+        TextView thirdDayHighTemperature = (TextView) mFragmentView.findViewById(R.id.third_day_high_temperature);
+        thirdDayHighTemperature.setText(
+                String.format("%d", mWeatherModel.forecast.simpleForecast.forecastDays[3].highTemperature.getFahrenheit()));
+        TextView thirdDayLow = (TextView) mFragmentView.findViewById(R.id.third_day_low_icon);
+        thirdDayLow.setTypeface(mTypeface);
+        TextView thirdDayLowTemperature = (TextView) mFragmentView.findViewById(R.id.third_day_low_temperature);
+        thirdDayLowTemperature.setText(
+                String.format("%d", mWeatherModel.forecast.simpleForecast.forecastDays[3].lowTemperature.getFahrenheit()));
+    }
+
+    private String getShortDayName(int shiftOfDays) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, shiftOfDays);
+        return calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.ENGLISH);
     }
 
     private String getCityName(DisplayLocation location) {

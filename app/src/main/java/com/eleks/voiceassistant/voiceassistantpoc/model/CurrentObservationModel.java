@@ -26,4 +26,6 @@ public class CurrentObservationModel implements Serializable {
     public String windMph;
     @SerializedName("feelslike_f")
     public double feelsLikeFahrenheit;
+    @SerializedName("icon")
+    public String iconName;
 }

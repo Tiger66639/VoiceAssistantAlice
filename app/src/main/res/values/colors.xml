@@ -12,4 +12,5 @@
     <color name="fab_color_white">#eeeeee</color>
     <color name="fab_color_2_muted">#a56ab0</color>
     <color name="color_for_highlighting">#f50057</color>
+    <color name="black">#FF000000</color>
 </resources>
