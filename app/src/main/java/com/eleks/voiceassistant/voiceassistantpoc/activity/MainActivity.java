@@ -5,7 +5,6 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -68,7 +67,6 @@ public class MainActivity extends Activity {
         }
     };
     private Recognizer mCurrentRecognizer;
-    private ProgressDialog mProgressDialog;
     private LocationController mLocationController;
     private Vocalizer mVocalizer;
     private RecognizerState mRecognizerState;
@@ -86,6 +84,7 @@ public class MainActivity extends Activity {
     private ResponseModel mWeatherModel;
     private Handler mHandler;
     private Runnable mWatchDogRunnable;
+    private AsyncTask<WeatherCommandParser, Void, ResponseModel> mGetWeatherForecastTask;
 
     public MainActivity() {
         super();
@@ -124,33 +123,6 @@ public class MainActivity extends Activity {
     private void speechText(String text) {
         Object lastTtsContext = new Object();
         mVocalizer.speakString(text, lastTtsContext);
-    }
-
-    private void showProgressDialog(final CharSequence message) {
-        if (mProgressDialog != null) {
-            mProgressDialog.setMessage(message);
-        } else {
-            final Context context = this;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mProgressDialog = ProgressDialog
-                            .show(context, getString(R.string.app_name), message);
-                }
-            });
-        }
-    }
-
-    private void dismissProgressDialog() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mProgressDialog != null) {
-                    mProgressDialog.dismiss();
-                    mProgressDialog = null;
-                }
-            }
-        });
     }
 
     private Recognizer.Listener createListener() {
@@ -287,6 +259,13 @@ public class MainActivity extends Activity {
                 changeMainViewAppearance();
                 addMessage(getString(R.string.listening_message), false);
                 refreshMessageList();
+                break;
+            case GET_WEATHER_FORECAST:
+                if (mGetWeatherForecastTask != null) {
+                    mGetWeatherForecastTask.cancel(true);
+                }
+                mApplicationState = MainViewState.SHOW_RESULT;
+                changeMainViewAppearance();
                 break;
         }
     }
@@ -485,7 +464,7 @@ public class MainActivity extends Activity {
                 addMessage(lastMessage.message, command.getWords(), false);
                 refreshMessageList();
             }
-            new GetWeatherForecastTask().execute(command);
+            mGetWeatherForecastTask = new GetWeatherForecastTask().execute(command);
         } else {
             addMessage(getString(R.string.cannot_recognize_place), true);
             refreshMessageList();
@@ -546,6 +525,7 @@ public class MainActivity extends Activity {
             extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
 
         private Date mCurrentTime;
+        private boolean mCanceled = false;
 
         @Override
         protected ResponseModel doInBackground(WeatherCommandParser... params) {
@@ -563,18 +543,26 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPostExecute(final ResponseModel responseModel) {
-            long delay = DELAY_BETWEEN_SCREENS -
-                    (new Date().getTime() - mCurrentTime.getTime());
-            if (responseModel != null) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        processWeatherResult(responseModel);
-                    }
-                }, delay);
-            } else {
-                processWeatherResult(responseModel);
+            if (!mCanceled) {
+                long delay = DELAY_BETWEEN_SCREENS -
+                        (new Date().getTime() - mCurrentTime.getTime());
+                if (responseModel != null) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            processWeatherResult(responseModel);
+                        }
+                    }, delay);
+                } else {
+                    processWeatherResult(responseModel);
+                }
             }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            mCanceled = true;
         }
     }
 }
