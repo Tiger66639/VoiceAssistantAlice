@@ -43,12 +43,14 @@ import com.nuance.nmdp.speechkit.SpeechKit;
 import com.nuance.nmdp.speechkit.Vocalizer;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class MainActivity extends Activity {
 
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static final long RECOGNIZER_DELAY = 5000;
+    private static final long DELAY_BETWEEN_SCREENS = 3000;
     private static SpeechKit sSpeechKit;
     private final Recognizer.Listener mNuanceListener;
     Vocalizer.Listener vocalizerListener = new Vocalizer.Listener() {
@@ -492,6 +494,8 @@ public class MainActivity extends Activity {
     private class RecognizeTextToCommandTask
             extends AsyncTask<Recognition, Void, WeatherCommandParser> {
 
+        private Date mCurrentTime;
+
         @Override
         protected WeatherCommandParser doInBackground(Recognition... params) {
             Recognition recognition = params[0];
@@ -505,16 +509,24 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
+            mCurrentTime = new Date();
             mApplicationState = MainViewState.RECOGNIZE_COMMAND;
             changeMainViewAppearance();
         }
 
         @Override
-        protected void onPostExecute(WeatherCommandParser command) {
+        protected void onPostExecute(final WeatherCommandParser command) {
             //dismissProgressDialog();
             if (command != null && command.isCommand()) {
                 mWeatherCommand = command;
-                processGetWeatherForecast(command);
+                long delay = DELAY_BETWEEN_SCREENS -
+                        (new Date().getTime() - mCurrentTime.getTime());
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        processGetWeatherForecast(command);
+                    }
+                }, delay);
             } else {
                 addMessage(
                         MainActivity.this.getString(R.string.cannot_recognize_voice_command), true);
@@ -528,6 +540,8 @@ public class MainActivity extends Activity {
     private class GetWeatherForecastTask
             extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
 
+        private Date mCurrentTime;
+
         @Override
         protected ResponseModel doInBackground(WeatherCommandParser... params) {
             WeatherCommandParser command = params[0];
@@ -537,13 +551,25 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
+            mCurrentTime = new Date();
             mApplicationState = MainViewState.GET_WEATHER_FORECAST;
             changeMainViewAppearance();
         }
 
         @Override
-        protected void onPostExecute(ResponseModel responseModel) {
-            processWeatherResult(responseModel);
+        protected void onPostExecute(final ResponseModel responseModel) {
+            long delay = DELAY_BETWEEN_SCREENS -
+                    (new Date().getTime() - mCurrentTime.getTime());
+            if (responseModel != null) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        processWeatherResult(responseModel);
+                    }
+                }, delay);
+            } else {
+                processWeatherResult(responseModel);
+            }
         }
     }
 }
