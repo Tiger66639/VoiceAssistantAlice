@@ -113,6 +113,17 @@ public class MainActivity extends Activity {
         mMessages.add(new MessageHolder(message, words, isCursive));
     }
 
+    private void replaceLastMessage(String message, boolean isCursive) {
+        if (mMessages == null) {
+            mMessages = new ArrayList<>();
+        }
+        int messageSize = mMessages.size();
+        if (messageSize > 0) {
+            mMessages.remove(messageSize - 1);
+        }
+        mMessages.add(new MessageHolder(message, isCursive));
+    }
+
     private void refreshMessageList() {
         if (mMessageAdapter != null) {
             if (mMessages != null) {
@@ -157,7 +168,7 @@ public class MainActivity extends Activity {
                 }
                 mApplicationState = MainViewState.SHOW_RESULT;
                 changeMainViewAppearance();
-                addMessage(suggestion, true);
+                replaceLastMessage(suggestion, true);
                 refreshMessageList();
             }
 
@@ -170,7 +181,7 @@ public class MainActivity extends Activity {
                 if (results.getResultCount() > 0) {
                     resultStr += results.getResult(0).getText();
                 }
-                addMessage(resultStr, false);
+                replaceLastMessage(resultStr, false);
                 refreshMessageList();
                 new RecognizeTextToCommandTask().execute(results);
             }
@@ -483,7 +494,7 @@ public class MainActivity extends Activity {
                 if (mMessages.size() > 0) {
                     int lastMessageIndex = mMessages.size() - 1;
                     MessageHolder lastMessage = mMessages.get(lastMessageIndex);
-                    mMessages.remove(lastMessageIndex);
+                    mMessages = null;
                     addMessage(lastMessage.message, command.getWords(), false);
                     refreshMessageList();
                 }
@@ -577,7 +588,6 @@ public class MainActivity extends Activity {
             extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
 
         private Date mCurrentTime;
-        private boolean mCanceled = false;
 
         @Override
         protected ResponseModel doInBackground(WeatherCommandParser... params) {
@@ -595,7 +605,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPostExecute(final ResponseModel responseModel) {
-            if (!mCanceled) {
+            if (!isCancelled()) {
                 long delay = DELAY_BETWEEN_SCREENS -
                         (new Date().getTime() - mCurrentTime.getTime());
                 if (responseModel != null) {
@@ -614,7 +624,6 @@ public class MainActivity extends Activity {
         @Override
         protected void onCancelled() {
             super.onCancelled();
-            mCanceled = true;
         }
     }
 }
