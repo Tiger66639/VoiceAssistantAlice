@@ -331,6 +331,7 @@ public class MainActivity extends Activity {
 
     private void prepareWeatherFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.pull_in, R.anim.push_out);
         mWeatherFragment = WeatherFragment.getInstance(mWeatherModel);
         transaction.replace(R.id.weather_container, mWeatherFragment, WeatherFragment.TAG);
         transaction.commit();
