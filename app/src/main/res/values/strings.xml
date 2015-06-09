@@ -5,7 +5,7 @@
     <string name="button_cancel">Cancel</string>
     <string name="gps_is_not_exists_message">Application can not work without Google Play Service. Please install Google Play Service and try again.</string>
     <string name="gps_is_not_exists_ok_button_name">Ok</string>
-    <string name="cannot_recognize_voice_command">Can not recognize voice command</string>
+    <string name="cannot_recognize_voice_command">Can not recognize voice command.</string>
     <string name="welcome_text1">Tap and ask</string>
     <string name="welcome_text2">about weather</string>
     <string name="message_sample_text">What will be the weather like tomorrow</string>
@@ -41,13 +41,15 @@
     <string name="temperature_sample" translatable="false">72 \u00B0F</string>
     <string name="degree_sign" translatable="false">\u00B0</string>
     <string name="feels_like">Feels like:</string>
-    <string name="humidity_label" >Humidity:</string>
+    <string name="humidity_label">Humidity:</string>
     <string name="humidity_sample" translatable="false">45%</string>
     <string name="wind_label">Wind:</string>
     <string name="wind_sample" translatable="false">3 mph</string>
     <string name="cannot_get_weather_from_server">Can not get weather info from the server.</string>
-    <string name="wrong_period_message">Can show weather for three days only.</string>
+    <string name="wrong_period_message">Sorry, I can show weather for three days only.</string>
     <string name="cannot_recognize_period">Can not recognize dates preiod.</string>
     <string name="speech_not_recognized">Sorry, speech not recognized. Please try again.</string>
+    <string name="version_info_sample">0.1.1</string>
+    <string name="default_application_version">0.1.0</string>
 
 </resources>

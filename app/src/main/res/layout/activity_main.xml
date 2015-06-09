@@ -78,4 +78,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp" />
 
+    <TextView
+        android:id="@+id/version_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:text="@string/version_info_sample"
+        android:textColor="@color/text_red_color"
+        android:textSize="16sp" />
+
 </RelativeLayout>

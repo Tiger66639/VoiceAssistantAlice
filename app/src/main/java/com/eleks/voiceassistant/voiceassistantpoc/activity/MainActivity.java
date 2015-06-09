@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,6 +16,7 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
@@ -186,8 +188,23 @@ public class MainActivity extends Activity {
         } else {
             processGooglePlayServiceIsNotExists();
         }
+        setVersionInfoControl();
         prepareSpeechKitAndVocalizer();
         prepareActivityControls();
+    }
+
+    private void setVersionInfoControl() {
+        TextView versionInfo = (TextView) findViewById(R.id.version_info);
+        versionInfo.setText(getVersionNumber());
+    }
+
+    private String getVersionNumber() {
+        try {
+            return getPackageManager()
+                    .getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return getString(R.string.default_application_version);
+        }
     }
 
     private void prepareActivityControls() {

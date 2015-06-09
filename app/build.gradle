@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
-
     signingConfigs {
         release {
             //noinspection SpellCheckingInspection
@@ -22,19 +21,20 @@ android {
             storePassword 'VoiceAssistantPoCKeyPwd'
         }
     }
-
     defaultConfig {
         applicationId "com.eleks.voiceassistant.voiceassistantpoc"
         minSdkVersion 21
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 11
+        versionName '0.1.1'
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    productFlavors {
     }
 }
 
