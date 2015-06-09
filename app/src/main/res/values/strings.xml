@@ -46,5 +46,8 @@
     <string name="wind_label">Wind:</string>
     <string name="wind_sample" translatable="false">3 mph</string>
     <string name="cannot_get_weather_from_server">Can not get weather info from the server.</string>
+    <string name="wrong_period_message">Can show weather for three days only.</string>
+    <string name="cannot_recognize_period">Can not recognize dates preiod.</string>
+    <string name="speech_not_recognized">Sorry, speech not recognized. Please try again.</string>
 
 </resources>

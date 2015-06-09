@@ -4,7 +4,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -25,6 +24,7 @@ import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
 import com.eleks.voiceassistant.voiceassistantpoc.fragment.WeatherFragment;
+import com.eleks.voiceassistant.voiceassistantpoc.mining.CommandPeriod;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WordHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
@@ -43,6 +43,7 @@ import com.nuance.nmdp.speechkit.SpeechKit;
 import com.nuance.nmdp.speechkit.Vocalizer;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 
@@ -51,6 +52,8 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static final long RECOGNIZER_DELAY = 5000;
     private static final long DELAY_BETWEEN_SCREENS = 3000;
+    private static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+    private static final int THREE_DAYS = 3;
     private static SpeechKit sSpeechKit;
     private final Recognizer.Listener mNuanceListener;
     Vocalizer.Listener vocalizerListener = new Vocalizer.Listener() {
@@ -148,7 +151,9 @@ public class MainActivity extends Activity {
                 mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
                 String suggestion = error.getSuggestion();
-                if (suggestion == null) suggestion = "";
+                if (suggestion == null) {
+                    suggestion = MainActivity.this.getString(R.string.speech_not_recognized);
+                }
                 mApplicationState = MainViewState.SHOW_RESULT;
                 changeMainViewAppearance();
                 addMessage(suggestion, true);
@@ -457,19 +462,49 @@ public class MainActivity extends Activity {
 
     private void processVoiceCommand(final WeatherCommandParser command) {
         if (command.getWhereLatLng() != null) {
-            if (mMessages.size() > 0) {
-                int lastMessageIndex = mMessages.size() - 1;
-                MessageHolder lastMessage = mMessages.get(lastMessageIndex);
-                mMessages.remove(lastMessageIndex);
-                addMessage(lastMessage.message, command.getWords(), false);
+            if (command.getWhenDates() != null) {
+                if (mMessages.size() > 0) {
+                    int lastMessageIndex = mMessages.size() - 1;
+                    MessageHolder lastMessage = mMessages.get(lastMessageIndex);
+                    mMessages.remove(lastMessageIndex);
+                    addMessage(lastMessage.message, command.getWords(), false);
+                    refreshMessageList();
+                }
+                if (!isDatesInThreeDaysPeriod(command.getWhenDates())) {
+                    addMessage(getString(R.string.wrong_period_message), true);
+                    refreshMessageList();
+                    mApplicationState = MainViewState.SHOW_RESULT;
+                    changeMainViewAppearance();
+                } else {
+                    mGetWeatherForecastTask = new GetWeatherForecastTask().execute(command);
+                }
+            } else {
+                addMessage(getString(R.string.cannot_recognize_period), true);
                 refreshMessageList();
+                mApplicationState = MainViewState.SHOW_RESULT;
+                changeMainViewAppearance();
             }
-            mGetWeatherForecastTask = new GetWeatherForecastTask().execute(command);
         } else {
             addMessage(getString(R.string.cannot_recognize_place), true);
             refreshMessageList();
             mApplicationState = MainViewState.SHOW_RESULT;
             changeMainViewAppearance();
+        }
+    }
+
+    private boolean isDatesInThreeDaysPeriod(CommandPeriod dates) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        Date startDate = calendar.getTime();
+        calendar.set(Calendar.HOUR_OF_DAY, 24);
+        calendar.add(Calendar.DAY_OF_YEAR, THREE_DAYS);
+        Date endDate = calendar.getTime();
+        if (dates.startDate.after(startDate) && dates.startDate.before(endDate) &&
+                dates.finishDate.after(startDate) && dates.finishDate.before(endDate)) {
+            return true;
+        } else {
+            return false;
         }
     }
 
