@@ -27,6 +27,7 @@ import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonF
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
 import com.eleks.voiceassistant.voiceassistantpoc.fragment.WeatherFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
+import com.eleks.voiceassistant.voiceassistantpoc.mining.WordHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
@@ -100,6 +101,13 @@ public class MainActivity extends Activity {
             mMessages = new ArrayList<>();
         }
         mMessages.add(new MessageHolder(message, isCursive));
+    }
+
+    private void addMessage(String message, WordHolder[] words, boolean isCursive) {
+        if (mMessages == null) {
+            mMessages = new ArrayList<>();
+        }
+        mMessages.add(new MessageHolder(message, words, isCursive));
     }
 
     private void refreshMessageList() {
@@ -468,8 +476,15 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void processGetWeatherForecast(WeatherCommandParser command) {
+    private void processVoiceCommand(final WeatherCommandParser command) {
         if (command.getWhereLatLng() != null) {
+            if (mMessages.size() > 0) {
+                int lastMessageIndex = mMessages.size() - 1;
+                MessageHolder lastMessage = mMessages.get(lastMessageIndex);
+                mMessages.remove(lastMessageIndex);
+                addMessage(lastMessage.message, command.getWords(), false);
+                refreshMessageList();
+            }
             new GetWeatherForecastTask().execute(command);
         } else {
             addMessage(getString(R.string.cannot_recognize_place), true);
@@ -494,8 +509,6 @@ public class MainActivity extends Activity {
     private class RecognizeTextToCommandTask
             extends AsyncTask<Recognition, Void, WeatherCommandParser> {
 
-        private Date mCurrentTime;
-
         @Override
         protected WeatherCommandParser doInBackground(Recognition... params) {
             Recognition recognition = params[0];
@@ -509,7 +522,6 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            mCurrentTime = new Date();
             mApplicationState = MainViewState.RECOGNIZE_COMMAND;
             changeMainViewAppearance();
         }
@@ -519,14 +531,7 @@ public class MainActivity extends Activity {
             //dismissProgressDialog();
             if (command != null && command.isCommand()) {
                 mWeatherCommand = command;
-                long delay = DELAY_BETWEEN_SCREENS -
-                        (new Date().getTime() - mCurrentTime.getTime());
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        processGetWeatherForecast(command);
-                    }
-                }, delay);
+                processVoiceCommand(command);
             } else {
                 addMessage(
                         MainActivity.this.getString(R.string.cannot_recognize_voice_command), true);

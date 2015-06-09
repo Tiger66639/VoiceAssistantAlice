@@ -2,6 +2,8 @@ package com.eleks.voiceassistant.voiceassistantpoc.adapter;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
+import com.eleks.voiceassistant.voiceassistantpoc.mining.WordHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
 
 /**
@@ -69,7 +72,35 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
         viewHolder.message.setText(item.message);
         setTextViewsColor(viewHolder);
         setFont(viewHolder, item.isCursive);
+        if (item.words != null) {
+            highlightWordsInTextView(viewHolder.message, item.words);
+        }
         return view;
+    }
+
+    private void highlightWordsInTextView(TextView textView, WordHolder[] words) {
+        int color = mContext.getResources().getColor(R.color.message_white_color);
+        textView.setTextColor(color);
+        if (textView != null) {
+            String textValue = textView.getText().toString();
+            Spannable spanText = Spannable.Factory.getInstance().newSpannable(textValue);
+
+            for (WordHolder word : words) {
+                if (word.wordMeaning != null) {
+                    int startIdx = textValue.toLowerCase().indexOf(word.word.toLowerCase());
+                    if (startIdx >= 0) {
+                        int endIdx = startIdx + word.word.length();
+                        spanText.setSpan(
+                                new BackgroundColorSpan(
+                                        mContext.getResources()
+                                                .getColor(R.color.color_for_highlighting)),
+                                startIdx, endIdx, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                }
+            }
+            textView.setText(spanText);
+            textView.setTag(spanText);
+        }
     }
 
     private ViewHolder getViewHolder(View view) {

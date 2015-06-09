@@ -50,4 +50,8 @@ public class BaseCommandParser {
         }
         return result;
     }
+
+    public WordHolder[] getWords() {
+        return mWords;
+    }
 }

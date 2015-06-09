@@ -21,4 +21,5 @@ public class MessageHolder {
         this.message = message;
         this.isCursive = isCursive;
     }
+
 }
