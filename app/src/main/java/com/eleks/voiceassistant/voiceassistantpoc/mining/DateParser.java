@@ -30,13 +30,13 @@ public class DateParser {
     private static final String[] NUMERATORS = {"two", "three", "four", "five", "six", "seven"};
     private static final int DAY_NUMERATOR_POSITION = 1;
     private static final int DAYS_SHIFT = 2;
+    private static final String FOR = "for";
     private CommandPeriod mDates;
     private Date mToday;
     private Calendar mCalendar;
 
     public DateParser(WordHolder[] words) {
-        WordHolder[] mWords = words;
-        String dateString = getDateString(mWords);
+        String dateString = getDateString(words);
         if (!TextUtils.isEmpty(dateString)) {
             mDates = getDatesFromDateString(dateString);
         } else {
@@ -86,8 +86,8 @@ public class DateParser {
         } else if (dateString.startsWith(IN) && dateString.endsWith(DAYS) &&
                 dateString.split(" ").length == 3) {
             result = getInDays(dateString);
-        } else if (dateString.startsWith(NEXT) && dateString.endsWith(DAYS) &&
-                dateString.split(" ").length == 3) {
+        } else if ((dateString.startsWith(NEXT) || dateString.startsWith(FOR)) &&
+                dateString.endsWith(DAYS) && dateString.split(" ").length == 3) {
             result = getNextDays(dateString);
         }
 

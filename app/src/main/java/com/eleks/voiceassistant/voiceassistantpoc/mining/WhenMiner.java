@@ -16,7 +16,7 @@ public class WhenMiner implements ITextMiner {
             "this week", "next week", "this month", "next month"};
     private static final String DAYS = "days";
     private static final String[] NUMERATORS = {"two", "three", "four", "five", "six", "seven"};
-    private static final String[] DAYS_ADVERBS = {"in", "next"};
+    private static final String[] DAYS_ADVERBS = {"in", "next", "for"};
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {
