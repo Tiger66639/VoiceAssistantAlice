@@ -35,6 +35,7 @@ import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
 import com.eleks.voiceassistant.voiceassistantpoc.server.WebServerMethods;
+import com.eleks.voiceassistant.voiceassistantpoc.utils.FontsHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.utils.NetworkStateHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -88,6 +89,7 @@ public class MainActivity extends Activity {
     private Handler mHandler;
     private Runnable mWatchDogRunnable;
     private AsyncTask<WeatherCommandParser, Void, ResponseModel> mGetWeatherForecastTask;
+    private FontsHolder mFontsHolder;
 
     public MainActivity() {
         super();
@@ -199,6 +201,7 @@ public class MainActivity extends Activity {
         }
         setVersionInfoControl();
         prepareSpeechKitAndVocalizer();
+        mFontsHolder = new FontsHolder(MainActivity.this);
         prepareActivityControls();
     }
 
@@ -218,6 +221,10 @@ public class MainActivity extends Activity {
 
     private void prepareActivityControls() {
         addFloatingActionButtonFragment();
+        TextView welcomeText1 = (TextView) findViewById(R.id.welcome_text1);
+        welcomeText1.setTypeface(mFontsHolder.getRobotomonoLight());
+        TextView welcomeText2 = (TextView) findViewById(R.id.welcome_text2);
+        welcomeText2.setTypeface(mFontsHolder.getRobotomonoLight());
         mMainView = MainActivity.this.findViewById(R.id.main_container);
         mListView = (ListView) findViewById(R.id.messages_list);
         mListContainer = findViewById(R.id.messages_container);

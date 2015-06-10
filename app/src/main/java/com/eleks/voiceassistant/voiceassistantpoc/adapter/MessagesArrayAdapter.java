@@ -1,11 +1,11 @@
 package com.eleks.voiceassistant.voiceassistantpoc.adapter;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +16,7 @@ import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WordHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WordMeaning;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
+import com.eleks.voiceassistant.voiceassistantpoc.utils.FontsHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.utils.IndexWrapper;
 import com.eleks.voiceassistant.voiceassistantpoc.utils.WholeWordIndexFinder;
 
@@ -28,12 +29,14 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
 
     private final LayoutInflater mInflater;
     private final Context mContext;
+    private final FontsHolder mFontsHolder;
     private MessageHolder[] mMessages;
     private boolean mIsInvertedColors;
 
     public MessagesArrayAdapter(Context context, MessageHolder[] values) {
         super(context, R.layout.item_message);
         this.mContext = context;
+        this.mFontsHolder = new FontsHolder(context);
         mMessages = values;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -138,9 +141,13 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
 
     private void setFont(ViewHolder viewHolder, boolean isCursive) {
         if (isCursive) {
-            viewHolder.message.setTypeface(null, Typeface.ITALIC);
+            viewHolder.message.setTypeface(mFontsHolder.getRobotomonoItalic());
+            viewHolder.message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+            viewHolder.divider.setTypeface(mFontsHolder.getRobotomonoItalic());
         } else {
-            viewHolder.message.setTypeface(null, Typeface.NORMAL);
+            viewHolder.message.setTypeface(mFontsHolder.getRobotomonoLight());
+            viewHolder.message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 31);
+            viewHolder.divider.setTypeface(mFontsHolder.getRobotomonoLight());
         }
     }
 
