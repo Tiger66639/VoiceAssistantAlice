@@ -11,9 +11,13 @@ public class FontsHolder {
     private static final String WEATHER_FONT_NAME = "fonts/weathericons.ttf";
     private static final String ROBOTOMONO_REGULAR = "fonts/RobotoMono-Regular.ttf";
     private static final String ROBOTOMONO_BOLD = "fonts/RobotoMono-Bold.ttf";
+    private static final String ROBOTOMONO_LIGHT = "fonts/RobotoMono-Light.ttf";
+    private static final String ROBOTOMONO_ITALIC = "fonts/RobotoMono-Italic.ttf";
     private static Typeface sWeatherIconFont;
     private static Typeface sRobotomonoRegular;
     private static Typeface sRobotomonoBold;
+    private static Typeface sRobotomonoLight;
+    private static Typeface sRobotomonoItalic;
     private final Context mContext;
 
     public FontsHolder(Context context) {
@@ -40,5 +44,19 @@ public class FontsHolder {
             sRobotomonoBold = Typeface.createFromAsset(mContext.getAssets(), ROBOTOMONO_BOLD);
         }
         return sRobotomonoBold;
+    }
+
+    public Typeface getRobotomonoLight() {
+        if (sRobotomonoLight == null) {
+            sRobotomonoLight = Typeface.createFromAsset(mContext.getAssets(), ROBOTOMONO_LIGHT);
+        }
+        return sRobotomonoLight;
+    }
+
+    public Typeface getRobotomonoItalic() {
+        if (sRobotomonoItalic == null) {
+            sRobotomonoItalic = Typeface.createFromAsset(mContext.getAssets(), ROBOTOMONO_ITALIC);
+        }
+        return sRobotomonoItalic;
     }
 }
