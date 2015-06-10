@@ -3,7 +3,9 @@ package com.eleks.voiceassistant.voiceassistantpoc.adapter;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +14,12 @@ import android.widget.TextView;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WordHolder;
+import com.eleks.voiceassistant.voiceassistantpoc.mining.WordMeaning;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
+import com.eleks.voiceassistant.voiceassistantpoc.utils.IndexWrapper;
+import com.eleks.voiceassistant.voiceassistantpoc.utils.WholeWordIndexFinder;
+
+import java.util.List;
 
 /**
  * Created by Sergey on 06.06.2015.
@@ -79,27 +86,45 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
     }
 
     private void highlightWordsInTextView(TextView textView, WordHolder[] words) {
-        int color = mContext.getResources().getColor(R.color.message_white_color);
-        textView.setTextColor(color);
+        int whiteColor = mContext.getResources().getColor(R.color.message_white_color);
+        int redColor = mContext.getResources().getColor(R.color.message_red_color);
         if (textView != null) {
             String textValue = textView.getText().toString();
-            Spannable spanText = Spannable.Factory.getInstance().newSpannable(textValue);
-
+            SpannableStringBuilder spanText = new SpannableStringBuilder(textValue);
             for (WordHolder word : words) {
-                if (word.wordMeaning != null) {
-                    int startIdx = textValue.toLowerCase().indexOf(word.word.toLowerCase());
-                    if (startIdx >= 0) {
-                        int endIdx = startIdx + word.word.length();
-                        spanText.setSpan(
-                                new BackgroundColorSpan(
-                                        mContext.getResources()
-                                                .getColor(R.color.color_for_highlighting)),
-                                startIdx, endIdx, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                IndexWrapper indexes =
+                        getWordIndexesInText(textValue.toLowerCase(), word.word.toLowerCase());
+                if (indexes != null) {
+                    if (word.wordMeaning != null && word.wordMeaning != WordMeaning.NOISE) {
+                        ForegroundColorSpan whiteColorSpan = new ForegroundColorSpan(whiteColor);
+                        BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(
+                                mContext.getResources().getColor(R.color.color_for_highlighting));
+                        spanText.setSpan(backgroundColorSpan,
+                                indexes.getStart(), indexes.getEnd(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        spanText.setSpan(whiteColorSpan,
+                                indexes.getStart(), indexes.getEnd(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    } else {
+                        ForegroundColorSpan redColorSpan = new ForegroundColorSpan(redColor);
+                        spanText.setSpan(redColorSpan,
+                                indexes.getStart(), indexes.getEnd(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 }
             }
             textView.setText(spanText);
             textView.setTag(spanText);
+        }
+    }
+
+    private IndexWrapper getWordIndexesInText(String text, String word) {
+        WholeWordIndexFinder wordFinder = new WholeWordIndexFinder(text);
+        List<IndexWrapper> wordIndexes = wordFinder.findIndexesForWord(word);
+        if (wordIndexes != null && wordIndexes.size() > 0) {
+            return wordIndexes.get(0);
+        } else {
+            return null;
         }
     }
 
