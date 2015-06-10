@@ -57,5 +57,6 @@
     <string name="third_day_name_sample" translatable="false">Mon</string>
     <string name="temperature_high" translatable="false">&#xf058;</string>
     <string name="temperature_low" translatable="false">&#xf044;</string>
+    <string name="connection_error_message">Please connect to internet first.</string>
 
 </resources>
