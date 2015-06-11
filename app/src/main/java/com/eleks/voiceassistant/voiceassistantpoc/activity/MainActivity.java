@@ -85,7 +85,6 @@ public class MainActivity extends Activity {
     private FontsHolder mFontsHolder;
     private MainFragment mMainFragment;
     private View mMainView;
-    private WeatherCommandParser mCommand;
 
     public MainActivity() {
         super();
@@ -459,14 +458,15 @@ public class MainActivity extends Activity {
     }
 
     private void processVoiceCommand(final WeatherCommandParser command) {
-        mCommand = command;
         if (command.getWhereLatLng() != null) {
             if (command.getWhenDates() != null) {
                 MessageHolder lastMessage = mMainFragment.getLastMessage();
                 mMainFragment.clearMessages();
                 mMainFragment.addMessage(lastMessage.message, command.getWords(), false);
                 if (!isDatesInThreeDaysPeriod(command.getWhenDates())) {
-                    mMainFragment.addMessage(getString(R.string.wrong_period_message), true);
+                    String message = getString(R.string.wrong_period_message);
+                    mMainFragment.addMessage(message, true);
+                    speechText(message);
                     setApplicationState(MainViewState.SHOW_RESULT);
                 } else {
                     mGetWeatherForecastTask = new GetWeatherForecastTask().execute(command);
@@ -500,10 +500,10 @@ public class MainActivity extends Activity {
     private void processWeatherResult(ResponseModel weatherInfo) {
         if (weatherInfo != null) {
             mWeatherModel = weatherInfo;
-            if (!TextUtils.isEmpty(mCommand.getWhereName())) {
+            if (!TextUtils.isEmpty(weatherInfo.location.city)) {
                 String message = getString(R.string.show_weather_message);
-                message = String.format(message, mCommand.getWhereName());
-                //speechText(message);
+                message = String.format(message, weatherInfo.location.city);
+                speechText(message);
             }
             setApplicationState(MainViewState.SHOW_WEATHER);
         } else {
