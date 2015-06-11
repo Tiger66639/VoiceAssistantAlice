@@ -503,7 +503,7 @@ public class MainActivity extends Activity {
             if (!TextUtils.isEmpty(mCommand.getWhereName())) {
                 String message = getString(R.string.show_weather_message);
                 message = String.format(message, mCommand.getWhereName());
-                speechText(message);
+                //speechText(message);
             }
             setApplicationState(MainViewState.SHOW_WEATHER);
         } else {
