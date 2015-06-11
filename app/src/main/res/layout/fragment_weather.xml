@@ -124,6 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/first_day_weather_icon"
+                android:layout_marginTop="16dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -262,6 +263,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/second_day_weather_icon"
+                android:layout_marginTop="16dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -400,6 +402,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/third_day_weather_icon"
+                android:layout_marginTop="16dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
