@@ -76,8 +76,8 @@
         android:id="@+id/three_days_weather"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/weather_text"
-        android:layout_marginTop="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="155dp"
         android:orientation="horizontal"
         android:weightSum="3">
 
@@ -87,20 +87,32 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/first_day_name"
+            <LinearLayout
+                android:id="@+id/first_day_name_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/first_day_name_sample"
-                android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="40" />
+
+                <TextView
+                    android:id="@+id/first_day_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="60"
+                    android:text="@string/first_day_name_sample"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/first_day_weather_icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/first_day_name"
+                android:layout_below="@+id/first_day_name_container"
                 android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
                 android:text="@string/weather_sample_icon"
@@ -113,36 +125,46 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/first_day_weather_icon"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="100">
 
                 <TextView
                     android:id="@+id/first_day_high_icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
+                    android:layout_weight="40"
+                    android:gravity="center_horizontal"
+                    android:paddingLeft="17dp"
                     android:text="@string/temperature_high"
                     android:textColor="@color/text_red_color"
                     android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/first_day_high_temperature"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:text="@string/temperature_sample"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    android:layout_weight="60"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/first_day_high_degree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:text="@string/fahrenheit_degree"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    <TextView
+                        android:id="@+id/first_day_high_temperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/temperature_sample"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/first_day_high_degree"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="@string/fahrenheit_degree"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -153,36 +175,46 @@
                 android:layout_below="@+id/first_day_high"
                 android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="100">
 
                 <TextView
                     android:id="@+id/first_day_low_icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
+                    android:layout_weight="40"
+                    android:gravity="center_horizontal"
+                    android:paddingLeft="17dp"
                     android:text="@string/temperature_low"
                     android:textColor="@color/text_red_color"
                     android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/first_day_low_temperature"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:text="@string/temperature_sample"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    android:layout_weight="60"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/first_day_low_degree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:text="@string/fahrenheit_degree"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    <TextView
+                        android:id="@+id/first_day_low_temperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/temperature_sample"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/first_day_low_degree"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="@string/fahrenheit_degree"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+                </LinearLayout>
 
             </LinearLayout>
         </RelativeLayout>
@@ -193,20 +225,32 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/second_day_name"
+            <LinearLayout
+                android:id="@+id/second_day_name_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/second_day_name_sample"
-                android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="40" />
+
+                <TextView
+                    android:id="@+id/second_day_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="60"
+                    android:text="@string/second_day_name_sample"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/second_day_weather_icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/second_day_name"
+                android:layout_below="@+id/second_day_name_container"
                 android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
                 android:text="@string/weather_sample_icon"
@@ -219,36 +263,46 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/second_day_weather_icon"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="100">
 
                 <TextView
                     android:id="@+id/second_day_high_icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
+                    android:layout_weight="40"
+                    android:gravity="center_horizontal"
+                    android:paddingLeft="17dp"
                     android:text="@string/temperature_high"
                     android:textColor="@color/text_red_color"
                     android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/second_day_high_temperature"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:text="@string/temperature_sample"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    android:layout_weight="60"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/second_day_high_degree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:text="@string/fahrenheit_degree"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    <TextView
+                        android:id="@+id/second_day_high_temperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/temperature_sample"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/second_day_high_degree"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="@string/fahrenheit_degree"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -259,36 +313,46 @@
                 android:layout_below="@+id/second_day_high"
                 android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="100">
 
                 <TextView
                     android:id="@+id/second_day_low_icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
+                    android:layout_weight="40"
+                    android:gravity="center_horizontal"
+                    android:paddingLeft="17dp"
                     android:text="@string/temperature_low"
                     android:textColor="@color/text_red_color"
                     android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/second_day_low_temperature"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:text="@string/temperature_sample"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    android:layout_weight="60"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/second_day_low_degree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:text="@string/fahrenheit_degree"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    <TextView
+                        android:id="@+id/second_day_low_temperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/temperature_sample"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/second_day_low_degree"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="@string/fahrenheit_degree"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+                </LinearLayout>
 
             </LinearLayout>
         </RelativeLayout>
@@ -299,20 +363,32 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/third_day_name"
+            <LinearLayout
+                android:id="@+id/third_day_name_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/third_day_name_sample"
-                android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="40" />
+
+                <TextView
+                    android:id="@+id/third_day_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="60"
+                    android:text="@string/third_day_name_sample"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/third_day_weather_icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/third_day_name"
+                android:layout_below="@+id/third_day_name_container"
                 android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
                 android:text="@string/weather_sample_icon"
@@ -325,36 +401,46 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/third_day_weather_icon"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="100">
 
                 <TextView
                     android:id="@+id/third_day_high_icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
+                    android:layout_weight="40"
+                    android:gravity="center_horizontal"
+                    android:paddingLeft="17dp"
                     android:text="@string/temperature_high"
                     android:textColor="@color/text_red_color"
                     android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/third_day_high_temperature"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:text="@string/temperature_sample"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    android:layout_weight="60"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/third_day_high_degree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:text="@string/fahrenheit_degree"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    <TextView
+                        android:id="@+id/third_day_high_temperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/temperature_sample"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/third_day_high_degree"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="@string/fahrenheit_degree"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -365,36 +451,46 @@
                 android:layout_below="@+id/third_day_high"
                 android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="100">
 
                 <TextView
                     android:id="@+id/third_day_low_icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
+                    android:layout_weight="40"
+                    android:gravity="center_horizontal"
+                    android:paddingLeft="17dp"
                     android:text="@string/temperature_low"
                     android:textColor="@color/text_red_color"
                     android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/third_day_low_temperature"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:text="@string/temperature_sample"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    android:layout_weight="60"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/third_day_low_degree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:text="@string/fahrenheit_degree"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    android:typeface="monospace" />
+                    <TextView
+                        android:id="@+id/third_day_low_temperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/temperature_sample"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/third_day_low_degree"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="@string/fahrenheit_degree"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:typeface="monospace" />
+                </LinearLayout>
 
             </LinearLayout>
         </RelativeLayout>
