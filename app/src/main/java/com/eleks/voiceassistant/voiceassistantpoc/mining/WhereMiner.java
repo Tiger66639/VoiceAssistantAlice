@@ -5,6 +5,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.text.TextUtils;
 
+import com.eleks.voiceassistant.voiceassistantpoc.utils.IndexWrapper;
+import com.eleks.voiceassistant.voiceassistantpoc.utils.WholeWordIndexFinder;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +90,10 @@ public class WhereMiner implements ITextMiner {
     private boolean isAddressCorrect(String placeName, List<Address> addresses) {
         boolean result = false;
         if (addresses != null && addresses.size() > 0) {
-            if (addresses.get(0).getAddressLine(0).toLowerCase().contains(placeName)) {
+            WholeWordIndexFinder wordFinder =
+                    new WholeWordIndexFinder(addresses.get(0).getAddressLine(0).toLowerCase());
+            List<IndexWrapper> findResult = wordFinder.findIndexesForWord(placeName);
+            if (findResult.size() > 0) {
                 result = true;
             }
         }

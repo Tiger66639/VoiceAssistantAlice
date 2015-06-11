@@ -13,6 +13,7 @@ public class WholeWordIndexFinder {
     private String mSearchString;
 
     public WholeWordIndexFinder(String searchString) {
+        searchString = searchString.replace("(", "A").replace(")", "A");
         this.mSearchString = searchString;
     }
 
@@ -26,8 +27,10 @@ public class WholeWordIndexFinder {
         while (matcher.find() == true) {
             int end = matcher.end();
             int start = matcher.start();
-            IndexWrapper wrapper = new IndexWrapper(start, end);
-            wrappers.add(wrapper);
+            if (word.equals(mSearchString.substring(start, end))) {
+                IndexWrapper wrapper = new IndexWrapper(start, end);
+                wrappers.add(wrapper);
+            }
         }
         return wrappers;
     }
