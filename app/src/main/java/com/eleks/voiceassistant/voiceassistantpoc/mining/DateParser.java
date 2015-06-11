@@ -31,6 +31,12 @@ public class DateParser {
     private static final int DAY_NUMERATOR_POSITION = 1;
     private static final int DAYS_SHIFT = 2;
     private static final String FOR = "for";
+    private static final String WINTER = "winter";
+    private static final String SPRING = "spring";
+    private static final String SUMMER = "summer";
+    private static final String AUTUMN = "autumn";
+    private static final String[] SEASONS = {WINTER, SPRING, SUMMER, AUTUMN};
+    private static final String THIS = "this";
     private CommandPeriod mDates;
     private Date mToday;
     private Calendar mCalendar;
@@ -89,8 +95,63 @@ public class DateParser {
         } else if ((dateString.startsWith(NEXT) || dateString.startsWith(FOR)) &&
                 dateString.endsWith(DAYS) && dateString.split(" ").length == 3) {
             result = getNextDays(dateString);
+        } else if (dateString.startsWith(THIS) && existsSeasonInDateString(dateString)) {
+            result = getThisSeason(dateString);
         }
 
+        return result;
+    }
+
+    private CommandPeriod getThisSeason(String dateString) {
+        String[] words = dateString.split(" ");
+        String season = words[1];
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        return getSeasonDates(season, year);
+    }
+
+    private CommandPeriod getSeasonDates(String season, int year) {
+        int startMonth = 0;
+        int endMonth = 0;
+        int endDay;
+        int endYear = year;
+        switch (season) {
+            case WINTER:
+                startMonth = 11;
+                endMonth = 1;
+                endYear = year + 1;
+                break;
+            case SPRING:
+                startMonth = 2;
+                endMonth = 4;
+                break;
+            case SUMMER:
+                startMonth = 5;
+                endMonth = 7;
+                break;
+            case AUTUMN:
+                startMonth = 8;
+                endMonth = 10;
+                break;
+        }
+        Calendar startCalendar = Calendar.getInstance();
+        startCalendar.set(year, startMonth, 1);
+        Calendar endCalendar = Calendar.getInstance();
+        endCalendar.set(endYear, endMonth, 1);
+        endDay = endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        endCalendar.set(Calendar.DAY_OF_MONTH, endDay);
+        CommandPeriod result = new CommandPeriod();
+        result.startDate = startCalendar.getTime();
+        result.finishDate = endCalendar.getTime();
+        return result;
+    }
+
+    private boolean existsSeasonInDateString(String dateString) {
+        boolean result = false;
+        String[] words = dateString.split(" ");
+        if (words.length == 2 && CommandsUtils.wordExistsInArrayFuzzyEquals(words[1], SEASONS)) {
+            result = true;
+        }
         return result;
     }
 

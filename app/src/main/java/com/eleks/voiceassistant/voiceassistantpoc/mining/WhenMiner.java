@@ -62,12 +62,12 @@ public class WhenMiner implements ITextMiner {
     }
 
     private Integer[] findSeasonPattern(WordHolder[] words) {
-        ArrayList<Integer> result = null;
+        ArrayList<Integer> result = new ArrayList<>();
         for (int i = 0; i < words.length; i++) {
             if (CommandsUtils.wordExistsInArrayFuzzyEquals(words[i].word, SEASONS)) {
-                result = collectDaysWords(words, i);
+                result.add(i);
                 if (i - 1 > 0 && words[i - 1].word.equals(THIS)) {
-                    result = collectDaysWords(words, i - 1);
+                    result.add(i - 1);
                 }
             }
         }
