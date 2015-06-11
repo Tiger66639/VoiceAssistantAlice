@@ -82,9 +82,6 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
         viewHolder.message.setText(item.message);
         setTextViewsColor(viewHolder);
         setFont(viewHolder, item.isCursive);
-        if (item.words != null) {
-            highlightWordsInTextView(viewHolder.message, item.words);
-        }
         return view;
     }
 
@@ -141,19 +138,18 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
     }
 
     private void setFont(ViewHolder viewHolder, boolean isCursive) {
+        viewHolder.divider.setTypeface(mFontsHolder.getRobotomonoLight());
         if (isCursive) {
             viewHolder.message.setTypeface(mFontsHolder.getRobotomonoItalic());
             viewHolder.message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-            viewHolder.divider.setTypeface(mFontsHolder.getRobotomonoItalic());
         } else {
             viewHolder.message.setTypeface(mFontsHolder.getRobotomonoLight());
             viewHolder.message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 31);
-            viewHolder.divider.setTypeface(mFontsHolder.getRobotomonoLight());
         }
     }
 
     private void setTextViewsColor(ViewHolder viewHolder) {
-        int color = mContext.getResources().getColor(R.color.message_red_color);
+        int color = mContext.getResources().getColor(R.color.message_color);
         if (mIsInvertedColors) {
             color = mContext.getResources().getColor(R.color.message_white_color);
 

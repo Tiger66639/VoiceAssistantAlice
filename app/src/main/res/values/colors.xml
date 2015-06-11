@@ -15,4 +15,5 @@
     <color name="color_for_highlighting">#f50057</color>
     <color name="black">#FF000000</color>
     <color name="status_bar_color">#F3F3F3</color>
+    <color name="message_color">#323232</color>
 </resources>
