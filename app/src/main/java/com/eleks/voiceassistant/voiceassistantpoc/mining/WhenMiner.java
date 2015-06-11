@@ -17,6 +17,8 @@ public class WhenMiner implements ITextMiner {
     private static final String DAYS = "days";
     private static final String[] NUMERATORS = {"two", "three", "four", "five", "six", "seven"};
     private static final String[] DAYS_ADVERBS = {"in", "next", "for"};
+    private static final String[] SEASONS = {"winter", "spring", "summer", "autumn"};
+    private static final String THIS = "this";
 
     @Override
     public WordHolder[] investigate(Context context, WordHolder[] words) {
@@ -49,7 +51,31 @@ public class WhenMiner implements ITextMiner {
                 setWordsMeaning(words, result);
             }
         }
+        if (!found) {
+            Integer[] result = findSeasonPattern(words);
+            if (result != null) {
+                //found = true;
+                setWordsMeaning(words, result);
+            }
+        }
         return words;
+    }
+
+    private Integer[] findSeasonPattern(WordHolder[] words) {
+        ArrayList<Integer> result = null;
+        for (int i = 0; i < words.length; i++) {
+            if (CommandsUtils.wordExistsInArrayFuzzyEquals(words[i].word, SEASONS)) {
+                result = collectDaysWords(words, i);
+                if (i - 1 > 0 && words[i - 1].word.equals(THIS)) {
+                    result = collectDaysWords(words, i - 1);
+                }
+            }
+        }
+        if (result != null && result.size() > 0) {
+            return result.toArray(new Integer[result.size()]);
+        } else {
+            return null;
+        }
     }
 
     private Integer[] findDaysPattern(WordHolder[] words) {
