@@ -7,7 +7,7 @@
     <string name="gps_is_not_exists_ok_button_name">OK</string>
     <string name="cannot_recognize_voice_command">Can not recognize voice command.</string>
     <string name="welcome_text1">Tap and ask</string>
-    <string name="welcome_text2">about weather</string>
+    <string name="welcome_text2">about the weather</string>
     <string name="message_sample_text">What will be the weather like tomorrow</string>
     <string name="recording_message">Recording…</string>
     <string name="processing_message">Processing…</string>
@@ -48,7 +48,7 @@
     <string name="cannot_get_weather_from_server">Can not get weather info from the server.</string>
     <string name="wrong_period_message">Sorry, I can show weather for three days only.</string>
     <string name="cannot_recognize_period">Can not recognize dates period.</string>
-    <string name="speech_not_recognized">Sorry, speech not recognized. Please try again.</string>
+    <string name="speech_not_recognized">Sorry, speech is not recognized. Please try again.</string>
     <string name="version_info_sample" translatable="false">0.1.1</string>
     <string name="default_application_version" translatable="false">0.1.0</string>
     <string name="fahrenheit_degree" translatable="false">\u00B0F</string>
