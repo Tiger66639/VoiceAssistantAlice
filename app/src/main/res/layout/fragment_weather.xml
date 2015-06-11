@@ -11,7 +11,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="19dp"
         android:gravity="center_horizontal"
         android:text="@string/place_sample_message"
         android:textColor="@color/black"
@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/city_name"
-        android:layout_marginTop="38dp"
+        android:layout_marginTop="19dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
 
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/current_day_weather"
         android:layout_marginLeft="5dp"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="-3dp"
         android:gravity="center_horizontal"
         android:text="@string/icon_name_sample"
         android:textColor="@color/black"
@@ -76,9 +76,11 @@
         android:id="@+id/three_days_weather"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="155dp"
+        android:layout_below="@+id/current_day_weather"
+        android:layout_marginTop="164dp"
         android:orientation="horizontal"
+        android:paddingLeft="32dp"
+        android:paddingRight="22dp"
         android:weightSum="3">
 
         <RelativeLayout
@@ -113,7 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/first_day_name_container"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center_horizontal"
                 android:text="@string/weather_sample_icon"
                 android:textColor="@color/text_red_color"
@@ -124,7 +126,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/first_day_weather_icon"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -174,7 +176,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/first_day_high"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="2dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -252,7 +254,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/second_day_name_container"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center_horizontal"
                 android:text="@string/weather_sample_icon"
                 android:textColor="@color/text_red_color"
@@ -263,7 +265,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/second_day_weather_icon"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -313,7 +315,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/second_day_high"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="2dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -391,7 +393,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/third_day_name_container"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center_horizontal"
                 android:text="@string/weather_sample_icon"
                 android:textColor="@color/text_red_color"
@@ -402,7 +404,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/third_day_weather_icon"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -452,7 +454,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/third_day_high"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="2dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:weightSum="100">
