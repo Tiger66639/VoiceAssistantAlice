@@ -15,20 +15,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
-import com.eleks.voiceassistant.voiceassistantpoc.adapter.MessagesArrayAdapter;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonStates;
+import com.eleks.voiceassistant.voiceassistantpoc.fragment.MainFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.fragment.WeatherFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.CommandPeriod;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
-import com.eleks.voiceassistant.voiceassistantpoc.mining.WordHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
@@ -46,7 +44,6 @@ import com.nuance.nmdp.speechkit.SpeechError;
 import com.nuance.nmdp.speechkit.SpeechKit;
 import com.nuance.nmdp.speechkit.Vocalizer;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -77,19 +74,15 @@ public class MainActivity extends Activity {
     private Vocalizer mVocalizer;
     private RecognizerState mRecognizerState;
     private MainViewState mApplicationState = MainViewState.WELCOME_SCREEN;
-    private View mMainView;
-    private ListView mListView;
-    private ArrayList<MessageHolder> mMessages;
-    private View mListContainer;
-    private MessagesArrayAdapter mMessageAdapter;
     private FloatingActionButtonFragment mFabFragment;
     private View mWelcomeContainer;
-    private View mWeatherContainer;
     private ResponseModel mWeatherModel;
     private Handler mHandler;
     private Runnable mWatchDogRunnable;
     private AsyncTask<WeatherCommandParser, Void, ResponseModel> mGetWeatherForecastTask;
     private FontsHolder mFontsHolder;
+    private MainFragment mMainFragment;
+    private View mMainView;
 
     public MainActivity() {
         super();
@@ -98,42 +91,6 @@ public class MainActivity extends Activity {
 
     static SpeechKit getSpeechKit() {
         return sSpeechKit;
-    }
-
-    private void addMessage(String message, boolean isCursive) {
-        if (mMessages == null) {
-            mMessages = new ArrayList<>();
-        }
-        mMessages.add(new MessageHolder(message, isCursive));
-    }
-
-    private void addMessage(String message, WordHolder[] words, boolean isCursive) {
-        if (mMessages == null) {
-            mMessages = new ArrayList<>();
-        }
-        mMessages.add(new MessageHolder(message, words, isCursive));
-    }
-
-    private void replaceLastMessage(String message, boolean isCursive) {
-        if (mMessages == null) {
-            mMessages = new ArrayList<>();
-        }
-        int messageSize = mMessages.size();
-        if (messageSize > 0) {
-            mMessages.remove(messageSize - 1);
-        }
-        mMessages.add(new MessageHolder(message, isCursive));
-    }
-
-    private void refreshMessageList() {
-        if (mMessageAdapter != null) {
-            if (mMessages != null) {
-                mMessageAdapter.setMessages(mMessages.toArray(new MessageHolder[mMessages.size()]));
-                mListView.setSelection(mMessages.size() - 1);
-            } else {
-                mMessageAdapter.setMessages(null);
-            }
-        }
     }
 
     @SuppressWarnings("unused")
@@ -169,8 +126,7 @@ public class MainActivity extends Activity {
                     suggestion = MainActivity.this.getString(R.string.speech_not_recognized);
                 }
                 setApplicationState(MainViewState.SHOW_RESULT);
-                replaceLastMessage(suggestion, true);
-                refreshMessageList();
+                mMainFragment.replaceLastMessage(suggestion, true);
             }
 
             @Override
@@ -182,8 +138,7 @@ public class MainActivity extends Activity {
                 if (results.getResultCount() > 0) {
                     resultStr += results.getResult(0).getText();
                 }
-                replaceLastMessage(resultStr, false);
-                refreshMessageList();
+                mMainFragment.replaceLastMessage(resultStr, false);
                 new RecognizeTextToCommandTask().execute(results);
             }
         };
@@ -203,6 +158,7 @@ public class MainActivity extends Activity {
         prepareSpeechKitAndVocalizer();
         mFontsHolder = new FontsHolder(MainActivity.this);
         prepareActivityControls();
+        prepareMainFragment();
     }
 
     private void setVersionInfoControl() {
@@ -225,13 +181,8 @@ public class MainActivity extends Activity {
         welcomeText1.setTypeface(mFontsHolder.getRobotomonoLight());
         TextView welcomeText2 = (TextView) findViewById(R.id.welcome_text2);
         welcomeText2.setTypeface(mFontsHolder.getRobotomonoLight());
-        mMainView = MainActivity.this.findViewById(R.id.main_container);
-        mListView = (ListView) findViewById(R.id.messages_list);
-        mListContainer = findViewById(R.id.messages_container);
-        mMessageAdapter = new MessagesArrayAdapter(MainActivity.this, null);
-        mListView.setAdapter(mMessageAdapter);
         mWelcomeContainer = findViewById(R.id.welcome_container);
-        mWeatherContainer = findViewById(R.id.weather_container);
+        mMainView = findViewById(R.id.main_container);
     }
 
     private void prepareSpeechKitAndVocalizer() {
@@ -247,12 +198,6 @@ public class MainActivity extends Activity {
         mVocalizer = sSpeechKit
                 .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
         mVocalizer.setVoice("Samantha");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        changeMainViewAppearance();
     }
 
     private void addFloatingActionButtonFragment() {
@@ -271,11 +216,10 @@ public class MainActivity extends Activity {
     private void processFabClick() {
         switch (mApplicationState) {
             case WELCOME_SCREEN:
-                mMessages = null;
+                mMainFragment.clearMessages();
                 if (startRecognizer()) {
+                    mMainFragment.addMessage(getString(R.string.listening_message), false);
                     setApplicationState(MainViewState.VOICE_RECORDING);
-                    addMessage(getString(R.string.listening_message), false);
-                    refreshMessageList();
                 }
                 break;
             case VOICE_RECORDING:
@@ -283,18 +227,16 @@ public class MainActivity extends Activity {
                 break;
             case SHOW_RESULT:
                 if (startRecognizer()) {
+                    mMainFragment.addMessage(getString(R.string.listening_message), false);
                     setApplicationState(MainViewState.VOICE_RECORDING);
-                    addMessage(getString(R.string.listening_message), false);
-                    refreshMessageList();
                 }
                 break;
             case SHOW_WEATHER:
+                getFragmentManager().popBackStackImmediate();
                 if (startRecognizer()) {
-                    mMessages = null;
-                    refreshMessageList();
+                    mMainFragment.clearMessages();
+                    mMainFragment.addMessage(getString(R.string.listening_message), false);
                     setApplicationState(MainViewState.VOICE_RECORDING);
-                    addMessage(getString(R.string.listening_message), false);
-                    refreshMessageList();
                 }
                 break;
             case GET_WEATHER_FORECAST:
@@ -309,52 +251,39 @@ public class MainActivity extends Activity {
     private void changeMainViewAppearance() {
         switch (mApplicationState) {
             case WELCOME_SCREEN:
-                mMessageAdapter.setMessages(null);
                 mWelcomeContainer.setVisibility(View.VISIBLE);
-                mListContainer.setVisibility(View.GONE);
-                mWeatherContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
                 changeBackgroundColor(R.color.background_white);
                 break;
             case VOICE_RECORDING:
-                mListContainer.setVisibility(View.VISIBLE);
                 mWelcomeContainer.setVisibility(View.GONE);
-                mWeatherContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_WHITE);
+                mMainFragment.setInvertedColors(true);
                 changeBackgroundColor(R.color.background_red);
-                mMessageAdapter.setInvertedColors(true);
                 break;
             case SHOW_RESULT:
-                mListContainer.setVisibility(View.VISIBLE);
                 mWelcomeContainer.setVisibility(View.GONE);
-                mWeatherContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
                 changeBackgroundColor(R.color.background_white);
-                mMessageAdapter.setInvertedColors(false);
+                mMainFragment.setInvertedColors(false);
                 break;
             case RECOGNIZE_COMMAND:
-                mListContainer.setVisibility(View.VISIBLE);
                 mWelcomeContainer.setVisibility(View.GONE);
-                mWeatherContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_RED);
                 changeBackgroundColor(R.color.background_white);
-                mMessageAdapter.setInvertedColors(false);
+                mMainFragment.setInvertedColors(false);
                 break;
             case GET_WEATHER_FORECAST:
-                mListContainer.setVisibility(View.VISIBLE);
                 mWelcomeContainer.setVisibility(View.GONE);
-                mWeatherContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_RED);
                 changeBackgroundColor(R.color.background_white);
-                mMessageAdapter.setInvertedColors(false);
+                mMainFragment.setInvertedColors(false);
                 break;
             case SHOW_WEATHER:
-                mListContainer.setVisibility(View.GONE);
                 mWelcomeContainer.setVisibility(View.GONE);
-                mWeatherContainer.setVisibility(View.VISIBLE);
                 mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
                 changeBackgroundColor(R.color.background_white);
-                mMessageAdapter.setInvertedColors(false);
+                mMainFragment.setInvertedColors(false);
                 prepareWeatherFragment();
                 break;
         }
@@ -362,9 +291,20 @@ public class MainActivity extends Activity {
 
     private void prepareWeatherFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(R.anim.pull_in, R.anim.push_out);
+        //transaction.setCustomAnimations(R.anim.pull_in, R.anim.push_out);
         WeatherFragment mWeatherFragment = WeatherFragment.getInstance(mWeatherModel);
-        transaction.replace(R.id.weather_container, mWeatherFragment, WeatherFragment.TAG);
+        transaction.addToBackStack(WeatherFragment.TAG);
+        transaction.replace(R.id.fragment_container, mWeatherFragment, WeatherFragment.TAG);
+        transaction.commit();
+    }
+
+    private void prepareMainFragment() {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        //transaction.setCustomAnimations(R.anim.pull_in, R.anim.push_out);
+        if (mMainFragment == null) {
+            mMainFragment = MainFragment.getInstance();
+        }
+        transaction.add(R.id.fragment_container, mMainFragment, MainFragment.TAG);
         transaction.commit();
     }
 
@@ -400,8 +340,7 @@ public class MainActivity extends Activity {
             mHandler.postDelayed(mWatchDogRunnable, RECOGNIZER_DELAY);
             return true;
         } else {
-            addMessage(getString(R.string.connection_error_message), true);
-            refreshMessageList();
+            mMainFragment.addMessage(getString(R.string.connection_error_message), true);
             setApplicationState(MainViewState.SHOW_RESULT);
             return false;
         }
@@ -504,31 +443,29 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        MainActivity.this.finish();
+    }
+
     private void processVoiceCommand(final WeatherCommandParser command) {
         if (command.getWhereLatLng() != null) {
             if (command.getWhenDates() != null) {
-                if (mMessages.size() > 0) {
-                    int lastMessageIndex = mMessages.size() - 1;
-                    MessageHolder lastMessage = mMessages.get(lastMessageIndex);
-                    mMessages = null;
-                    addMessage(lastMessage.message, command.getWords(), false);
-                    refreshMessageList();
-                }
+                MessageHolder lastMessage = mMainFragment.getLastMessage();
+                mMainFragment.clearMessages();
+                mMainFragment.addMessage(lastMessage.message, command.getWords(), false);
                 if (!isDatesInThreeDaysPeriod(command.getWhenDates())) {
-                    addMessage(getString(R.string.wrong_period_message), true);
-                    refreshMessageList();
+                    mMainFragment.addMessage(getString(R.string.wrong_period_message), true);
                     setApplicationState(MainViewState.SHOW_RESULT);
                 } else {
                     mGetWeatherForecastTask = new GetWeatherForecastTask().execute(command);
                 }
             } else {
-                addMessage(getString(R.string.cannot_recognize_period), true);
-                refreshMessageList();
+                mMainFragment.addMessage(getString(R.string.cannot_recognize_period), true);
                 setApplicationState(MainViewState.SHOW_RESULT);
             }
         } else {
-            addMessage(getString(R.string.cannot_recognize_place), true);
-            refreshMessageList();
+            mMainFragment.addMessage(getString(R.string.cannot_recognize_place), true);
             setApplicationState(MainViewState.SHOW_RESULT);
         }
     }
@@ -550,8 +487,7 @@ public class MainActivity extends Activity {
             mWeatherModel = weatherInfo;
             setApplicationState(MainViewState.SHOW_WEATHER);
         } else {
-            addMessage(getString(R.string.cannot_get_weather_from_server), true);
-            refreshMessageList();
+            mMainFragment.addMessage(getString(R.string.cannot_get_weather_from_server), true);
             setApplicationState(MainViewState.SHOW_RESULT);
         }
     }
@@ -581,9 +517,8 @@ public class MainActivity extends Activity {
             if (command != null && command.isCommand()) {
                 processVoiceCommand(command);
             } else {
-                addMessage(
+                mMainFragment.addMessage(
                         MainActivity.this.getString(R.string.cannot_recognize_voice_command), true);
-                refreshMessageList();
                 setApplicationState(MainViewState.SHOW_RESULT);
             }
         }
