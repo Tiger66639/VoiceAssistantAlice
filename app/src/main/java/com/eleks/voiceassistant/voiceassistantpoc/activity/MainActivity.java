@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -84,6 +85,7 @@ public class MainActivity extends Activity {
     private FontsHolder mFontsHolder;
     private MainFragment mMainFragment;
     private View mMainView;
+    private WeatherCommandParser mCommand;
 
     public MainActivity() {
         super();
@@ -127,6 +129,7 @@ public class MainActivity extends Activity {
                     suggestion = MainActivity.this.getString(R.string.speech_not_recognized);
                 }
                 setApplicationState(MainViewState.SHOW_RESULT);
+                speechText(suggestion);
                 mMainFragment.replaceLastMessage(suggestion, true);
             }
 
@@ -456,6 +459,7 @@ public class MainActivity extends Activity {
     }
 
     private void processVoiceCommand(final WeatherCommandParser command) {
+        mCommand = command;
         if (command.getWhereLatLng() != null) {
             if (command.getWhenDates() != null) {
                 MessageHolder lastMessage = mMainFragment.getLastMessage();
@@ -468,11 +472,15 @@ public class MainActivity extends Activity {
                     mGetWeatherForecastTask = new GetWeatherForecastTask().execute(command);
                 }
             } else {
-                mMainFragment.addMessage(getString(R.string.cannot_recognize_period), true);
+                String message = getString(R.string.cannot_recognize_period);
+                mMainFragment.addMessage(message, true);
+                speechText(message);
                 setApplicationState(MainViewState.SHOW_RESULT);
             }
         } else {
-            mMainFragment.addMessage(getString(R.string.cannot_recognize_place), true);
+            String message = getString(R.string.cannot_recognize_place);
+            mMainFragment.addMessage(message, true);
+            speechText(message);
             setApplicationState(MainViewState.SHOW_RESULT);
         }
     }
@@ -492,9 +500,16 @@ public class MainActivity extends Activity {
     private void processWeatherResult(ResponseModel weatherInfo) {
         if (weatherInfo != null) {
             mWeatherModel = weatherInfo;
+            if (!TextUtils.isEmpty(mCommand.getWhereName())) {
+                String message = getString(R.string.show_weather_message);
+                message = String.format(message, mCommand.getWhereName());
+                speechText(message);
+            }
             setApplicationState(MainViewState.SHOW_WEATHER);
         } else {
-            mMainFragment.addMessage(getString(R.string.cannot_get_weather_from_server), true);
+            String message = getString(R.string.cannot_get_weather_from_server);
+            mMainFragment.addMessage(message, true);
+            speechText(message);
             setApplicationState(MainViewState.SHOW_RESULT);
         }
     }

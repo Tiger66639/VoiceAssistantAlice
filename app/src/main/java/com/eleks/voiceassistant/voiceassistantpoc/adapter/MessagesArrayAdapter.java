@@ -98,7 +98,8 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
                 IndexWrapper indexes =
                         getWordIndexesInText(textValue.toLowerCase(), word.word.toLowerCase());
                 if (indexes != null) {
-                    if (word.wordMeaning != null && word.wordMeaning != WordMeaning.NOISE) {
+                    if (word.wordMeaning != null && word.wordMeaning != WordMeaning.NOISE &&
+                            word.wordMeaning != WordMeaning.POSSIBLE_PLACE) {
                         ForegroundColorSpan whiteColorSpan = new ForegroundColorSpan(whiteColor);
                         BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(
                                 mContext.getResources().getColor(R.color.color_for_highlighting));
