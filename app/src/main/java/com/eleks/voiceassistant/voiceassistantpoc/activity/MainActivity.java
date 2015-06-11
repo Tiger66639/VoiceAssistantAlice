@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -131,6 +132,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onResults(Recognizer recognizer, Recognition results) {
+                makeBeep();
                 mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
                 stopWatchDogTask();
@@ -193,11 +195,16 @@ public class MainActivity extends Activity {
                     NuanceAppInfo.SpeechKitApplicationKey);
             sSpeechKit.connect();
             Prompt beep = sSpeechKit.defineAudioPrompt(R.raw.beep);
-            sSpeechKit.setDefaultRecognizerPrompts(beep, Prompt.vibration(100), null, null);
+            sSpeechKit.setDefaultRecognizerPrompts(beep, null, null, null);
         }
         mVocalizer = sSpeechKit
                 .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
         mVocalizer.setVoice("Samantha");
+    }
+
+    private void makeBeep() {
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.beep);
+        mediaPlayer.start();
     }
 
     private void addFloatingActionButtonFragment() {
@@ -241,6 +248,7 @@ public class MainActivity extends Activity {
                 break;
             case GET_WEATHER_FORECAST:
                 if (mGetWeatherForecastTask != null) {
+                    makeBeep();
                     mGetWeatherForecastTask.cancel(true);
                 }
                 setApplicationState(MainViewState.SHOW_RESULT);
@@ -291,7 +299,6 @@ public class MainActivity extends Activity {
 
     private void prepareWeatherFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        //transaction.setCustomAnimations(R.anim.pull_in, R.anim.push_out);
         WeatherFragment mWeatherFragment = WeatherFragment.getInstance(mWeatherModel);
         transaction.addToBackStack(WeatherFragment.TAG);
         transaction.replace(R.id.fragment_container, mWeatherFragment, WeatherFragment.TAG);
@@ -300,7 +307,6 @@ public class MainActivity extends Activity {
 
     private void prepareMainFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        //transaction.setCustomAnimations(R.anim.pull_in, R.anim.push_out);
         if (mMainFragment == null) {
             mMainFragment = MainFragment.getInstance();
         }
@@ -311,6 +317,7 @@ public class MainActivity extends Activity {
     private void stopRecognizer() {
         if (mCurrentRecognizer != null) {
             mCurrentRecognizer.stopRecording();
+            makeBeep();
         }
         stopWatchDogTask();
     }
@@ -562,9 +569,5 @@ public class MainActivity extends Activity {
             }
         }
 
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
     }
 }
