@@ -5,9 +5,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.text.TextUtils;
 
-import com.eleks.voiceassistant.voiceassistantpoc.utils.IndexWrapper;
-import com.eleks.voiceassistant.voiceassistantpoc.utils.WholeWordIndexFinder;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,7 +75,7 @@ public class WhereMiner implements ITextMiner {
         Geocoder geocoder = new Geocoder(mContext, Locale.ENGLISH);
         try {
             List<Address> addresses = geocoder.getFromLocationName(place, 1);
-            if (isAddressCorrect(place, addresses)) {
+            if (isAddressCorrect(addresses)) {
                 result = true;
             }
         } catch (IOException e) {
@@ -87,13 +84,15 @@ public class WhereMiner implements ITextMiner {
         return result;
     }
 
-    private boolean isAddressCorrect(String placeName, List<Address> addresses) {
+    private boolean isAddressCorrect(List<Address> addresses) {
         boolean result = false;
         if (addresses != null && addresses.size() > 0) {
-            WholeWordIndexFinder wordFinder =
-                    new WholeWordIndexFinder(addresses.get(0).getAddressLine(0).toLowerCase());
-            List<IndexWrapper> findResult = wordFinder.findIndexesForWord(placeName);
-            if (findResult.size() > 0) {
+            Address address = addresses.get(0);
+            if (address.getFeatureName() != null &&
+                    ((address.getLocality() != null && address.getFeatureName().toLowerCase().equals(address.getLocality().toLowerCase())) ||
+                            (address.getSubLocality() != null && address.getFeatureName().toLowerCase().equals(address.getSubLocality().toLowerCase())) ||
+                            (address.getAdminArea() != null && address.getFeatureName().toLowerCase().equals(address.getAdminArea().toLowerCase())) ||
+                            (address.getCountryName() != null && address.getFeatureName().toLowerCase().equals(address.getCountryName().toLowerCase())))) {
                 result = true;
             }
         }
