@@ -219,7 +219,7 @@ public class MainActivity extends Activity {
             }
         });
         transaction.replace(R.id.fab_fragment, mFabFragment, FloatingActionButtonFragment.TAG);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     private void processFabClick() {
@@ -304,7 +304,7 @@ public class MainActivity extends Activity {
         WeatherFragment mWeatherFragment = WeatherFragment.getInstance(mWeatherModel);
         transaction.addToBackStack(WeatherFragment.TAG);
         transaction.replace(R.id.fragment_container, mWeatherFragment, WeatherFragment.TAG);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     private void prepareMainFragment() {
@@ -313,7 +313,7 @@ public class MainActivity extends Activity {
             mMainFragment = MainFragment.getInstance();
         }
         transaction.add(R.id.fragment_container, mMainFragment, MainFragment.TAG);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     private void stopRecognizer() {
