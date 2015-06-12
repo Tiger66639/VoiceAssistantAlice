@@ -182,10 +182,8 @@ public class MainActivity extends Activity {
 
     private void prepareActivityControls() {
         addFloatingActionButtonFragment();
-        TextView welcomeText1 = (TextView) findViewById(R.id.welcome_text1);
+        TextView welcomeText1 = (TextView) findViewById(R.id.welcome_text);
         welcomeText1.setTypeface(mFontsHolder.getRobotomonoLight());
-        TextView welcomeText2 = (TextView) findViewById(R.id.welcome_text2);
-        welcomeText2.setTypeface(mFontsHolder.getRobotomonoLight());
         mWelcomeContainer = findViewById(R.id.welcome_container);
         mMainView = findViewById(R.id.main_container);
     }
@@ -257,7 +255,7 @@ public class MainActivity extends Activity {
                 setApplicationState(MainViewState.SHOW_RESULT);
                 break;
             case RECOGNIZE_COMMAND:
-                if(mRecognizeTextToCommandTask!=null){
+                if (mRecognizeTextToCommandTask != null) {
                     makeBeep();
                     mRecognizeTextToCommandTask.cancel(true);
                 }
@@ -547,8 +545,11 @@ public class MainActivity extends Activity {
                 if (command != null && command.isCommand()) {
                     processVoiceCommand(command);
                 } else {
+                    String message = MainActivity.this
+                            .getString(R.string.cannot_recognize_voice_command);
                     mMainFragment.addMessage(
-                            MainActivity.this.getString(R.string.cannot_recognize_voice_command), true);
+                            message, true);
+                    speechText(message);
                     setApplicationState(MainViewState.SHOW_RESULT);
                 }
             }
