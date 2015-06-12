@@ -85,6 +85,7 @@ public class MainActivity extends Activity {
     private FontsHolder mFontsHolder;
     private MainFragment mMainFragment;
     private View mMainView;
+    private AsyncTask<Recognition, Void, WeatherCommandParser> mRecognizeTextToCommandTask;
 
     public MainActivity() {
         super();
@@ -143,7 +144,7 @@ public class MainActivity extends Activity {
                     resultStr += results.getResult(0).getText();
                 }
                 mMainFragment.replaceLastMessage(resultStr, false);
-                new RecognizeTextToCommandTask().execute(results);
+                mRecognizeTextToCommandTask = new RecognizeTextToCommandTask().execute(results);
             }
         };
     }
@@ -252,6 +253,13 @@ public class MainActivity extends Activity {
                 if (mGetWeatherForecastTask != null) {
                     makeBeep();
                     mGetWeatherForecastTask.cancel(true);
+                }
+                setApplicationState(MainViewState.SHOW_RESULT);
+                break;
+            case RECOGNIZE_COMMAND:
+                if(mRecognizeTextToCommandTask!=null){
+                    makeBeep();
+                    mRecognizeTextToCommandTask.cancel(true);
                 }
                 setApplicationState(MainViewState.SHOW_RESULT);
                 break;
@@ -535,13 +543,14 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPostExecute(final WeatherCommandParser command) {
-            //dismissProgressDialog();
-            if (command != null && command.isCommand()) {
-                processVoiceCommand(command);
-            } else {
-                mMainFragment.addMessage(
-                        MainActivity.this.getString(R.string.cannot_recognize_voice_command), true);
-                setApplicationState(MainViewState.SHOW_RESULT);
+            if (!isCancelled()) {
+                if (command != null && command.isCommand()) {
+                    processVoiceCommand(command);
+                } else {
+                    mMainFragment.addMessage(
+                            MainActivity.this.getString(R.string.cannot_recognize_voice_command), true);
+                    setApplicationState(MainViewState.SHOW_RESULT);
+                }
             }
         }
     }
