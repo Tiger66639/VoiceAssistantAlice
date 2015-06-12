@@ -71,14 +71,16 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         ViewHolder viewHolder;
-        if (view == null) {
+        MessageHolder item = getItem(position);
+        if (!item.isCursive) {
             view = mInflater.inflate(R.layout.item_message, parent, false);
             viewHolder = getViewHolder(view);
             view.setTag(viewHolder);
         } else {
-            viewHolder = (ViewHolder) view.getTag();
+            view = mInflater.inflate(R.layout.item_message_cursive, parent, false);
+            viewHolder = getViewHolder(view);
+            view.setTag(viewHolder);
         }
-        MessageHolder item = getItem(position);
         viewHolder.message.setText(item.message);
         setTextViewsColor(viewHolder);
         setFont(viewHolder, item.isCursive);
@@ -141,10 +143,8 @@ public class MessagesArrayAdapter extends ArrayAdapter<MessageHolder> {
         viewHolder.divider.setTypeface(mFontsHolder.getRobotomonoLight());
         if (isCursive) {
             viewHolder.message.setTypeface(mFontsHolder.getRobotomonoItalic());
-            viewHolder.message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         } else {
             viewHolder.message.setTypeface(mFontsHolder.getRobotomonoLight());
-            viewHolder.message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 31);
         }
     }
 
