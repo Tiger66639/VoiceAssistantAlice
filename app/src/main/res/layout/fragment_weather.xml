@@ -80,7 +80,7 @@
         android:layout_marginTop="164dp"
         android:orientation="horizontal"
         android:paddingLeft="32dp"
-        android:paddingRight="22dp"
+        android:paddingRight="32dp"
         android:weightSum="3">
 
         <RelativeLayout
