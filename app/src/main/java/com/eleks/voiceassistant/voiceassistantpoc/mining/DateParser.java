@@ -89,13 +89,13 @@ public class DateParser {
             result = getNextMonth();
         } else if (CommandsUtils.fuzzyEquals(dateString, NEXT_WEEK)) {                              //Next week
             result = getNextWeek();
-        } else if (dateString.startsWith(IN) && dateString.endsWith(DAYS) &&
+        } else if (dateString.startsWith(IN) && dateString.endsWith(DAYS) &&                        //In some days
                 dateString.split(" ").length == 3) {
             result = getInDays(dateString);
-        } else if ((dateString.startsWith(NEXT) || dateString.startsWith(FOR)) &&
+        } else if ((dateString.startsWith(NEXT) || dateString.startsWith(FOR)) &&                   //NEXT/FOR some days
                 dateString.endsWith(DAYS) && dateString.split(" ").length == 3) {
             result = getNextDays(dateString);
-        } else if (dateString.startsWith(THIS) && existsSeasonInDateString(dateString)) {
+        } else if (dateString.startsWith(THIS) && existsSeasonInDateString(dateString)) {           //This season
             result = getThisSeason(dateString);
         }
 
