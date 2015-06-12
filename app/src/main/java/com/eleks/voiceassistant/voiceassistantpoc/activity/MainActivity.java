@@ -96,10 +96,13 @@ public class MainActivity extends Activity {
         return sSpeechKit;
     }
 
-    @SuppressWarnings("unused")
     private void speechText(String text) {
         Object lastTtsContext = new Object();
-        mVocalizer.speakString(text, lastTtsContext);
+        try {
+            mVocalizer.speakString(text, lastTtsContext);
+        }catch (IllegalStateException e){
+            //do nothing
+        }
     }
 
     private Recognizer.Listener createListener() {
