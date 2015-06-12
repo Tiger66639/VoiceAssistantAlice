@@ -273,35 +273,41 @@ public class MainActivity extends Activity {
                 mWelcomeContainer.setVisibility(View.VISIBLE);
                 mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
                 changeBackgroundColor(R.color.background_white);
+                changeStatusBarColor(R.color.status_bar_color);
                 break;
             case VOICE_RECORDING:
                 mWelcomeContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_WHITE);
                 mMainFragment.setInvertedColors(true);
                 changeBackgroundColor(R.color.background_red);
+                changeStatusBarColor(R.color.status_bar_color_red);
                 break;
             case SHOW_RESULT:
                 mWelcomeContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
                 changeBackgroundColor(R.color.background_white);
+                changeStatusBarColor(R.color.status_bar_color);
                 mMainFragment.setInvertedColors(false);
                 break;
             case RECOGNIZE_COMMAND:
                 mWelcomeContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_RED);
                 changeBackgroundColor(R.color.background_white);
+                changeStatusBarColor(R.color.status_bar_color);
                 mMainFragment.setInvertedColors(false);
                 break;
             case GET_WEATHER_FORECAST:
                 mWelcomeContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.CLOSE_RED);
                 changeBackgroundColor(R.color.background_white);
+                changeStatusBarColor(R.color.status_bar_color);
                 mMainFragment.setInvertedColors(false);
                 break;
             case SHOW_WEATHER:
                 mWelcomeContainer.setVisibility(View.GONE);
                 mFabFragment.setFabState(FloatingActionButtonStates.MICROPHONE_RED);
                 changeBackgroundColor(R.color.background_white);
+                changeStatusBarColor(R.color.status_bar_color);
                 mMainFragment.setInvertedColors(false);
                 prepareWeatherFragment();
                 break;
@@ -384,6 +390,26 @@ public class MainActivity extends Activity {
                 }
 
             });
+            colorAnimation.start();
+        }
+    }
+
+    private void changeStatusBarColor(int resourceColor) {
+        Integer colorTo = getResources().getColor(resourceColor);
+        Integer colorFrom = getWindow().getStatusBarColor();
+        if (!colorFrom.equals(colorTo)) {
+            ValueAnimator colorAnimation =
+                    ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            colorAnimation.setDuration(1000);
+            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    getWindow().setStatusBarColor((Integer) animator.getAnimatedValue());
+                }
+
+            });
+            getWindow().setStatusBarColor(getResources().getColor(R.color.status_bar_color_red));
             colorAnimation.start();
         }
     }
