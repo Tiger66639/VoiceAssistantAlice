@@ -10,8 +10,8 @@
     <string name="message_sample_text">What will be the weather like tomorrow</string>
     <string name="recording_message">Recording…</string>
     <string name="processing_message">Processing…</string>
-    <string name="try_recognize_voice_command">Try recognize voice command…</string>
-    <string name="get_weather_forecast_message">Get weather forecast…</string>
+    <string name="try_recognize_voice_command">Trying to recognize voice command…</string>
+    <string name="get_weather_forecast_message">Getting weather forecast…</string>
     <string name="listening_message">Listening…</string>
     <string name="divider_text">---</string>
     <string name="place_sample_message">Boston, MA</string>
@@ -46,7 +46,7 @@
     <string name="wind_sample" translatable="false">3 mph</string>
     <string name="cannot_get_weather_from_server">Can not get weather info from the server.</string>
     <string name="wrong_period_message">Sorry, I can show weather for three days only.</string>
-    <string name="cannot_recognize_period">Can not recognize dates period.</string>
+    <string name="cannot_recognize_period">Can not recognize dates.</string>
     <string name="speech_not_recognized">Sorry, speech is not recognized. Please try again.</string>
     <string name="version_info_sample" translatable="false">0.1.1</string>
     <string name="default_application_version" translatable="false">0.1.0</string>
@@ -58,5 +58,6 @@
     <string name="temperature_low" translatable="false">&#xf044;</string>
     <string name="connection_error_message">Please connect to internet first.</string>
     <string name="show_weather_message">Here is the weather in %s</string>
+    <string name="nuance_speech_not_recognized" translatable="false">Sorry, speech not recognized. Please try again.</string>
 
 </resources>

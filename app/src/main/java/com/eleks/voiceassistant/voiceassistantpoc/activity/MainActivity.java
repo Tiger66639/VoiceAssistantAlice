@@ -125,7 +125,10 @@ public class MainActivity extends Activity {
                 mRecognizerState = RecognizerState.STOPPED;
                 mCurrentRecognizer = null;
                 String suggestion = error.getSuggestion();
-                if (suggestion == null) {
+                String nuanceSpeechNotRecognized =
+                        MainActivity.this.getString(R.string.nuance_speech_not_recognized);
+                if (suggestion == null ||
+                        suggestion.toLowerCase().equals(nuanceSpeechNotRecognized.toLowerCase())) {
                     suggestion = MainActivity.this.getString(R.string.speech_not_recognized);
                 }
                 setApplicationState(MainViewState.SHOW_RESULT);
