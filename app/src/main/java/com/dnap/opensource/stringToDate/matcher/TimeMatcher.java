@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class TimeMatcher extends Matcher {
 
-    private final Pattern hhmmss = Pattern.compile("([0-1]?\\d|2[0-4])([: ]+([0-6]?\\d)|)([: ]+([0-6]?\\d)|)$");
+    private final Pattern hhmmss = Pattern.compile("([0-1]?\\d|2[0-4])([: ]+([0-6]?\\d)|)([: ]+([0-6]?\\d)|)");
 
     public Boolean tryConvert(String input, Calendar calendar) {
 

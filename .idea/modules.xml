@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/VoiceAssistantPoC.iml" filepath="$PROJECT_DIR$/VoiceAssistantPoC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/VoiceAssistantAlice.iml" filepath="$PROJECT_DIR$/VoiceAssistantAlice.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

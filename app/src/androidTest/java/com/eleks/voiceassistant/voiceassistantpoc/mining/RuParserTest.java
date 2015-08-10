@@ -27,7 +27,9 @@ public class RuParserTest extends InstrumentationTestCase {
 
         HashMap<String, Class> caseList = new HashMap<String, Class>() {{
             put("Будильник на 10 30", TaskAlarmClock.class);
-            //put("Будильник на 10 30 да проснись уже", TaskAlarmClock.class);
+            put("Будильник на 10 30 да проснись уже", TaskAlarmClock.class);
+
+
             put("Кукареку", null);
         }};
 
