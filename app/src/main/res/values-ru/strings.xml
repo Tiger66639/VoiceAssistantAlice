@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cannot_recognize_place">Не удается распознать место в тексте команды.</string>
+    <string name="cannot_recognize_voice_command">Не удается распознать голосовую команду.</string>
+    <string name="app_name">"Голосовой ассистент"</string>
+    <string name="button_cancel">Отмена</string>
+    <string name="button_ok">Включить GPS</string>
+    <string name="cannot_get_weather_from_server">Не удается получить данные о погоде с сервера</string>
+    <string name="cannot_recognize_period">Не удается распознать дату.</string>
+    <string name="connection_error_message">Проверьте соединение с интернетом.</string>
+    <string name="dialog_gps_message">GPS-отключен в вашем устройстве. Хотите включить его?</string>
+    <string name="divider_text">---</string>
+    <string name="feels_like">Feels like:</string>
+    <string name="get_weather_forecast_message">Получаю прогноз погоды…</string>
+    <string name="gps_is_not_exists_message">Application can not work without Google Play Service. Please install Google
+        Play Service and try again.
+    </string>
+    <string name="gps_is_not_exists_ok_button_name">OK</string>
+    <string name="humidity_label">Влажность:</string>
+    <string name="welcome_text">Нажми и спроси о погоде</string>
+    <string name="listening_message">Слушаю…</string>
+    <string name="nuance_speech_not_recognized" translatable="false">Пичалька, речь не распознается. Попробуй еще раз.</string>
+    <string name="speech_not_recognized">Пичалька, речь не распознается. Попробуй еще раз.</string>
+</resources>

@@ -58,6 +58,6 @@
     <string name="temperature_low" translatable="false">&#xf044;</string>
     <string name="connection_error_message">Please connect to internet first.</string>
     <string name="show_weather_message">Here is the weather in %s</string>
-    <string name="nuance_speech_not_recognized" translatable="false">Sorry, speech not recognized. Please try again.</string>
+    <string name="nuance_speech_not_recognized">Sorry, speech not recognized. Please try again.</string>
 
 </resources>

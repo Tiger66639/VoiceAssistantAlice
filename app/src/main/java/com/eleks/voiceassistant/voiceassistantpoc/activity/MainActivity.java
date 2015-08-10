@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -28,13 +29,15 @@ import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonS
 import com.eleks.voiceassistant.voiceassistantpoc.fragment.MainFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.fragment.WeatherFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.CommandPeriod;
-import com.eleks.voiceassistant.voiceassistantpoc.mining.WeatherCommandParser;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
+import com.eleks.voiceassistant.voiceassistantpoc.parser.ParserBase;
+import com.eleks.voiceassistant.voiceassistantpoc.parser.ParserFactory;
 import com.eleks.voiceassistant.voiceassistantpoc.server.WebServerMethods;
+import com.eleks.voiceassistant.voiceassistantpoc.task.TaskBase;
 import com.eleks.voiceassistant.voiceassistantpoc.utils.FontsHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.utils.NetworkStateHelper;
 import com.google.android.gms.common.ConnectionResult;
@@ -58,6 +61,7 @@ public class MainActivity extends Activity {
     private static final int THREE_DAYS = 3;
     private static SpeechKit sSpeechKit;
     private final Recognizer.Listener mNuanceListener;
+    private final ParserBase messageParser;
     Vocalizer.Listener vocalizerListener = new Vocalizer.Listener() {
 
         @Override
@@ -81,14 +85,18 @@ public class MainActivity extends Activity {
     private ResponseModel mWeatherModel;
     private Handler mHandler;
     private Runnable mWatchDogRunnable;
-    private AsyncTask<WeatherCommandParser, Void, ResponseModel> mGetWeatherForecastTask;
+    private AsyncTask<TaskBase, Void, ResponseModel> mGetWeatherForecastTask;
     private FontsHolder mFontsHolder;
     private MainFragment mMainFragment;
     private View mMainView;
-    private AsyncTask<Recognition, Void, WeatherCommandParser> mRecognizeTextToCommandTask;
+    private AsyncTask<Recognition, Void, TaskBase> mRecognizeTextToCommandTask;
+    private String speechLocale = "en_US";
 
     public MainActivity() {
         super();
+        // @todo Only support language
+        speechLocale = Resources.getSystem().getConfiguration().locale.toString();
+        messageParser = ParserFactory.create(speechLocale);
         mNuanceListener = createListener();
     }
 
@@ -205,7 +213,7 @@ public class MainActivity extends Activity {
             sSpeechKit.setDefaultRecognizerPrompts(beep, null, null, null);
         }
         mVocalizer = sSpeechKit
-                .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler());
+                .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler()); // @todo speechLocale
         mVocalizer.setVoice("Samantha");
     }
 
@@ -355,7 +363,7 @@ public class MainActivity extends Activity {
             mRecognizerState = RecognizerState.INITIALIZING;
             mCurrentRecognizer = getSpeechKit().createRecognizer(
                     Recognizer.RecognizerType.Search, Recognizer.EndOfSpeechDetection.Short,
-                    "en_US", mNuanceListener, _handler);
+                    speechLocale, mNuanceListener, _handler);
             mCurrentRecognizer.start();
             mHandler = new Handler();
             mWatchDogRunnable = new Runnable() {
@@ -495,7 +503,20 @@ public class MainActivity extends Activity {
         MainActivity.this.finish();
     }
 
-    private void processVoiceCommand(final WeatherCommandParser command) {
+    private void processVoiceCommand(final TaskBase command) {
+        if(command.execute(this)){
+            String message = getString(R.string.button_ok);
+            mMainFragment.addMessage(message, true);
+            speechText(message);
+            setApplicationState(MainViewState.SHOW_RESULT);
+        }else{
+            String message = getString(R.string.cannot_recognize_place);
+            mMainFragment.addMessage(message, true);
+            speechText(message);
+            setApplicationState(MainViewState.SHOW_RESULT);
+        }
+
+        /*
         if (command.getWhereLatLng() != null) {
             if (command.getWhenDates() != null) {
                 MessageHolder lastMessage = mMainFragment.getLastMessage();
@@ -520,7 +541,7 @@ public class MainActivity extends Activity {
             mMainFragment.addMessage(message, true);
             speechText(message);
             setApplicationState(MainViewState.SHOW_RESULT);
-        }
+        }*/
     }
 
     private boolean isDatesInThreeDaysPeriod(CommandPeriod dates) {
@@ -553,15 +574,17 @@ public class MainActivity extends Activity {
     }
 
     private class RecognizeTextToCommandTask
-            extends AsyncTask<Recognition, Void, WeatherCommandParser> {
+            extends AsyncTask<Recognition, Void, TaskBase> {
 
         @Override
-        protected WeatherCommandParser doInBackground(Recognition... params) {
+        protected TaskBase doInBackground(Recognition... params) {
             Recognition recognition = params[0];
-            WeatherCommandParser result = null;
+            TaskBase result = null;
             if (recognition.getResultCount() > 0) {
-                result = new WeatherCommandParser(
-                        MainActivity.this, recognition.getResult(0).getText());
+                result = messageParser.Parse(recognition.getResult(0).getText());
+
+                /*result = new TaskBase(
+                        MainActivity.this, recognition.getResult(0).getText());*/
             }
             return result;
         }
@@ -572,9 +595,9 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(final WeatherCommandParser command) {
+        protected void onPostExecute(final TaskBase command) {
             if (!isCancelled()) {
-                if (command != null && command.isCommand()) {
+                if (command != null ) {
                     processVoiceCommand(command);
                 } else {
                     String message = MainActivity.this
@@ -588,14 +611,14 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class GetWeatherForecastTask
-            extends AsyncTask<WeatherCommandParser, Void, ResponseModel> {
+    /*private class GetWeatherForecastTask
+            extends AsyncTask<TaskBase, Void, ResponseModel> {
 
         private Date mCurrentTime;
 
         @Override
-        protected ResponseModel doInBackground(WeatherCommandParser... params) {
-            WeatherCommandParser command = params[0];
+        protected ResponseModel doInBackground(TaskBase... params) {
+            TaskBase command = params[0];
             return WebServerMethods
                     .getServerData(MainActivity.this, command.getWhereLatLng());
         }
@@ -626,5 +649,5 @@ public class MainActivity extends Activity {
             }
         }
 
-    }
+    }*/
 }
