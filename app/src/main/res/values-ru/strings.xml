@@ -4,7 +4,7 @@
     <string name="cannot_recognize_voice_command">Не удается распознать голосовую команду.</string>
     <string name="app_name">"Голосовой ассистент"</string>
     <string name="button_cancel">Отмена</string>
-    <string name="button_ok">Включить GPS</string>
+    <string name="button_ok">ОК</string>
     <string name="cannot_get_weather_from_server">Не удается получить данные о погоде с сервера</string>
     <string name="cannot_recognize_period">Не удается распознать дату.</string>
     <string name="connection_error_message">Проверьте соединение с интернетом.</string>
@@ -21,4 +21,6 @@
     <string name="listening_message">Слушаю…</string>
     <string name="nuance_speech_not_recognized" translatable="false">Пичалька, речь не распознается. Попробуй еще раз.</string>
     <string name="speech_not_recognized">Пичалька, речь не распознается. Попробуй еще раз.</string>
+    <string name="task_alarm_clock_title">Установка будильника</string>
+    <string name="task_alarm_clock_time">Время</string>
 </resources>

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">"Voice Assistant"</string>
     <string name="dialog_gps_message">GPS is disabled in your device. Would you like to enable it?</string>
-    <string name="button_ok">Enable GPS</string>
+    <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
     <string name="gps_is_not_exists_message">Application can not work without Google Play Service. Please install Google Play Service and try again.</string>
     <string name="gps_is_not_exists_ok_button_name">OK</string>
@@ -48,8 +48,8 @@
     <string name="wrong_period_message">Sorry, I can show weather for three days only.</string>
     <string name="cannot_recognize_period">Can not recognize dates.</string>
     <string name="speech_not_recognized">Sorry, speech is not recognized. Please try again.</string>
-    <string name="version_info_sample" translatable="false">0.1.1</string>
-    <string name="default_application_version" translatable="false">0.1.0</string>
+    <string name="version_info_sample" translatable="false">0.2.0</string>
+    <string name="default_application_version" translatable="false">0.2.0</string>
     <string name="fahrenheit_degree" translatable="false">\u00B0F</string>
     <string name="first_day_name_sample" translatable="false">Sat</string>
     <string name="second_day_name_sample" translatable="false">Sun</string>
@@ -59,5 +59,8 @@
     <string name="connection_error_message">Please connect to internet first.</string>
     <string name="show_weather_message">Here is the weather in %s</string>
     <string name="nuance_speech_not_recognized">Sorry, speech not recognized. Please try again.</string>
+    <string name="task_alarm_clock_title">Setup alarm clock</string>
+    <string name="task_alarm_clock_time">Time</string>
+    <string name="x">X</string>
 
 </resources>
