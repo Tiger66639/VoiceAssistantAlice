@@ -6,7 +6,7 @@ package com.eleks.voiceassistant.voiceassistantpoc.parser;
 public class ParserFactory {
     static public ParserBase create(String locale) {
         switch (locale){
-            case "ru":
+            case "ru_RU":
                 return new ParserRu();
         }
         return new ParserEn();

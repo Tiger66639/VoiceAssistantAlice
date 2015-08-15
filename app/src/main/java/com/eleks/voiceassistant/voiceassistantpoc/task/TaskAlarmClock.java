@@ -1,8 +1,15 @@
 package com.eleks.voiceassistant.voiceassistantpoc.task;
 
+import android.app.Fragment;
 import android.content.Intent;
+import android.os.Bundle;
 import android.provider.AlarmClock;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import com.dnap.opensource.stringToDate.Str2Time;
+import com.eleks.voiceassistant.voiceassistantpoc.R;
 import com.eleks.voiceassistant.voiceassistantpoc.activity.MainActivity;
 
 import java.util.*;
@@ -13,13 +20,6 @@ import java.util.*;
 public class TaskAlarmClock extends TaskBase {
     public static final Integer DATETIME = 1;
     public static final Integer MESSAGE = 2;
-
-    public TaskAlarmClock(HashMap<Integer, Object> hashMap) {
-        super(hashMap);
-    }
-    public TaskAlarmClock() {
-        super();
-    }
 
     @Override
     Integer[] getParams() {
@@ -33,7 +33,6 @@ public class TaskAlarmClock extends TaskBase {
             Intent i = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
             mainActivity.startActivity(i);
         }
-
 
         if(inParams.containsKey(DATETIME)){
             Calendar date = (Calendar)inParams.get(DATETIME);
@@ -62,6 +61,11 @@ public class TaskAlarmClock extends TaskBase {
         }
 
         return false;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.task_alarm_clock, container, false);
     }
 
 

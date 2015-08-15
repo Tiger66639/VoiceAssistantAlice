@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -30,23 +31,18 @@ import com.eleks.voiceassistant.voiceassistantpoc.fragment.MainFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.fragment.WeatherFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.CommandPeriod;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
-import com.eleks.voiceassistant.voiceassistantpoc.model.MessageHolder;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
-import com.eleks.voiceassistant.voiceassistantpoc.nuance.NuanceAppInfo;
 import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
 import com.eleks.voiceassistant.voiceassistantpoc.parser.ParserBase;
 import com.eleks.voiceassistant.voiceassistantpoc.parser.ParserFactory;
-import com.eleks.voiceassistant.voiceassistantpoc.server.WebServerMethods;
+import com.eleks.voiceassistant.voiceassistantpoc.speechwrap.SpeechWrap;
 import com.eleks.voiceassistant.voiceassistantpoc.task.TaskBase;
 import com.eleks.voiceassistant.voiceassistantpoc.utils.FontsHolder;
-import com.eleks.voiceassistant.voiceassistantpoc.utils.NetworkStateHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.nuance.nmdp.speechkit.Prompt;
 import com.nuance.nmdp.speechkit.Recognition;
 import com.nuance.nmdp.speechkit.Recognizer;
 import com.nuance.nmdp.speechkit.SpeechError;
-import com.nuance.nmdp.speechkit.SpeechKit;
 import com.nuance.nmdp.speechkit.Vocalizer;
 
 import java.util.Calendar;
@@ -56,85 +52,39 @@ import java.util.Date;
 public class MainActivity extends Activity {
 
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    private static final long RECOGNIZER_DELAY = 5000;
     private static final long DELAY_BETWEEN_SCREENS = 3000;
     private static final int THREE_DAYS = 3;
-    private static SpeechKit sSpeechKit;
     private final Recognizer.Listener mNuanceListener;
     private final ParserBase messageParser;
-    Vocalizer.Listener vocalizerListener = new Vocalizer.Listener() {
-
-        @Override
-        public void onSpeakingBegin(Vocalizer vocalizer, String s, Object o) {
-
-        }
-
-        @Override
-        public void onSpeakingDone(
-                Vocalizer vocalizer, String s, SpeechError speechError, Object o) {
-
-        }
-    };
-    private Recognizer mCurrentRecognizer;
     private LocationController mLocationController;
-    private Vocalizer mVocalizer;
-    private RecognizerState mRecognizerState;
     private MainViewState mApplicationState = MainViewState.WELCOME_SCREEN;
     private FloatingActionButtonFragment mFabFragment;
     private View mWelcomeContainer;
     private ResponseModel mWeatherModel;
-    private Handler mHandler;
-    private Runnable mWatchDogRunnable;
-    private AsyncTask<TaskBase, Void, ResponseModel> mGetWeatherForecastTask;
     private FontsHolder mFontsHolder;
     private MainFragment mMainFragment;
     private View mMainView;
     private AsyncTask<Recognition, Void, TaskBase> mRecognizeTextToCommandTask;
-    private String speechLocale = "en_US";
+    private String speechLocale;
+    private SpeechWrap speechWrap;
 
     public MainActivity() {
         super();
         // @todo Only support language
-        speechLocale = Resources.getSystem().getConfiguration().locale.toString();
-        messageParser = ParserFactory.create(speechLocale);
+        messageParser = ParserFactory.create(Resources.getSystem().getConfiguration().locale.toString());
         mNuanceListener = createListener();
-    }
-
-    static SpeechKit getSpeechKit() {
-        return sSpeechKit;
-    }
-
-    private void speechText(String text) {
-        Object lastTtsContext = new Object();
-        try {
-            mVocalizer.speakString(text, lastTtsContext);
-        }catch (IllegalStateException e){
-            //do nothing
-        }
     }
 
     private Recognizer.Listener createListener() {
         return new Recognizer.Listener() {
             @Override
-            public void onRecordingBegin(Recognizer recognizer) {
-                mRecognizerState = RecognizerState.RECORDING;
-                //showProgressDialog(MainActivity.this.getText(R.string.recording_message));
-            }
+            public void onRecordingBegin(Recognizer recognizer) {}
 
             @Override
-            public void onRecordingDone(Recognizer recognizer) {
-                mRecognizerState = RecognizerState.PROCESSING;
-                //showProgressDialog(MainActivity.this.getText(R.string.processing_message));
-            }
+            public void onRecordingDone(Recognizer recognizer) {}
 
             @Override
             public void onError(Recognizer recognizer, SpeechError error) {
-                if (recognizer != mCurrentRecognizer) {
-                    return;
-                }
-                stopWatchDogTask();
-                mRecognizerState = RecognizerState.STOPPED;
-                mCurrentRecognizer = null;
                 String suggestion = error.getSuggestion();
                 String nuanceSpeechNotRecognized =
                         MainActivity.this.getString(R.string.nuance_speech_not_recognized);
@@ -143,16 +93,17 @@ public class MainActivity extends Activity {
                     suggestion = MainActivity.this.getString(R.string.speech_not_recognized);
                 }
                 setApplicationState(MainViewState.SHOW_RESULT);
-                speechText(suggestion);
+                speechWrap.speechText(suggestion);
                 mMainFragment.replaceLastMessage(suggestion, true);
+
+
+                /*mMainFragment.addMessage(getString(R.string.connection_error_message), true);
+                setApplicationState(MainViewState.SHOW_RESULT);
+                */
             }
 
             @Override
             public void onResults(Recognizer recognizer, Recognition results) {
-                makeBeep();
-                mRecognizerState = RecognizerState.STOPPED;
-                mCurrentRecognizer = null;
-                stopWatchDogTask();
                 String resultStr = "";
                 if (results.getResultCount() > 0) {
                     resultStr += results.getResult(0).getText();
@@ -163,18 +114,22 @@ public class MainActivity extends Activity {
         };
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        if (checkGooglePlayServices()) {
-            registerLocationController();
-        } else {
+        if (!checkGooglePlayServices()) {
             processGooglePlayServiceIsNotExists();
+            return;
         }
+        registerLocationController();
         setVersionInfoControl();
-        prepareSpeechKitAndVocalizer();
+
+        speechWrap = new SpeechWrap(getApplication(), Resources.getSystem().getConfiguration().locale.toString(), mNuanceListener);
+
         mFontsHolder = new FontsHolder(MainActivity.this);
         prepareActivityControls();
         prepareMainFragment();
@@ -202,26 +157,6 @@ public class MainActivity extends Activity {
         mMainView = findViewById(R.id.main_container);
     }
 
-    private void prepareSpeechKitAndVocalizer() {
-        if (sSpeechKit == null) {
-            sSpeechKit = SpeechKit.initialize(getApplication().getApplicationContext(),
-                    NuanceAppInfo.SpeechKitAppId, NuanceAppInfo.SpeechKitServer,
-                    NuanceAppInfo.SpeechKitPort, NuanceAppInfo.SpeechKitSsl,
-                    NuanceAppInfo.SpeechKitApplicationKey);
-            sSpeechKit.connect();
-            Prompt beep = sSpeechKit.defineAudioPrompt(R.raw.beep);
-            sSpeechKit.setDefaultRecognizerPrompts(beep, null, null, null);
-        }
-        mVocalizer = sSpeechKit
-                .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler()); // @todo speechLocale
-        mVocalizer.setVoice("Samantha");
-    }
-
-    private void makeBeep() {
-        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.beep);
-        mediaPlayer.start();
-    }
-
     private void addFloatingActionButtonFragment() {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         mFabFragment = new FloatingActionButtonFragment();
@@ -239,38 +174,38 @@ public class MainActivity extends Activity {
         switch (mApplicationState) {
             case WELCOME_SCREEN:
                 mMainFragment.clearMessages();
-                if (startRecognizer()) {
+                if (speechWrap.startRecognizer()) {
                     mMainFragment.addMessage(getString(R.string.listening_message), false);
                     setApplicationState(MainViewState.VOICE_RECORDING);
                 }
                 break;
             case VOICE_RECORDING:
-                stopRecognizer();
+                speechWrap.stopRecognizer();
                 break;
             case SHOW_RESULT:
-                if (startRecognizer()) {
+                if (speechWrap.startRecognizer()) {
                     mMainFragment.addMessage(getString(R.string.listening_message), false);
                     setApplicationState(MainViewState.VOICE_RECORDING);
                 }
                 break;
             case SHOW_WEATHER:
                 getFragmentManager().popBackStackImmediate();
-                if (startRecognizer()) {
+                if (speechWrap.startRecognizer()) {
                     mMainFragment.clearMessages();
                     mMainFragment.addMessage(getString(R.string.listening_message), false);
                     setApplicationState(MainViewState.VOICE_RECORDING);
                 }
                 break;
             case GET_WEATHER_FORECAST:
-                if (mGetWeatherForecastTask != null) {
-                    makeBeep();
+                /*if (mGetWeatherForecastTask != null) {
+                    speechWrap.makeBeep();
                     mGetWeatherForecastTask.cancel(true);
-                }
+                }*/
                 setApplicationState(MainViewState.SHOW_RESULT);
                 break;
             case RECOGNIZE_COMMAND:
                 if (mRecognizeTextToCommandTask != null) {
-                    makeBeep();
+                    speechWrap.makeBeep();
                     mRecognizeTextToCommandTask.cancel(true);
                 }
                 setApplicationState(MainViewState.SHOW_RESULT);
@@ -342,45 +277,6 @@ public class MainActivity extends Activity {
         transaction.commitAllowingStateLoss();
     }
 
-    private void stopRecognizer() {
-        if (mCurrentRecognizer != null) {
-            mCurrentRecognizer.stopRecording();
-            makeBeep();
-        }
-        stopWatchDogTask();
-    }
-
-    private void stopWatchDogTask() {
-        if (mHandler != null && mWatchDogRunnable != null) {
-            mHandler.removeCallbacks(mWatchDogRunnable);
-        }
-    }
-
-    private boolean startRecognizer() {
-        if (new NetworkStateHelper(MainActivity.this).isConnectionAvailable()) {
-            Handler _handler = new Handler();
-            //showProgressDialog("Initializing...");
-            mRecognizerState = RecognizerState.INITIALIZING;
-            mCurrentRecognizer = getSpeechKit().createRecognizer(
-                    Recognizer.RecognizerType.Search, Recognizer.EndOfSpeechDetection.Short,
-                    speechLocale, mNuanceListener, _handler);
-            mCurrentRecognizer.start();
-            mHandler = new Handler();
-            mWatchDogRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    verifyRecognizerState();
-                }
-            };
-            mHandler.postDelayed(mWatchDogRunnable, RECOGNIZER_DELAY);
-            return true;
-        } else {
-            mMainFragment.addMessage(getString(R.string.connection_error_message), true);
-            setApplicationState(MainViewState.SHOW_RESULT);
-            return false;
-        }
-    }
-
     private void setApplicationState(MainViewState state) {
         mApplicationState = state;
         changeMainViewAppearance();
@@ -434,13 +330,6 @@ public class MainActivity extends Activity {
         return color;
     }
 
-    private void verifyRecognizerState() {
-        if (mRecognizerState == RecognizerState.INITIALIZING ||
-                mRecognizerState == RecognizerState.RECORDING) {
-            stopRecognizer();
-        }
-    }
-
     private void processGooglePlayServiceIsNotExists() {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.app_name))
@@ -488,10 +377,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (sSpeechKit != null) {
-            sSpeechKit.release();
-            sSpeechKit = null;
-        }
+        speechWrap.onDestroy();
         if (mLocationController.isStarted()) {
             mLocationController.stopListenLocation();
             mLocationController.destroy();
@@ -507,12 +393,12 @@ public class MainActivity extends Activity {
         if(command.execute(this)){
             String message = getString(R.string.button_ok);
             mMainFragment.addMessage(message, true);
-            speechText(message);
+            speechWrap.speechText(message);
             setApplicationState(MainViewState.SHOW_RESULT);
         }else{
             String message = getString(R.string.cannot_recognize_place);
             mMainFragment.addMessage(message, true);
-            speechText(message);
+            speechWrap.speechText(message);
             setApplicationState(MainViewState.SHOW_RESULT);
         }
 
@@ -562,13 +448,13 @@ public class MainActivity extends Activity {
             if (!TextUtils.isEmpty(weatherInfo.location.city)) {
                 String message = getString(R.string.show_weather_message);
                 message = String.format(message, weatherInfo.location.city);
-                speechText(message);
+                speechWrap.speechText(message);
             }
             setApplicationState(MainViewState.SHOW_WEATHER);
         } else {
             String message = getString(R.string.cannot_get_weather_from_server);
             mMainFragment.addMessage(message, true);
-            speechText(message);
+            speechWrap.speechText(message);
             setApplicationState(MainViewState.SHOW_RESULT);
         }
     }
@@ -604,7 +490,7 @@ public class MainActivity extends Activity {
                             .getString(R.string.cannot_recognize_voice_command);
                     mMainFragment.addMessage(
                             message, true);
-                    speechText(message);
+                    speechWrap.speechText(message);
                     setApplicationState(MainViewState.SHOW_RESULT);
                 }
             }

@@ -10,6 +10,6 @@ import java.util.Vector;
 public class ParserEn extends ParserBase {
     @Override
     Vector<SimpleRegexp> getExpressionList() {
-        return null;
+        return new Vector<>();
     }
 }

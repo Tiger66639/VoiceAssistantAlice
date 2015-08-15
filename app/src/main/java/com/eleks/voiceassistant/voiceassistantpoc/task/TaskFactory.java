@@ -9,7 +9,7 @@ import java.util.Objects;
 public class TaskFactory {
     public static TaskBase create(String name, HashMap<Integer, Object> hashMap) {
         if (Objects.equals(name, TaskAlarmClock.class.getName())) {
-           return new TaskAlarmClock(hashMap);
+           //return new TaskAlarmClock(hashMap);
         }
         throw new RuntimeException("Task "+name+" not find");
     }
