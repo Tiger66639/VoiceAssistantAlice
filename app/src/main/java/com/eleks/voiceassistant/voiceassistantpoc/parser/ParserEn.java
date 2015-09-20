@@ -12,4 +12,14 @@ public class ParserEn extends ParserBase {
     Vector<SimpleRegexp> getExpressionList() {
         return new Vector<>();
     }
+
+    @Override
+    public String getSpeechLocale() {
+        return "en_US";
+    }
+
+    @Override
+    public String getSpeechVoice() {
+        return "Samantha";
+    }
 }

@@ -18,7 +18,7 @@ public class SpeechWrap {
     private final Recognizer.Listener mNuanceListener;
     private SpeechKit sSpeechKit;
     private Vocalizer mVocalizer;
-    private RecognizerState mRecognizerState;
+    private RecognizerState mRecognizerState = RecognizerState.STOPPED;
     private Recognizer mCurrentRecognizer;
     private String speechLocale;
     private Handler mHandler;
@@ -42,7 +42,13 @@ public class SpeechWrap {
     };
     private Application app;
 
-    public SpeechWrap(Application application, String speechLocale, Recognizer.Listener mNuanceListener) {
+    /**
+     *
+     * @param application
+     * @param speechLocale
+     * @param mNuanceListener @todo create simple interface
+     */
+    public SpeechWrap(Application application, Recognizer.Listener mNuanceListener, String speechLocale, String speechVoice) {
         this.app = application;
         this.mNuanceListener = createListener(mNuanceListener);
         this.speechLocale = speechLocale;
@@ -56,8 +62,8 @@ public class SpeechWrap {
             sSpeechKit.setDefaultRecognizerPrompts(beep, null, null, null);
         }
         mVocalizer = sSpeechKit
-                .createVocalizerWithLanguage("en_US", vocalizerListener, new Handler()); // @todo speechLocale
-        mVocalizer.setVoice("Samantha");
+                .createVocalizerWithLanguage(speechLocale, vocalizerListener, new Handler());
+        mVocalizer.setVoice(speechVoice);
     }
 
 
@@ -164,4 +170,7 @@ public class SpeechWrap {
     }
 
 
+    public RecognizerState getStatus() {
+        return mRecognizerState;
+    }
 }

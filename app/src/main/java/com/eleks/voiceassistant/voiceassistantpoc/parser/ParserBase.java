@@ -35,6 +35,11 @@ abstract public class ParserBase {
 
     abstract Vector<SimpleRegexp> getExpressionList();
 
+    abstract public String getSpeechLocale();
+    abstract public String getSpeechVoice();
+
+
+
 
 }
 

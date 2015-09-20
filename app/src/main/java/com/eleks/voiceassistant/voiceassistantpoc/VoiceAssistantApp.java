@@ -7,13 +7,4 @@ import android.app.Application;
  */
 public class VoiceAssistantApp extends Application {
 
-    private boolean mIsGpsVerified;
-
-    public boolean isGpsVerified() {
-        return mIsGpsVerified;
-    }
-
-    public void setGpsVerified() {
-        mIsGpsVerified = true;
-    }
 }

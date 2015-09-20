@@ -1,18 +1,18 @@
 package com.eleks.voiceassistant.voiceassistantpoc.task;
 
-import android.app.Fragment;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.AlarmClock;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import com.dnap.opensource.stringToDate.Str2Time;
 import com.eleks.voiceassistant.voiceassistantpoc.R;
-import com.eleks.voiceassistant.voiceassistantpoc.activity.MainActivity;
+import com.eleks.voiceassistant.voiceassistantpoc.activity.SimpleActivity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 
 /**
  * Created by dnap on 28.07.15. VoiceAssistantPoC
@@ -26,9 +26,16 @@ public class TaskAlarmClock extends TaskBase {
         return new Integer[]{DATETIME, MESSAGE};
     }
 
+    @SuppressLint("ValidFragment") // wtf?
+    public TaskAlarmClock(HashMap<Integer, Object> inParam) {
+        super(inParam);
+    }
+
+    public TaskAlarmClock() {
+    }
 
     @Override
-    public boolean execute(MainActivity mainActivity) {
+    public boolean execute(SimpleActivity mainActivity) {
         if(inParams.size() == 0) {
             Intent i = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
             mainActivity.startActivity(i);

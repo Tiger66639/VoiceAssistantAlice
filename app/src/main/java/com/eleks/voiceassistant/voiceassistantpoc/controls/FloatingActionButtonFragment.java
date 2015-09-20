@@ -51,7 +51,7 @@ public class FloatingActionButtonFragment extends Fragment
 
     public void setOnFabClickListener(FloatingActionButton.OnFabClickListener listener) {
         if (mFabClickListeners == null) {
-            mFabClickListeners = new ArrayList<>();
+            mFabClickListeners = new ArrayList<FloatingActionButton.OnFabClickListener>();
         }
         mFabClickListeners.add(listener);
     }

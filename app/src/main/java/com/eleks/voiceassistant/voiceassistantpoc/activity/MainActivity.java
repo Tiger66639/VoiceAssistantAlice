@@ -11,18 +11,14 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
 import com.eleks.voiceassistant.voiceassistantpoc.R;
-import com.eleks.voiceassistant.voiceassistantpoc.VoiceAssistantApp;
 import com.eleks.voiceassistant.voiceassistantpoc.controller.LocationController;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButton;
 import com.eleks.voiceassistant.voiceassistantpoc.controls.FloatingActionButtonFragment;
@@ -32,7 +28,6 @@ import com.eleks.voiceassistant.voiceassistantpoc.fragment.WeatherFragment;
 import com.eleks.voiceassistant.voiceassistantpoc.mining.CommandPeriod;
 import com.eleks.voiceassistant.voiceassistantpoc.model.MainViewState;
 import com.eleks.voiceassistant.voiceassistantpoc.model.ResponseModel;
-import com.eleks.voiceassistant.voiceassistantpoc.nuance.RecognizerState;
 import com.eleks.voiceassistant.voiceassistantpoc.parser.ParserBase;
 import com.eleks.voiceassistant.voiceassistantpoc.parser.ParserFactory;
 import com.eleks.voiceassistant.voiceassistantpoc.speechwrap.SpeechWrap;
@@ -43,7 +38,6 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.nuance.nmdp.speechkit.Recognition;
 import com.nuance.nmdp.speechkit.Recognizer;
 import com.nuance.nmdp.speechkit.SpeechError;
-import com.nuance.nmdp.speechkit.Vocalizer;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -51,10 +45,7 @@ import java.util.Date;
 
 public class MainActivity extends Activity {
 
-    private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    private static final long DELAY_BETWEEN_SCREENS = 3000;
     private static final int THREE_DAYS = 3;
-    private final Recognizer.Listener mNuanceListener;
     private final ParserBase messageParser;
     private LocationController mLocationController;
     private MainViewState mApplicationState = MainViewState.WELCOME_SCREEN;
@@ -65,14 +56,12 @@ public class MainActivity extends Activity {
     private MainFragment mMainFragment;
     private View mMainView;
     private AsyncTask<Recognition, Void, TaskBase> mRecognizeTextToCommandTask;
-    private String speechLocale;
     private SpeechWrap speechWrap;
 
     public MainActivity() {
         super();
         // @todo Only support language
         messageParser = ParserFactory.create(Resources.getSystem().getConfiguration().locale.toString());
-        mNuanceListener = createListener();
     }
 
     private Recognizer.Listener createListener() {
@@ -114,8 +103,6 @@ public class MainActivity extends Activity {
         };
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,19 +113,14 @@ public class MainActivity extends Activity {
             return;
         }
         registerLocationController();
-        setVersionInfoControl();
 
-        speechWrap = new SpeechWrap(getApplication(), Resources.getSystem().getConfiguration().locale.toString(), mNuanceListener);
+        speechWrap = new SpeechWrap(getApplication(), createListener(), messageParser.getSpeechLocale(), messageParser.getSpeechVoice());
 
         mFontsHolder = new FontsHolder(MainActivity.this);
         prepareActivityControls();
         prepareMainFragment();
     }
 
-    private void setVersionInfoControl() {
-        TextView versionInfo = (TextView) findViewById(R.id.version_info);
-        versionInfo.setText(getVersionNumber());
-    }
 
     private String getVersionNumber() {
         try {
@@ -150,14 +132,7 @@ public class MainActivity extends Activity {
     }
 
     private void prepareActivityControls() {
-        addFloatingActionButtonFragment();
-        TextView welcomeText1 = (TextView) findViewById(R.id.welcome_text);
-        welcomeText1.setTypeface(mFontsHolder.getRobotomonoLight());
-        mWelcomeContainer = findViewById(R.id.welcome_container);
-        mMainView = findViewById(R.id.main_container);
-    }
-
-    private void addFloatingActionButtonFragment() {
+        // addFloatingActionButtonFragment
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         mFabFragment = new FloatingActionButtonFragment();
         mFabFragment.setOnFabClickListener(new FloatingActionButton.OnFabClickListener() {
@@ -168,6 +143,14 @@ public class MainActivity extends Activity {
         });
         transaction.replace(R.id.fab_fragment, mFabFragment, FloatingActionButtonFragment.TAG);
         transaction.commitAllowingStateLoss();
+        // end addFloatingActionButtonFragment
+
+        TextView welcomeText1 = (TextView) findViewById(R.id.welcome_text);
+        welcomeText1.setTypeface(mFontsHolder.getRobotomonoLight());
+        mWelcomeContainer = findViewById(R.id.welcome_container);
+        mMainView = findViewById(R.id.main_container);
+
+        ((TextView) findViewById(R.id.version_info)).setText(getVersionNumber());
     }
 
     private void processFabClick() {
@@ -354,24 +337,8 @@ public class MainActivity extends Activity {
     }
 
     public boolean checkGooglePlayServices() {
-        if (!((VoiceAssistantApp) getApplication()).isGpsVerified()) {
-            int resultCode = GooglePlayServicesUtil
-                    .isGooglePlayServicesAvailable(getApplicationContext());
-            if (resultCode == ConnectionResult.SUCCESS) {
-                ((VoiceAssistantApp) getApplication()).setGpsVerified();
-                return true;
-            } else if (resultCode == ConnectionResult.SERVICE_MISSING ||
-                    resultCode == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED ||
-                    resultCode == ConnectionResult.SERVICE_DISABLED) {
-                GooglePlayServicesUtil
-                        .getErrorDialog(
-                                resultCode, MainActivity.this, REQUEST_CODE_RECOVER_PLAY_SERVICES)
-                        .show();
-                return false;
-            }
-            return false;
-        }
-        return true;
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+        return resultCode == ConnectionResult.SUCCESS;
     }
 
     @Override
@@ -390,7 +357,7 @@ public class MainActivity extends Activity {
     }
 
     private void processVoiceCommand(final TaskBase command) {
-        if(command.execute(this)){
+        /*if(command.execute(this)){
             String message = getString(R.string.button_ok);
             mMainFragment.addMessage(message, true);
             speechWrap.speechText(message);
@@ -400,7 +367,7 @@ public class MainActivity extends Activity {
             mMainFragment.addMessage(message, true);
             speechWrap.speechText(message);
             setApplicationState(MainViewState.SHOW_RESULT);
-        }
+        }*/
 
         /*
         if (command.getWhereLatLng() != null) {

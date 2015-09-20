@@ -28,4 +28,14 @@ public class ParserRu extends ParserBase {
 
         return exprList;
     }
+
+    @Override
+    public String getSpeechLocale() {
+        return "ru_RU";
+    }
+
+    @Override
+    public String getSpeechVoice() {
+        return "Milena";
+    }
 }
